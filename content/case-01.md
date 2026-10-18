@@ -143,7 +143,7 @@ Conditions only count with "Approve with conditions".
 
 ## Committee questions
 
-Three questions after the decision, asked one at a time in the chat. The player keeps the documents and the control center on screen while answering. Each answer is scored from 0 to 2; the good answers appear only on the result screen.
+Three questions after the decision, asked one at a time in the chat. Each person has their own conversation: questions 1 and 2 arrive in Margaret Chen's, question 3 in Kevin Lau's (the one where he wrote at the start). The player keeps the documents and the control center on screen while answering. Each answer is scored from 0 to 2; the good answers appear only on the result screen. Once the last answer is sent, a "See the results" bar appears at the bottom of the screen, outside the chat.
 
 | # | Asked by | Question | A good answer contains |
 | --- | --- | --- | --- |

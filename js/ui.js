@@ -544,7 +544,9 @@
     var submit = $('submit-proposal');
     submit.disabled = !s.decision || s.locked;
     submit.textContent = s.locked ? 'Sent to committee' : 'Send to committee';
-    $('submit-note').textContent = s.locked
+    $('submit-note').textContent = s.finished
+      ? 'The committee has finished. See the results at the bottom of the screen.'
+      : s.locked
       ? 'The committee will message you (bottom right). You can still use the control center to check your numbers.'
       : s.decision
         ? 'Your proposal is scored as it stands when you send it, with the control center values at that moment.'
@@ -614,32 +616,95 @@
     return name.split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2);
   }
 
+  // One conversation per person. Each has a tab at the top of the panel,
+  // its own message log and an unread counter.
   var chat = (function () {
-    var unread = 0;
+    var threads = {};    // name → { name, role, tab, badge, log, unread }
+    var order = [];      // names, in order of first message
+    var active = null;   // name of the conversation on screen
+    var awaiting = null; // name of the person waiting for a reply
+    var closedText = 'Replies open once your proposal is with the committee.';
     var onSend = null;
 
     function isOpen() { return !$('chat-panel').hidden; }
 
-    function scrollToEnd() {
-      var log = $('chat-log');
-      log.scrollTop = log.scrollHeight;
+    function scrollToEnd(thread) { thread.log.scrollTop = thread.log.scrollHeight; }
+
+    function totalUnread() {
+      return order.reduce(function (sum, n) { return sum + threads[n].unread; }, 0);
     }
 
-    function setBadge() {
-      var badge = $('chat-badge');
-      badge.hidden = unread === 0;
-      badge.textContent = unread;
+    function refreshBadges() {
+      order.forEach(function (n) {
+        var t = threads[n];
+        t.badge.hidden = t.unread === 0;
+        t.badge.textContent = t.unread;
+      });
+      var total = totalUnread();
+      $('chat-badge').hidden = total === 0;
+      $('chat-badge').textContent = total;
     }
 
-    function open() {
+    // The reply box is only open in the conversation that is waiting for an answer.
+    function refreshInput() {
+      var input = $('chat-input');
+      var enabled = awaiting !== null && awaiting === active;
+      input.disabled = !enabled;
+      if (enabled) {
+        input.placeholder = 'Reply to ' + awaiting.split(' ')[0] + '…';
+      } else if (awaiting) {
+        input.placeholder = awaiting + ' is waiting for your answer in the other conversation.';
+      } else {
+        input.placeholder = closedText;
+      }
+      $('chat-send').disabled = !enabled || input.value.trim() === '';
+      if (enabled && isOpen()) input.focus();
+    }
+
+    function thread(name, role) {
+      if (threads[name]) return threads[name];
+      var tab = el('button', 'thread-tab');
+      tab.type = 'button';
+      tab.setAttribute('role', 'tab');
+      tab.appendChild(el('span', 'avatar', initials(name)));
+      var text = el('span', 'thread-text');
+      text.appendChild(el('span', 'thread-name', name));
+      if (role) text.appendChild(el('span', 'thread-role', role));
+      tab.appendChild(text);
+      var badge = el('span', 'badge thread-badge');
+      badge.hidden = true;
+      tab.appendChild(badge);
+      tab.addEventListener('click', function () { select(name); });
+      $('chat-threads').appendChild(tab);
+
+      var log = el('div', 'chat-log');
+      log.hidden = true;
+      $('chat-logs').appendChild(log);
+
+      threads[name] = { name: name, role: role, tab: tab, badge: badge, log: log, unread: 0 };
+      order.push(name);
+      return threads[name];
+    }
+
+    function select(name) {
+      active = name;
+      order.forEach(function (n) {
+        var t = threads[n];
+        var on = n === name;
+        t.log.hidden = !on;
+        t.tab.setAttribute('aria-selected', on ? 'true' : 'false');
+        if (on) t.unread = 0;
+      });
+      refreshBadges();
+      scrollToEnd(threads[name]);
+      refreshInput();
+    }
+
+    function open(name) {
       $('chat-panel').hidden = false;
       $('chat-launcher').hidden = true;
       $('chat-toast').hidden = true;
-      unread = 0;
-      setBadge();
-      scrollToEnd();
-      var input = $('chat-input');
-      if (!input.disabled) input.focus();
+      select(name || active || order[0]);
     }
 
     function minimise() {
@@ -647,11 +712,12 @@
       $('chat-launcher').hidden = false;
     }
 
+    var toastTarget = null;
     function showToast(msg) {
+      toastTarget = msg.from;
       $('toast-avatar').textContent = initials(msg.from);
       $('toast-name').textContent = msg.from + (msg.role ? ' · ' + msg.role : '');
-      var preview = msg.text.length > 90 ? msg.text.slice(0, 90).trim() + '…' : msg.text;
-      $('toast-preview').textContent = preview;
+      $('toast-preview').textContent = msg.text.length > 90 ? msg.text.slice(0, 90).trim() + '…' : msg.text;
       var toast = $('chat-toast');
       toast.hidden = false;
       // Restart the slide-in animation for each new message.
@@ -664,21 +730,23 @@
     function init(sendHandler) {
       onSend = sendHandler;
       $('chat').hidden = false;
-      $('chat-toast').addEventListener('click', open);
-      $('chat-launcher').addEventListener('click', open);
+      $('chat-toast').addEventListener('click', function () { open(toastTarget); });
+      $('chat-launcher').addEventListener('click', function () { open(); });
       $('chat-min').addEventListener('click', minimise);
 
       var input = $('chat-input');
       function send() {
         var text = input.value.trim();
-        if (!text || input.disabled) return;
+        if (!text || input.disabled || awaiting !== active) return;
+        var to = awaiting;
         input.value = '';
-        $('chat-send').disabled = true;
         var bubble = el('div', 'msg msg-own');
         bubble.appendChild(el('div', 'msg-text', text));
-        $('chat-log').appendChild(bubble);
-        scrollToEnd();
-        onSend(text);
+        threads[to].log.appendChild(bubble);
+        scrollToEnd(threads[to]);
+        awaiting = null;
+        refreshInput();
+        onSend(to, text);
       }
       $('chat-form').addEventListener('submit', function (e) { e.preventDefault(); send(); });
       // Enter sends, Shift+Enter adds a line.
@@ -688,68 +756,77 @@
       input.addEventListener('input', function () {
         $('chat-send').disabled = input.disabled || input.value.trim() === '';
       });
-      setInput(false, 'Replies open once your proposal is with the committee.');
+      refreshInput();
     }
 
     function receive(msg) {
+      var t = thread(msg.from, msg.role);
       var row = el('div', 'msg msg-other');
       row.appendChild(el('div', 'avatar', initials(msg.from)));
       var body = el('div', 'msg-body');
-      var who = el('div', 'msg-from', msg.from);
-      if (msg.role) who.appendChild(el('span', 'msg-role', ' · ' + msg.role));
-      body.appendChild(who);
       body.appendChild(el('div', 'msg-text', msg.text));
       row.appendChild(body);
-      $('chat-log').appendChild(row);
-      scrollToEnd();
-      if (!isOpen()) {
-        unread++;
-        setBadge();
-        showToast(msg);
+      t.log.appendChild(row);
+      scrollToEnd(t);
+
+      if (active === null) select(msg.from);
+      var seen = isOpen() && active === msg.from;
+      if (!seen) {
+        t.unread++;
+        refreshBadges();
+        if (!isOpen()) showToast(msg);
       }
     }
 
-    function typing(name, delay, done) {
+    function typing(name, role, delay, done) {
+      var t = thread(name, role);
       var row = el('div', 'msg-typing', name + ' is typing');
       row.appendChild(el('span', 'typing-dots', '…'));
-      $('chat-log').appendChild(row);
-      scrollToEnd();
+      t.log.appendChild(row);
+      scrollToEnd(t);
       setTimeout(function () {
         row.remove();
         done();
       }, delay);
     }
 
-    function divider(text) {
-      $('chat-log').appendChild(el('div', 'msg-divider', text));
-      scrollToEnd();
+    function divider(name, role, text) {
+      var t = thread(name, role);
+      t.log.appendChild(el('div', 'msg-divider', text));
+      scrollToEnd(t);
     }
 
-    function setInput(enabled, placeholder) {
-      var input = $('chat-input');
-      input.disabled = !enabled;
-      input.placeholder = placeholder || '';
-      $('chat-send').disabled = !enabled || input.value.trim() === '';
-      if (enabled && isOpen()) input.focus();
+    function awaitReply(name) {
+      awaiting = name;
+      refreshInput();
     }
 
-    function action(label, callback) {
-      var wrap = el('div', 'msg-action');
-      var btn = el('button', 'btn btn-primary', label);
-      btn.type = 'button';
-      btn.addEventListener('click', callback);
-      wrap.appendChild(btn);
-      $('chat-log').appendChild(wrap);
-      scrollToEnd();
+    function closeReplies(text) {
+      awaiting = null;
+      closedText = text;
+      refreshInput();
     }
 
     function hide() { $('chat').hidden = true; }
 
     return {
       init: init, receive: receive, typing: typing, divider: divider,
-      setInput: setInput, action: action, open: open, hide: hide
+      awaitReply: awaitReply, closeReplies: closeReplies, open: open, hide: hide
     };
   })();
+
+  // ---------- "See the results" bar ----------
+
+  function showResultsBar(onClick) {
+    var bar = $('results-bar');
+    bar.hidden = false;
+    var btn = $('results-btn');
+    btn.onclick = function () {
+      bar.hidden = true;
+      onClick();
+    };
+    setTimeout(function () { btn.focus({ preventScroll: true }); }, 400);
+  }
 
   // ---------- Result ----------
 
@@ -1019,6 +1096,7 @@
     setProposalState: setProposalState,
     renderProposalPreview: renderProposalPreview,
     renderResult: renderResult,
+    showResultsBar: showResultsBar,
     chat: chat
   };
 })();

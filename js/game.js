@@ -294,6 +294,7 @@
     submitted: null,       // frozen copy of the proposal when sent to committee
     questionIndex: -1,     // committee question waiting for an answer
     answers: [],           // committee answers
+    committeeFinished: false,
     gauges: { revenue: GAUGE_START, risk: GAUGE_START, credibility: GAUGE_START }
   };
 
@@ -367,7 +368,8 @@
       loanConfig: data.proposal.loan,
       conditions: state.submitted ? state.submitted.conditions : state.conditions,
       editable: !state.submitted && state.decision === 'conditions',
-      locked: !!state.submitted
+      locked: !!state.submitted,
+      finished: !!state.committeeFinished
     });
     UI.renderProposalPreview(view.decision, current, params, status);
   }
@@ -413,37 +415,45 @@
 
   // ---------- Committee chat ----------
 
+  // Each committee member writes in their own conversation.
   function startCommittee() {
-    UI.chat.divider('Credit committee · ' + state.caseData.title);
-    UI.chat.setInput(false, 'Waiting for the committee…');
+    var seen = {};
+    state.caseData.committee.forEach(function (q) {
+      if (seen[q.askedBy]) return;
+      seen[q.askedBy] = true;
+      UI.chat.divider(q.askedBy, q.role, 'Credit committee · ' + state.caseData.title);
+    });
+    UI.chat.closeReplies('Waiting for the committee…');
     askQuestion(0);
   }
 
   function askQuestion(index) {
     var q = state.caseData.committee[index];
     state.questionIndex = index;
-    UI.chat.typing(q.askedBy, TYPING_DELAY, function () {
+    UI.chat.typing(q.askedBy, q.role, TYPING_DELAY, function () {
       UI.chat.receive({ from: q.askedBy, role: q.role, text: q.question });
-      UI.chat.setInput(true, 'Reply to ' + q.askedBy.split(' ')[0] + '…');
+      UI.chat.awaitReply(q.askedBy);
     });
   }
 
-  function onChatSend(text) {
+  function onChatSend(to, text) {
     var index = state.questionIndex;
     if (index < 0) return;
     state.answers[index] = text;
     state.questionIndex = -1;
-    UI.chat.setInput(false, 'Waiting for the committee…');
 
     if (index + 1 < state.caseData.committee.length) {
+      UI.chat.closeReplies('Waiting for the committee…');
       askQuestion(index + 1);
       return;
     }
+    UI.chat.closeReplies('The committee is deliberating.');
     var closing = state.caseData.messages.committeeClosing;
-    UI.chat.typing(closing.from, TYPING_DELAY, function () {
+    UI.chat.typing(closing.from, closing.role, TYPING_DELAY, function () {
       UI.chat.receive(closing);
-      UI.chat.setInput(false, 'The committee is deliberating.');
-      UI.chat.action('See the outcome', showResult);
+      state.committeeFinished = true;
+      refresh();
+      UI.showResultsBar(showResult);
     });
   }
 

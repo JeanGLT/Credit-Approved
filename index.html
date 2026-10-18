@@ -144,7 +144,16 @@
     <div id="result"></div>
   </main>
 
-  <!-- Messages: front office and credit committee -->
+  <!-- Shown once the committee has finished -->
+  <div class="results-bar" id="results-bar" role="status" hidden>
+    <div class="results-bar-text">
+      <strong>The committee has finished.</strong>
+      <span>Your results are ready.</span>
+    </div>
+    <button class="btn btn-lg results-btn" id="results-btn" type="button">See the results &rarr;</button>
+  </div>
+
+  <!-- Messages: one conversation per person (front office, credit committee) -->
   <div class="chat" id="chat" hidden>
     <button class="chat-toast" id="chat-toast" type="button" hidden>
       <span class="avatar" id="toast-avatar"></span>
@@ -162,7 +171,8 @@
         </div>
         <button class="chat-min" id="chat-min" type="button" aria-label="Minimise messages">&#8211;</button>
       </header>
-      <div class="chat-log" id="chat-log" aria-live="polite"></div>
+      <div class="chat-threads" id="chat-threads" role="tablist" aria-label="Conversations"></div>
+      <div class="chat-logs" id="chat-logs" aria-live="polite"></div>
       <form class="chat-form" id="chat-form">
         <textarea id="chat-input" rows="2" aria-label="Your reply" disabled></textarea>
         <button class="btn btn-primary" id="chat-send" type="submit" disabled>Send</button>
