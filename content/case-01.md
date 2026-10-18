@@ -137,7 +137,7 @@ Weak answers: a higher margin alone (it does not fix the cash flow), or matching
 | Completion guarantee from the sponsor until commercial operation | Useless | −1 | Credibility −1 | 2 | The fixed-price, date-certain EPC contract with delay damages already covers construction risk. |
 | Second independent yield study before signing | Useless | −1 | Credibility −1 | 2 | The independent engineer has already done it, and it would push signing past Friday. |
 
-Conditions only count with "Approve with conditions".
+Conditions only count with "Approve with conditions". The loan amount is set in the control center; "Approve as requested" always lends the USD 28.5m requested, and the game resets the amount (and tells the player) if it was changed.
 
 **Competition.** Each condition, and any cut to the amount requested (weight 2), weighs on the sponsor. Above 5, Lotus Peak takes the competitor's 80% offer: outcome "Lost to competitor". Both right answers weigh exactly 5: USD 26m + DSRA + sweep + lock-up, or USD 28.5m + guarantee + DSRA + sweep + lock-up. Adding the guarantee to a USD 26m loan (weight 7) loses the deal.
 

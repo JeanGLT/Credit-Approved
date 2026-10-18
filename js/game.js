@@ -288,7 +288,8 @@
     caseData: null,
     assumptions: null,     // { yield, curtailment (%), tariff, opex } — control center values
     decision: null,        // 'approve' | 'conditions' | 'decline'
-    conditionalLoan: null, // amount typed with "Approve with conditions"
+    loan: null,            // loan amount set in the control center (USD m)
+    loanWasReset: false,   // true right after "Approve as requested" put it back to the request
     conditions: {},        // condition id → true when ticked
     justification: '',
     submitted: null,       // frozen copy of the proposal when sent to committee
@@ -312,7 +313,7 @@
     }
     return {
       decision: state.decision,
-      loan: state.decision === 'conditions' ? state.conditionalLoan : state.caseData.proposal.requestedLoan,
+      loan: state.decision === 'approve' ? state.caseData.proposal.requestedLoan : state.loan,
       conditions: state.decision === 'conditions' ? state.conditions : {}
     };
   }
@@ -368,6 +369,9 @@
       loanConfig: data.proposal.loan,
       conditions: state.submitted ? state.submitted.conditions : state.conditions,
       editable: !state.submitted && state.decision === 'conditions',
+      loanEditable: !state.submitted && state.decision !== 'approve',
+      loanWasReset: state.loanWasReset,
+      requestedLoan: data.proposal.requestedLoan,
       locked: !!state.submitted,
       finished: !!state.committeeFinished
     });
@@ -387,8 +391,15 @@
   // ---------- Proposal ----------
 
   var proposalHandlers = {
-    decision: function (id) { state.decision = id; refresh(); },
-    loan: function (value) { state.conditionalLoan = value; refresh(); },
+    decision: function (id) {
+      var requested = state.caseData.proposal.requestedLoan;
+      // "Approve as requested" means the amount the sponsor asked for.
+      state.loanWasReset = id === 'approve' && Math.abs(state.loan - requested) > 1e-9;
+      if (id === 'approve') state.loan = requested;
+      state.decision = id;
+      refresh();
+    },
+    loan: function (value) { state.loan = value; refresh(); },
     condition: function (id, checked) { state.conditions[id] = checked; refresh(); },
     justification: function (text) { state.justification = text; },
     submit: submitProposal
@@ -486,7 +497,7 @@
   function startCase() {
     var data = state.caseData;
     state.assumptions = sponsorAssumptions();
-    state.conditionalLoan = data.proposal.requestedLoan;
+    state.loan = data.proposal.requestedLoan;
 
     UI.renderCaseHeader(data);
     UI.renderDocuments(data.documents);

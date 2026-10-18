@@ -273,7 +273,6 @@
     var chips = [
       ['Capacity', fmt(params.capacity, 0) + ' MWp'],
       ['Total cost', 'USD ' + fmt(params.totalCost, 1) + 'm'],
-      ['Loan', 'USD ' + fmt(params.loan, 1) + 'm'],
       ['Tenor', params.tenor + ' years'],
       ['Interest rate', fmt(params.rate * 100, 1) + '%'],
       ['Bank min DSCR', fmt(params.minDSCR, 2) + 'x']
@@ -515,6 +514,8 @@
     });
   }
 
+  var lastLoanReset = false;
+
   function setProposalState(s) {
     document.querySelectorAll('input[name="decision"]').forEach(function (radio) {
       radio.checked = radio.value === s.decision;
@@ -523,15 +524,36 @@
     });
     $('proposal').classList.toggle('is-locked', s.locked);
 
+    // Loan amount (in the control center)
     var loanCfg = Object.assign({ label: 'Loan amount', unit: 'USD m' }, s.loanConfig);
     setSliderValue('loan', loanCfg, s.loan);
-    $('num-loan').disabled = !s.editable;
-    $('range-loan').disabled = !s.editable;
+    $('num-loan').disabled = !s.loanEditable;
+    $('range-loan').disabled = !s.loanEditable;
     var loanField = $('loan-field');
-    loanField.classList.toggle('is-disabled', !s.editable && !s.locked);
-    loanField.querySelector('.field-note').textContent = s.editable || s.locked
-      ? ''
-      : 'The amount can only be changed with "Approve with conditions".';
+    loanField.classList.toggle('is-disabled', !s.loanEditable && !s.locked);
+    var requested = 'USD ' + fmt(s.requestedLoan, 1) + 'm';
+    var loanNote = s.locked
+      ? 'Sent to the committee.'
+      : s.decision === 'approve'
+        ? 'Locked at the ' + requested + ' requested by the sponsor. Choose "Approve with conditions" to change it.'
+        : s.decision === 'conditions'
+          ? 'This is the amount in your proposal.'
+          : s.decision === 'decline'
+            ? 'Not used if you decline. You can still test other amounts.'
+            : 'Test other amounts. It becomes your proposal if you approve with conditions.';
+    loanField.querySelector('.field-note').textContent = loanNote;
+
+    // Tell the player when "Approve as requested" put the amount back to the request.
+    var notice = $('decision-notice');
+    notice.hidden = !s.loanWasReset || s.locked;
+    notice.textContent = 'The loan amount was reset to the ' + requested +
+      ' requested by the sponsor: "Approve as requested" lends exactly what was asked.';
+    if (s.loanWasReset && !lastLoanReset) {
+      loanField.classList.remove('flash');
+      void loanField.offsetWidth;
+      loanField.classList.add('flash');
+    }
+    lastLoanReset = s.loanWasReset;
 
     document.querySelectorAll('#conditions input[type="checkbox"]').forEach(function (box) {
       box.checked = !!s.conditions[box.value];
