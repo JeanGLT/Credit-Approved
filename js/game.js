@@ -281,7 +281,15 @@
   // Part 2 — browser game
   // ======================================================================
 
-  var CASE_URL = 'cases/case-01.json';
+  // Which case to load: ?case=case-02 in the address opens cases/case-02.json.
+  // Without it, the first case opens. Only letters, digits and dashes are allowed.
+  var DEFAULT_CASE = 'case-01';
+
+  function caseUrl() {
+    var requested = new URLSearchParams(window.location.search).get('case');
+    var id = requested && /^[a-z0-9-]+$/i.test(requested) ? requested : DEFAULT_CASE;
+    return 'cases/' + id + '.json';
+  }
   var TYPING_DELAY = 1400; // ms before the next committee message arrives
 
   var state = {
@@ -518,7 +526,7 @@
   }
 
   function init() {
-    fetch(CASE_URL)
+    fetch(caseUrl())
       .then(function (res) {
         if (!res.ok) throw new Error('HTTP ' + res.status);
         return res.json();
@@ -529,8 +537,8 @@
       })
       .catch(function () {
         UI.renderLoadError(
-          'The case file could not be loaded. If you opened index.html directly, ' +
-          'start a local server instead (see README).'
+          'The case file could not be loaded. Check the case name in the address, ' +
+          'or, if you opened index.html directly, start a local server instead (see README).'
         );
       });
   }

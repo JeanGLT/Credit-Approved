@@ -706,8 +706,6 @@ textarea[readonly] { background: var(--bg); color: #374151; }
 .msg { display: flex; gap: 10px; max-width: 88%; }
 .msg .avatar { width: 32px; height: 32px; font-size: 12px; flex: none; }
 .msg-body { min-width: 0; }
-.msg-from { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
-.msg-role { font-weight: 400; color: var(--muted); }
 .msg-text {
   font-size: 14px;
   line-height: 1.5;
@@ -737,7 +735,6 @@ textarea[readonly] { background: var(--bg); color: #374151; }
   color: var(--muted);
   padding: 4px 0;
 }
-.msg-action { align-self: center; }
 
 .chat-form {
   display: flex;
@@ -931,3 +928,17 @@ textarea[readonly] { background: var(--bg); color: #374151; }
 
 /* The game is designed for a computer screen; smaller windows scroll sideways. */
 body { min-width: 1200px; }
+
+/* On small screens, say so instead of silently showing a cut-off page. */
+.small-screen-note { display: none; }
+@media (max-width: 1100px) {
+  .small-screen-note {
+    display: block;
+    margin: 0;
+    padding: 12px 16px;
+    background: var(--text);
+    color: #fff;
+    font-size: 14px;
+    text-align: center;
+  }
+}
