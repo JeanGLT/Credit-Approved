@@ -1,5 +1,6 @@
 /*
- * Tests for the game rules in js/game.js (outcome, score, gauges).
+ * Tests for the game rules in js/game.js: outcome, conditions, competition,
+ * score out of 20, gauges and the analysis of committee answers.
  * Run with:  node tests/game.test.js
  */
 'use strict';
@@ -32,75 +33,139 @@ function proposal(decision, loan, conditionIds, assumptions) {
   return { decision, loan, conditions, assumptions };
 }
 
+function outcome(decision, loan, ids) {
+  return Rules.outcomeKey(caseData, proposal(decision, loan, ids, BANK));
+}
+
+const Q = caseData.committee;
+function answerPoints(i, text) {
+  return Rules.evaluateAnswer(Q[i], text, 2).points;
+}
+
+// ---------------------------------------------------------------------
 console.log('\nOutcomes');
 
-test('Decline → decline', () => {
-  assert.strictEqual(Rules.outcomeKey(caseData, proposal('decline', 28.5, [], BANK)), 'decline');
-});
-test('Approve as requested → approve', () => {
-  assert.strictEqual(Rules.outcomeKey(caseData, proposal('approve', 28.5, [], BANK)), 'approve');
-});
-test('Conditions, loan 26.0 → right', () => {
-  assert.strictEqual(Rules.outcomeKey(caseData, proposal('conditions', 26.0, [], BANK)), 'right');
-});
-test('Conditions, loan exactly 26.3 → right', () => {
-  assert.strictEqual(Rules.outcomeKey(caseData, proposal('conditions', 26.3, [], BANK)), 'right');
-});
-test('Conditions, loan 28.5 + sponsor guarantee → right', () => {
-  assert.strictEqual(Rules.outcomeKey(caseData, proposal('conditions', 28.5, ['guarantee'], BANK)), 'right');
-});
-test('Conditions, loan 28.5 + higher margin only → weak', () => {
-  assert.strictEqual(Rules.outcomeKey(caseData, proposal('conditions', 28.5, ['margin'], BANK)), 'weak');
-});
-test('Conditions, loan 26.4 → weak', () => {
-  assert.strictEqual(Rules.outcomeKey(caseData, proposal('conditions', 26.4, [], BANK)), 'weak');
+test('Decline → decline', () => assert.strictEqual(outcome('decline', 28.5, []), 'decline'));
+test('Approve as requested → approve', () => assert.strictEqual(outcome('approve', 28.5, []), 'approve'));
+test('26.0m + DSRA + sweep + lock-up (weight 5) → right', () =>
+  assert.strictEqual(outcome('conditions', 26.0, ['dsra', 'sweep', 'lockup']), 'right'));
+test('Loan exactly 26.3 → right', () => assert.strictEqual(outcome('conditions', 26.3, []), 'right'));
+test('28.5m + guarantee + DSRA + sweep + lock-up (weight 5) → right', () =>
+  assert.strictEqual(outcome('conditions', 28.5, ['guarantee', 'dsra', 'sweep', 'lockup']), 'right'));
+test('28.5m + higher margin → weak', () => assert.strictEqual(outcome('conditions', 28.5, ['margin']), 'weak'));
+test('26.4m → weak', () => assert.strictEqual(outcome('conditions', 26.4, []), 'weak'));
+test('26.0m + guarantee + DSRA + sweep + lock-up (weight 7) → lost to competitor', () =>
+  assert.strictEqual(outcome('conditions', 26.0, ['guarantee', 'dsra', 'sweep', 'lockup']), 'lost'));
+test('28.5m + completion guarantee + yield study + DSRA (weight 5) → not lost', () =>
+  assert.notStrictEqual(outcome('conditions', 28.5, ['completion', 'yieldstudy', 'dsra']), 'lost'));
+
+// ---------------------------------------------------------------------
+console.log('\nConditions score (out of 4)');
+
+function condPoints(loan, ids) {
+  return Rules.evaluateProposal(caseData, proposal('conditions', loan, ids, BANK)).conditions.points;
+}
+
+test('DSRA + sweep + lock-up, nothing useless → 3 + clean bonus = 4', () =>
+  assert.strictEqual(condPoints(26.0, ['dsra', 'sweep', 'lockup']), 4));
+test('Guarantee at 28.5m is needed: 0 and does not spoil the clean bonus → 4', () =>
+  assert.strictEqual(condPoints(28.5, ['guarantee', 'dsra', 'sweep', 'lockup']), 4));
+test('Guarantee at 26.0m is redundant: −1, no clean bonus → 2', () =>
+  assert.strictEqual(condPoints(26.0, ['guarantee', 'dsra', 'sweep', 'lockup']), 2));
+test('DSRA + higher margin → 1 − 1 = 0', () => assert.strictEqual(condPoints(26.0, ['dsra', 'margin']), 0));
+test('Only useless conditions → floored at 0', () =>
+  assert.strictEqual(condPoints(26.0, ['margin', 'completion', 'yieldstudy']), 0));
+test('No conditions counted with "Decline"', () => {
+  const r = Rules.evaluateProposal(caseData, proposal('decline', 28.5, ['dsra', 'sweep', 'lockup'], BANK));
+  assert.strictEqual(r.conditions.points, 0);
 });
 
-console.log('\nScore');
+// ---------------------------------------------------------------------
+console.log('\nNumbers in answers, whatever the format');
 
-test('Best answer: bank case, 26.0m, DSRA + sweep + lock-up → 10/10', () => {
-  const r = Rules.evaluateProposal(caseData, proposal('conditions', 26.0, ['dsra', 'sweep', 'lockup'], BANK));
-  assert.strictEqual(r.total, 10);
-  assert.strictEqual(r.max, 10);
+function hasNumber(text, value) {
+  return Rules.extractNumbers(text).some((n) => Math.abs(n.value - value) < 1e-9);
+}
+
+['1,430', '1.430', '1 430', '1430', '1 430', '1430kWh/kWp'].forEach((t) =>
+  test(`"${t}" reads as 1430`, () => assert.ok(hasNumber(`yield of ${t}`, 1430))));
+['26m', '26 m', '26 million', 'USD 26m', 'USD26m', '26mn', '26,000,000', '26.000.000', '26.0m'].forEach((t) =>
+  test(`"${t}" reads as 26`, () => assert.ok(hasNumber(`offer ${t}`, 26))));
+['1.20x', '1,20x', '1.2x', '1.20 x'].forEach((t) =>
+  test(`"${t}" reads as 1.2`, () => assert.ok(hasNumber(`DSCR ${t}`, 1.2))));
+test('"10%" and "10 percent" are percentages', () => {
+  assert.ok(Rules.extractNumbers('10%').some((n) => n.value === 10 && n.percent));
+  assert.ok(Rules.extractNumbers('10 percent').some((n) => n.value === 10 && n.percent));
 });
-test('Sponsor case, approve as requested → 0/10', () => {
-  const r = Rules.evaluateProposal(caseData, proposal('approve', 28.5, [], SPONSOR));
-  assert.strictEqual(r.total, 0);
+
+// ---------------------------------------------------------------------
+console.log('\nCommittee answers (0 to 2 each)');
+
+test('Q1 good answer from the case file → 2', () => assert.strictEqual(answerPoints(0, Q[0].goodAnswer), 2));
+test('Q1 "I used the IE P90 of 1.430" → 2', () => assert.strictEqual(answerPoints(0, 'I used the IE P90 of 1.430'), 2));
+test('Q1 idea without the number → 1', () =>
+  assert.strictEqual(answerPoints(0, 'The independent engineer view, not the sponsor.'), 1));
+test('Q1 sponsor figure only → 0', () =>
+  assert.strictEqual(answerPoints(0, 'The sponsor yield of 1,750 because Ninh Thuan is sunny.'), 0));
+
+test('Q2 good answer from the case file → 2', () => assert.strictEqual(answerPoints(1, Q[1].goodAnswer), 2));
+test('Q2 "10% haircut, cash sweep and a DSRA" → 2', () =>
+  assert.strictEqual(answerPoints(1, 'We took a 10% haircut, plus a cash sweep and a DSRA.'), 2));
+test('Q2 two ideas, no number → 1', () =>
+  assert.strictEqual(answerPoints(1, 'We stressed curtailment and added a debt service reserve account.'), 1));
+test('Q2 one idea only → 0', () => assert.strictEqual(answerPoints(1, 'EVN is a state utility so it will pay.'), 0));
+
+test('Q3 good answer from the case file → 2', () => assert.strictEqual(answerPoints(2, Q[2].goodAnswer), 2));
+test('Q3 "1,20x is below policy, we offer 26 millions" → 2', () =>
+  assert.strictEqual(answerPoints(2, '1,20x is below policy, we offer 26 millions'), 2));
+test('Q3 firm with a way out, no number → 1', () =>
+  assert.strictEqual(answerPoints(2, 'It breaches our minimum, but we can offer a smaller loan.'), 1));
+test('Q3 empty answer → 0', () => assert.strictEqual(answerPoints(2, ''), 0));
+
+// ---------------------------------------------------------------------
+console.log('\nScore out of 20');
+
+function total(p, answers) {
+  const ev = Rules.evaluateProposal(caseData, p);
+  return Rules.finalScore(caseData, ev, answers);
+}
+
+test('Perfect game → 20 / 20', () => {
+  const s = total(proposal('conditions', 26.0, ['dsra', 'sweep', 'lockup'], BANK), Q.map((q) => q.goodAnswer));
+  assert.strictEqual(s.max, 20);
+  assert.strictEqual(s.total, 20);
 });
-test('Both traps found, decline → 2 + 2 + 1 = 5', () => {
-  const r = Rules.evaluateProposal(caseData, proposal('decline', 28.5, [], BANK));
-  assert.strictEqual(r.total, 5);
-});
-test('Both traps found, weak conditions (margin + DSRA) → 2 + 2 + 1 + 1 = 6', () => {
-  const r = Rules.evaluateProposal(caseData, proposal('conditions', 28.5, ['margin', 'dsra'], BANK));
-  assert.strictEqual(r.outcomeKey, 'weak');
-  assert.strictEqual(r.total, 6);
-});
-test('Trap thresholds: yield 1450 and curtailment 8% count, 1460 and 7.5% do not', () => {
+test('Sponsor case, approve as requested, empty answers → 0 / 20', () =>
+  assert.strictEqual(total(proposal('approve', 28.5, [], SPONSOR), ['', '', '']).total, 0));
+test('Both traps, decline, good answers → 6 + 1 + 0 + 6 = 13', () =>
+  assert.strictEqual(total(proposal('decline', 28.5, [], BANK), Q.map((q) => q.goodAnswer)).total, 13));
+test('Trap thresholds: 1450 and 8% count, 1460 and 7.5% do not', () => {
   const edge = Rules.evaluateProposal(caseData, proposal('decline', 28.5, [], { yield: 1450, curtailment: 8 }));
   assert.deepStrictEqual(edge.traps.map((t) => t.hit), [true, true]);
   const miss = Rules.evaluateProposal(caseData, proposal('decline', 28.5, [], { yield: 1460, curtailment: 7.5 }));
   assert.deepStrictEqual(miss.traps.map((t) => t.hit), [false, false]);
 });
-test('Bonus conditions only count with "Approve with conditions"', () => {
-  const r = Rules.evaluateProposal(caseData, proposal('decline', 28.5, ['dsra', 'sweep', 'lockup'], BANK));
-  assert.strictEqual(r.bonus.points, 0);
-});
 
+// ---------------------------------------------------------------------
 console.log('\nGauges');
 
-test('Right conditions: 50/50/50 → 70/60/70', () => {
-  const g = Rules.applyGauges({ revenue: 50, risk: 50, credibility: 50 }, caseData.outcomes.right.gauges);
-  assert.deepStrictEqual(g, { revenue: 70, risk: 60, credibility: 70 });
-});
-test('Approve as requested: 50/50/50 → 70/80/30', () => {
-  const g = Rules.applyGauges({ revenue: 50, risk: 50, credibility: 50 }, caseData.outcomes.approve.gauges);
-  assert.deepStrictEqual(g, { revenue: 70, risk: 80, credibility: 30 });
-});
-test('Gauges stay between 0 and 100', () => {
-  const g = Rules.applyGauges({ revenue: 90, risk: 5, credibility: 50 }, { revenue: 3, risk: -3, credibility: 0 });
-  assert.deepStrictEqual(g, { revenue: 100, risk: 0, credibility: 50 });
-});
+function gaugesAfter(p) {
+  const ev = Rules.evaluateProposal(caseData, p);
+  return Rules.applyGauges({ revenue: 50, risk: 50, credibility: 50 }, ev.gauges.deltas);
+}
+
+test('Right conditions → 70 / 60 / 70', () =>
+  assert.deepStrictEqual(gaugesAfter(proposal('conditions', 26.0, ['dsra'], BANK)), { revenue: 70, risk: 60, credibility: 70 }));
+test('Weak with higher margin → revenue +2 +1 = 80', () =>
+  assert.strictEqual(gaugesAfter(proposal('conditions', 28.5, ['margin'], BANK)).revenue, 80));
+test('Right with a useless yield study → credibility +2 −1 = 60', () =>
+  assert.strictEqual(gaugesAfter(proposal('conditions', 26.0, ['yieldstudy'], BANK)).credibility, 60));
+test('Lost to competitor → 50 / 50 / 30, condition effects ignored', () =>
+  assert.deepStrictEqual(gaugesAfter(proposal('conditions', 26.0, ['guarantee', 'dsra', 'sweep', 'margin'], BANK)),
+    { revenue: 50, risk: 50, credibility: 30 }));
+test('Gauges stay between 0 and 100', () =>
+  assert.deepStrictEqual(Rules.applyGauges({ revenue: 90, risk: 5, credibility: 50 }, { revenue: 3, risk: -3, credibility: 0 }),
+    { revenue: 100, risk: 0, credibility: 50 }));
 
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed === 0 ? 0 : 1);

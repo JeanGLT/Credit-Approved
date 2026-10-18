@@ -137,19 +137,40 @@
     </div>
   </main>
 
-  <!-- Screen 3: credit committee -->
-  <main class="screen screen-narrow" id="screen-committee" hidden>
-    <p class="eyebrow">Credit committee</p>
-    <h1>Defend your proposal</h1>
-    <p class="muted page-intro">Three questions from the committee. Answer in a few lines, then compare with what a good answer contains.</p>
-    <div class="card recap" id="recap"></div>
-    <div class="card question" id="question"></div>
-  </main>
-
-  <!-- Screen 4: result -->
+  <!-- Screen 3: result -->
   <main class="screen screen-narrow" id="screen-result" hidden>
     <div id="result"></div>
   </main>
+
+  <!-- Messages: front office and credit committee -->
+  <div class="chat" id="chat" hidden>
+    <button class="chat-toast" id="chat-toast" type="button" hidden>
+      <span class="avatar" id="toast-avatar"></span>
+      <span class="toast-text">
+        <span class="toast-name" id="toast-name"></span>
+        <span class="toast-preview" id="toast-preview"></span>
+      </span>
+    </button>
+
+    <section class="chat-panel" id="chat-panel" aria-label="Messages" hidden>
+      <header class="chat-head">
+        <div>
+          <div class="chat-title">Messages</div>
+          <div class="muted small">Harbour Pacific Bank</div>
+        </div>
+        <button class="chat-min" id="chat-min" type="button" aria-label="Minimise messages">&#8211;</button>
+      </header>
+      <div class="chat-log" id="chat-log" aria-live="polite"></div>
+      <form class="chat-form" id="chat-form">
+        <textarea id="chat-input" rows="2" aria-label="Your reply" disabled></textarea>
+        <button class="btn btn-primary" id="chat-send" type="submit" disabled>Send</button>
+      </form>
+    </section>
+
+    <button class="chat-launcher" id="chat-launcher" type="button" hidden>
+      Messages <span class="badge" id="chat-badge" hidden></span>
+    </button>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="js/model.js"></script>

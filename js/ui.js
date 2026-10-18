@@ -158,6 +158,7 @@
       body.appendChild(el('div', 'doc-source', doc.source));
       body.appendChild(el('div', 'doc-title', doc.title));
       doc.blocks.forEach(function (block) { body.appendChild(renderBlock(block)); });
+      if (!doc.blocks.length) body.appendChild(el('p', 'doc-empty', doc.empty || 'Nothing here for this case.'));
       body.scrollTop = 0;
     }
 
@@ -521,30 +522,37 @@
   function setProposalState(s) {
     document.querySelectorAll('input[name="decision"]').forEach(function (radio) {
       radio.checked = radio.value === s.decision;
+      radio.disabled = s.locked;
       radio.closest('.decision-option').classList.toggle('selected', radio.checked);
     });
+    $('proposal').classList.toggle('is-locked', s.locked);
 
     var loanCfg = Object.assign({ label: 'Loan amount', unit: 'USD m' }, s.loanConfig);
     setSliderValue('loan', loanCfg, s.loan);
     $('num-loan').disabled = !s.editable;
     $('range-loan').disabled = !s.editable;
     var loanField = $('loan-field');
-    loanField.classList.toggle('is-disabled', !s.editable);
-    loanField.querySelector('.field-note').textContent = s.editable
+    loanField.classList.toggle('is-disabled', !s.editable && !s.locked);
+    loanField.querySelector('.field-note').textContent = s.editable || s.locked
       ? ''
       : 'The amount can only be changed with "Approve with conditions".';
 
     document.querySelectorAll('#conditions input[type="checkbox"]').forEach(function (box) {
       box.checked = !!s.conditions[box.value];
       box.disabled = !s.editable;
-      box.closest('.condition-option').classList.toggle('is-disabled', !s.editable);
+      box.closest('.condition-option').classList.toggle('is-disabled', !s.editable && !s.locked);
     });
-    $('conditions-note').textContent = s.editable ? '' : '(with "Approve with conditions" only)';
+    $('conditions-note').textContent = s.editable || s.locked ? '' : '(with "Approve with conditions" only)';
 
-    $('submit-proposal').disabled = !s.decision;
-    $('submit-note').textContent = s.decision
-      ? 'Your score is based on the control center and this proposal as they stand when you send it.'
-      : 'Choose a decision first.';
+    $('justification').readOnly = s.locked;
+    var submit = $('submit-proposal');
+    submit.disabled = !s.decision || s.locked;
+    submit.textContent = s.locked ? 'Sent to committee' : 'Send to committee';
+    $('submit-note').textContent = s.locked
+      ? 'The committee will message you (bottom right). You can still use the control center to check your numbers.'
+      : s.decision
+        ? 'Your proposal is scored as it stands when you send it, with the control center values at that moment.'
+        : 'Choose a decision first.';
   }
 
   function renderProposalPreview(decision, current, params, status) {
@@ -569,7 +577,7 @@
     box.appendChild(line);
   }
 
-  // ---------- Recap of the proposal (committee and result screens) ----------
+  // ---------- Recap of the proposal (result screen) ----------
 
   function decisionLabel(caseData, id) {
     var match = caseData.proposal.decisions.filter(function (d) { return d.id === id; })[0];
@@ -604,113 +612,148 @@
     return wrap;
   }
 
-  function renderRecap(caseData, proposal) {
-    var card = $('recap');
-    card.textContent = '';
-    card.appendChild(el('h2', null, 'Your proposal'));
-    card.appendChild(recapNode(caseData, proposal));
-  }
-
-  // ---------- Committee ----------
+  // ---------- Messages (chat in the bottom-right corner) ----------
 
   function initials(name) {
     return name.split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2);
   }
 
-  function renderQuestion(opts) {
-    var q = opts.question;
-    var card = $('question');
-    card.textContent = '';
+  var chat = (function () {
+    var unread = 0;
+    var onSend = null;
 
-    var progress = el('div', 'progress');
-    progress.appendChild(el('span', null, 'Question ' + (opts.index + 1) + ' of ' + opts.total));
-    var dots = el('span', 'dots');
-    for (var i = 0; i < opts.total; i++) {
-      dots.appendChild(el('span', 'dot' + (i < opts.index ? ' done' : i === opts.index ? ' current' : '')));
+    function isOpen() { return !$('chat-panel').hidden; }
+
+    function scrollToEnd() {
+      var log = $('chat-log');
+      log.scrollTop = log.scrollHeight;
     }
-    progress.appendChild(dots);
-    card.appendChild(progress);
 
-    var asker = el('div', 'asker');
-    asker.appendChild(el('div', 'avatar', initials(q.askedBy)));
-    var who = el('div');
-    who.appendChild(el('div', 'asker-name', q.askedBy));
-    who.appendChild(el('div', 'muted small', q.role));
-    asker.appendChild(who);
-    card.appendChild(asker);
+    function setBadge() {
+      var badge = $('chat-badge');
+      badge.hidden = unread === 0;
+      badge.textContent = unread;
+    }
 
-    card.appendChild(el('p', 'question-text', q.question));
+    function open() {
+      $('chat-panel').hidden = false;
+      $('chat-launcher').hidden = true;
+      $('chat-toast').hidden = true;
+      unread = 0;
+      setBadge();
+      scrollToEnd();
+      var input = $('chat-input');
+      if (!input.disabled) input.focus();
+    }
 
-    var area = el('textarea');
-    area.id = 'answer';
-    area.rows = 5;
-    area.placeholder = 'Your answer, in a few lines. Back it with numbers where you can.';
-    area.setAttribute('aria-label', 'Your answer');
-    card.appendChild(area);
+    function minimise() {
+      $('chat-panel').hidden = true;
+      $('chat-launcher').hidden = false;
+    }
 
-    var actions = el('div', 'question-actions');
-    var submit = el('button', 'btn btn-primary', 'Submit answer');
-    submit.type = 'button';
-    submit.disabled = true;
-    actions.appendChild(submit);
-    card.appendChild(actions);
+    function showToast(msg) {
+      $('toast-avatar').textContent = initials(msg.from);
+      $('toast-name').textContent = msg.from + (msg.role ? ' · ' + msg.role : '');
+      var preview = msg.text.length > 90 ? msg.text.slice(0, 90).trim() + '…' : msg.text;
+      $('toast-preview').textContent = preview;
+      var toast = $('chat-toast');
+      toast.hidden = false;
+      // Restart the slide-in animation for each new message.
+      toast.classList.remove('pop');
+      void toast.offsetWidth;
+      toast.classList.add('pop');
+      $('chat-launcher').hidden = true;
+    }
 
-    area.addEventListener('input', function () { submit.disabled = area.value.trim() === ''; });
+    function init(sendHandler) {
+      onSend = sendHandler;
+      $('chat').hidden = false;
+      $('chat-toast').addEventListener('click', open);
+      $('chat-launcher').addEventListener('click', open);
+      $('chat-min').addEventListener('click', minimise);
 
-    submit.addEventListener('click', function () {
-      area.readOnly = true;
-      actions.remove();
-      opts.onAnswer(area.value.trim());
-      card.appendChild(feedbackNode(opts));
-    });
-
-    // From question 2 on, start with the new question at the top of the screen.
-    if (opts.index > 0) card.scrollIntoView({ block: 'start' });
-    area.focus({ preventScroll: opts.index > 0 });
-  }
-
-  function feedbackNode(opts) {
-    var wrap = el('div', 'feedback');
-
-    var good = el('div', 'good-answer');
-    good.appendChild(el('div', 'good-answer-title', 'What a good answer contains'));
-    good.appendChild(el('p', null, opts.question.goodAnswer));
-    wrap.appendChild(good);
-
-    var rate = el('div', 'self-rate');
-    rate.appendChild(el('p', 'self-rate-title', 'How did your answer compare?'));
-    rate.appendChild(el('p', 'muted small', 'For your own reference: this does not change your score.'));
-    var buttons = el('div', 'rate-buttons');
-    opts.scale.forEach(function (text, score) {
-      var b = el('button', 'rate-btn');
-      b.type = 'button';
-      b.setAttribute('aria-pressed', 'false');
-      // Scale lines look like "1 = right idea without the numbers".
-      var parts = text.split(' = ');
-      b.appendChild(el('strong', null, parts[0]));
-      b.appendChild(el('span', null, parts[1] || ''));
-      b.addEventListener('click', function () {
-        buttons.querySelectorAll('.rate-btn').forEach(function (other) { other.setAttribute('aria-pressed', 'false'); });
-        b.setAttribute('aria-pressed', 'true');
-        opts.onSelfScore(score);
+      var input = $('chat-input');
+      function send() {
+        var text = input.value.trim();
+        if (!text || input.disabled) return;
+        input.value = '';
+        $('chat-send').disabled = true;
+        var bubble = el('div', 'msg msg-own');
+        bubble.appendChild(el('div', 'msg-text', text));
+        $('chat-log').appendChild(bubble);
+        scrollToEnd();
+        onSend(text);
+      }
+      $('chat-form').addEventListener('submit', function (e) { e.preventDefault(); send(); });
+      // Enter sends, Shift+Enter adds a line.
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
       });
-      buttons.appendChild(b);
-    });
-    rate.appendChild(buttons);
-    wrap.appendChild(rate);
+      input.addEventListener('input', function () {
+        $('chat-send').disabled = input.disabled || input.value.trim() === '';
+      });
+      setInput(false, 'Replies open once your proposal is with the committee.');
+    }
 
-    var last = opts.index + 1 === opts.total;
-    var next = el('button', 'btn btn-primary btn-lg', last ? 'See the outcome' : 'Next question');
-    next.type = 'button';
-    next.addEventListener('click', opts.onNext);
-    var actions = el('div', 'question-actions');
-    actions.appendChild(next);
-    wrap.appendChild(actions);
+    function receive(msg) {
+      var row = el('div', 'msg msg-other');
+      row.appendChild(el('div', 'avatar', initials(msg.from)));
+      var body = el('div', 'msg-body');
+      var who = el('div', 'msg-from', msg.from);
+      if (msg.role) who.appendChild(el('span', 'msg-role', ' · ' + msg.role));
+      body.appendChild(who);
+      body.appendChild(el('div', 'msg-text', msg.text));
+      row.appendChild(body);
+      $('chat-log').appendChild(row);
+      scrollToEnd();
+      if (!isOpen()) {
+        unread++;
+        setBadge();
+        showToast(msg);
+      }
+    }
 
-    // Bring the good answer, the self-rating and the next button into view.
-    setTimeout(function () { wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 50);
-    return wrap;
-  }
+    function typing(name, delay, done) {
+      var row = el('div', 'msg-typing', name + ' is typing');
+      row.appendChild(el('span', 'typing-dots', '…'));
+      $('chat-log').appendChild(row);
+      scrollToEnd();
+      setTimeout(function () {
+        row.remove();
+        done();
+      }, delay);
+    }
+
+    function divider(text) {
+      $('chat-log').appendChild(el('div', 'msg-divider', text));
+      scrollToEnd();
+    }
+
+    function setInput(enabled, placeholder) {
+      var input = $('chat-input');
+      input.disabled = !enabled;
+      input.placeholder = placeholder || '';
+      $('chat-send').disabled = !enabled || input.value.trim() === '';
+      if (enabled && isOpen()) input.focus();
+    }
+
+    function action(label, callback) {
+      var wrap = el('div', 'msg-action');
+      var btn = el('button', 'btn btn-primary', label);
+      btn.type = 'button';
+      btn.addEventListener('click', callback);
+      wrap.appendChild(btn);
+      $('chat-log').appendChild(wrap);
+      scrollToEnd();
+    }
+
+    function hide() { $('chat').hidden = true; }
+
+    return {
+      init: init, receive: receive, typing: typing, divider: divider,
+      setInput: setInput, action: action, open: open, hide: hide
+    };
+  })();
 
   // ---------- Result ----------
 
@@ -719,6 +762,8 @@
     { key: 'risk', label: 'Portfolio risk', higherIsBetter: false },
     { key: 'credibility', label: 'Credibility', higherIsBetter: true }
   ];
+
+  function signed(n) { return (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n); }
 
   function scoreRow(label, detail, points, max) {
     var row = el('div', 'score-row' + (points === max ? ' full' : points === 0 ? ' zero' : ''));
@@ -730,14 +775,45 @@
     return row;
   }
 
+  function scoreSection(title, points, max) {
+    var head = el('div', 'score-section');
+    head.appendChild(el('span', null, title));
+    head.appendChild(el('span', 'score-section-points', points + ' / ' + max));
+    return head;
+  }
+
+  // One line per ticked condition: +1 / −1 / 0 and why.
+  function conditionLine(item) {
+    var tone = item.points > 0 ? 'good' : item.points < 0 ? 'bad' : 'neutral';
+    var row = el('div', 'cond-line');
+    row.appendChild(el('span', 'delta delta-' + tone, signed(item.points)));
+    var text = el('div');
+    text.appendChild(el('div', 'score-label', item.label));
+    text.appendChild(el('div', 'muted small', item.reason));
+    row.appendChild(text);
+    return row;
+  }
+
+  function checkList(items) {
+    var ul = el('ul', 'check-list');
+    items.forEach(function (i) {
+      var li = el('li', i.hit ? 'hit' : 'miss');
+      li.appendChild(el('span', 'check-mark', i.hit ? '✓' : '✗'));
+      li.appendChild(el('span', null, i.label));
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+
   function renderResult(opts) {
     var data = opts.caseData;
     var ev = opts.evaluation;
+    var score = opts.score;
     var root = $('result');
     root.textContent = '';
 
     // Outcome
-    var hero = el('section', 'card result-hero', null);
+    var hero = el('section', 'card result-hero');
     hero.dataset.outcome = ev.outcomeKey;
     hero.appendChild(el('p', 'eyebrow', 'Outcome · ' + data.title));
     hero.appendChild(el('h1', null, ev.outcome.label));
@@ -748,39 +824,52 @@
     var grid = el('div', 'result-grid');
 
     // Score
-    var score = el('section', 'card');
-    score.appendChild(el('h2', null, 'Your score'));
+    var card = el('section', 'card');
+    card.appendChild(el('h2', null, 'Your score'));
     var big = el('div', 'score-big');
-    big.appendChild(el('span', 'score-total', String(ev.total)));
-    big.appendChild(el('span', 'score-max', '/ ' + ev.max));
-    score.appendChild(big);
+    big.appendChild(el('span', 'score-total', String(score.total)));
+    big.appendChild(el('span', 'score-max', '/ ' + score.max));
+    card.appendChild(big);
 
+    var trapPoints = ev.traps.reduce(function (s, t) { return s + t.points; }, 0);
+    var trapMax = ev.traps.reduce(function (s, t) { return s + t.max; }, 0);
+    card.appendChild(scoreSection('Analysis', trapPoints, trapMax));
     ev.traps.forEach(function (t) {
       var input = data.model.inputs[t.input];
+      var d = decimalsOf(input.step);
       var sign = t.test === 'max' ? '≤' : '≥';
-      var detail = 'You used ' + fmt(t.value, decimalsOf(input.step)) + ' ' + input.unit +
-        (t.hit ? '' : ' · needed ' + sign + ' ' + fmt(t.target, decimalsOf(input.step)) + ' ' + input.unit);
-      score.appendChild(scoreRow(t.label, detail, t.points, t.max));
+      var detail = 'You used ' + fmt(t.value, d) + ' ' + input.unit +
+        (t.hit ? '' : ' · needed ' + sign + ' ' + fmt(t.target, d) + ' ' + input.unit);
+      card.appendChild(scoreRow(t.label, detail, t.points, t.max));
     });
-    score.appendChild(scoreRow('Decision', ev.outcome.label, ev.decision.points, ev.decision.max));
-    var bonusNames = data.rules.score.bonusConditions.map(function (id) {
-      return data.proposal.conditions.filter(function (c) { return c.id === id; })[0].label;
-    });
-    score.appendChild(scoreRow(
-      'Protective conditions',
-      ev.bonus.ticked.length + ' of ' + bonusNames.length + ': ' + bonusNames.join(' · '),
-      ev.bonus.points, ev.bonus.max
-    ));
 
-    var rated = opts.selfScores.filter(function (v) { return typeof v === 'number'; });
-    if (rated.length) {
-      var self = rated.reduce(function (a, b) { return a + b; }, 0);
-      score.appendChild(el('p', 'self-total muted small',
-        'Committee answers, self-assessed: ' + self + ' / ' + rated.length * 2 + ' (not part of the score)'));
+    card.appendChild(scoreSection('Decision', ev.decision.points, ev.decision.max));
+    card.appendChild(scoreRow(ev.outcome.label, null, ev.decision.points, ev.decision.max));
+
+    card.appendChild(scoreSection('Conditions', ev.conditions.points, ev.conditions.max));
+    if (!ev.conditions.items.length) {
+      card.appendChild(el('p', 'muted small cond-empty', opts.proposal.decision === 'conditions'
+        ? 'No conditions ticked.'
+        : 'Conditions only count with "Approve with conditions".'));
     }
-    grid.appendChild(score);
+    ev.conditions.items.forEach(function (item) { card.appendChild(conditionLine(item)); });
+    if (ev.conditions.clean) {
+      card.appendChild(conditionLine({
+        label: 'Clean structure',
+        reason: 'Protective conditions only, nothing useless.',
+        points: data.rules.score.conditions.cleanBonus
+      }));
+    }
 
-    // Gauges
+    card.appendChild(scoreSection('Committee', score.committeePoints, score.committeeMax));
+    data.committee.forEach(function (q, i) {
+      var c = score.committee[i];
+      card.appendChild(scoreRow(q.askedBy + ': ' + q.question, data.committeeScale[String(c.points)], c.points, c.max));
+    });
+    grid.appendChild(card);
+
+    // Gauges and weight on the sponsor
+    var side = el('div', 'result-side');
     var gauges = el('section', 'card');
     gauges.appendChild(el('h2', null, 'Impact on your gauges'));
     GAUGES.forEach(function (g) {
@@ -793,8 +882,7 @@
       var name = el('span', 'gauge-row-name', g.label);
       if (!g.higherIsBetter) name.appendChild(el('small', null, ' higher is worse'));
       head.appendChild(name);
-      var change = el('span', 'delta delta-' + tone, (delta > 0 ? '+' : '') + delta);
-      head.appendChild(change);
+      head.appendChild(el('span', 'delta delta-' + tone, signed(delta)));
       row.appendChild(head);
       var track = el('div', 'gauge-track');
       var fill = el('div', 'gauge-fill');
@@ -802,10 +890,34 @@
       track.appendChild(fill);
       row.appendChild(track);
       row.appendChild(el('div', 'muted small', before + ' → ' + after + ' / 100'));
+      ev.gauges.sources.filter(function (s) { return s.gauge === g.key; }).forEach(function (s) {
+        row.appendChild(el('div', 'muted small', 'Includes ' + signed(s.delta * 10) + ' from: ' + s.label));
+      });
       gauges.appendChild(row);
       setTimeout(function () { fill.style.width = after + '%'; }, 350);
     });
-    grid.appendChild(gauges);
+    side.appendChild(gauges);
+
+    if (opts.proposal.decision === 'conditions') {
+      var weight = el('section', 'card');
+      weight.appendChild(el('h2', null, 'Weight on the sponsor'));
+      var over = ev.burden.total > ev.burden.max;
+      var big2 = el('div', 'score-big');
+      big2.appendChild(el('span', 'score-total' + (over ? ' is-bad' : ''), String(ev.burden.total)));
+      big2.appendChild(el('span', 'score-max', '/ ' + ev.burden.max + ' max'));
+      weight.appendChild(big2);
+      weight.appendChild(el('p', 'muted small', ev.burden.explain));
+      var list = el('ul', 'weight-list');
+      ev.burden.lines.forEach(function (l) {
+        var li = el('li');
+        li.appendChild(el('span', null, l.label));
+        li.appendChild(el('strong', null, '+' + l.burden));
+        list.appendChild(li);
+      });
+      weight.appendChild(list);
+      side.appendChild(weight);
+    }
+    grid.appendChild(side);
     root.appendChild(grid);
 
     // Proposal recap
@@ -828,21 +940,35 @@
     debrief.appendChild(lesson);
     root.appendChild(debrief);
 
-    // Committee answers, side by side with the good answers
+    // Committee answers: what was found in each answer, next to the good answer
     var answers = el('details', 'card more');
     answers.appendChild(el('summary', null, 'Your committee answers'));
     data.committee.forEach(function (q, i) {
+      var c = score.committee[i];
       var block = el('div', 'answer-block');
-      block.appendChild(el('p', 'answer-q', q.askedBy + ': ' + q.question));
+      var head = el('div', 'answer-head');
+      head.appendChild(el('p', 'answer-q', q.askedBy + ': ' + q.question));
+      head.appendChild(el('span', 'score-points', c.points + ' / ' + c.max));
+      block.appendChild(head);
       block.appendChild(el('div', 'answer-label', 'Your answer'));
-      block.appendChild(el('p', null, opts.answers[i] || '—'));
+      block.appendChild(el('p', 'answer-text', opts.answers[i] || '—'));
+      var cols = el('div', 'answer-cols');
+      var ideas = el('div');
+      ideas.appendChild(el('div', 'answer-label', 'Ideas (' + c.ideasNeeded + ' needed)'));
+      ideas.appendChild(checkList(c.ideas));
+      cols.appendChild(ideas);
+      var nums = el('div');
+      nums.appendChild(el('div', 'answer-label', 'Numbers (one needed for 2 points)'));
+      nums.appendChild(checkList(c.numbers));
+      cols.appendChild(nums);
+      block.appendChild(cols);
       block.appendChild(el('div', 'answer-label', 'A good answer contains'));
       block.appendChild(el('p', null, q.goodAnswer));
       answers.appendChild(block);
     });
     root.appendChild(answers);
 
-    // Full answer key
+    // Full answer key, including how every condition counts
     var key = data.answerKey;
     var keyNode = el('details', 'card more');
     keyNode.appendChild(el('summary', null, 'Full answer key'));
@@ -857,6 +983,17 @@
     keyNode.appendChild(el('h4', null, key.rightDecision.title));
     keyNode.appendChild(el('p', null, key.rightDecision.intro));
     keyNode.appendChild(renderBlock({ type: 'list', items: key.rightDecision.options }));
+    keyNode.appendChild(el('h4', null, 'How each condition counts'));
+    var roles = { good: 'Good', useless: 'Useless', sizing: 'Fixes the sizing' };
+    keyNode.appendChild(renderBlock({
+      type: 'table',
+      head: ['Condition', 'Role', 'Why'],
+      rows: data.proposal.conditions.map(function (c) {
+        var why = c.reason + (c.redundantReason ? ' ' + c.redundantReason : '');
+        return [c.label, roles[c.role] || c.role, why];
+      })
+    }));
+    keyNode.appendChild(el('p', null, data.rules.competition.explain));
     keyNode.appendChild(el('p', null, key.extraCredit));
     keyNode.appendChild(el('p', null, key.weakAnswers));
     root.appendChild(keyNode);
@@ -885,8 +1022,7 @@
     renderProposal: renderProposal,
     setProposalState: setProposalState,
     renderProposalPreview: renderProposalPreview,
-    renderRecap: renderRecap,
-    renderQuestion: renderQuestion,
-    renderResult: renderResult
+    renderResult: renderResult,
+    chat: chat
   };
 })();

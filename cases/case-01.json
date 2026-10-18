@@ -99,15 +99,30 @@
       ]
     },
     {
-      "id": "front-office",
-      "tab": "Message from Kevin",
-      "title": "Bright River",
-      "source": "From: Kevin Lau, Director, Energy Coverage",
-      "blocks": [
-        { "type": "message", "from": "Kevin Lau", "text": "Hi, quick one on Bright River. Lotus Peak wants a signed term sheet by Friday. Another bank is offering them 80% gearing, so our 75% is already a stretch. They're a key client for our renewables push in Vietnam. Please don't kill this one." }
-      ]
+      "id": "others",
+      "tab": "Others",
+      "title": "Other information",
+      "source": "Harbour Pacific Bank",
+      "empty": "No additional information for this case.",
+      "blocks": []
     }
   ],
+
+  "messages": {
+    "onStart": [
+      {
+        "from": "Kevin Lau",
+        "role": "Director, Energy Coverage",
+        "delay": 2500,
+        "text": "Hi, quick one on Bright River. Lotus Peak wants a signed term sheet by Friday. Another bank is offering them 80% gearing, so our 75% is already a stretch. They're a key client for our renewables push in Vietnam. Please don't kill this one."
+      }
+    ],
+    "committeeClosing": {
+      "from": "Margaret Chen",
+      "role": "Head of Risk",
+      "text": "Thank you. The committee will deliberate. You'll hear from us shortly."
+    }
+  },
 
   "model": {
     "fixed": {
@@ -143,11 +158,46 @@
       { "id": "decline", "label": "Decline", "hint": "The bank does not lend." }
     ],
     "conditions": [
-      { "id": "dsra", "label": "DSRA of 6 months funded at close" },
-      { "id": "sweep", "label": "Cash sweep while curtailment > 5%" },
-      { "id": "lockup", "label": "Dividend lock-up below 1.15x DSCR" },
-      { "id": "guarantee", "label": "Sponsor guarantee covering curtailment losses until the grid upgrade" },
-      { "id": "margin", "label": "Higher margin (+50 bp)", "rateIncrease": 0.005 }
+      {
+        "id": "dsra", "label": "DSRA of 6 months funded at close",
+        "role": "good", "points": 1, "burden": 1,
+        "reason": "Six months of debt service set aside in cash: a buffer for a bad year."
+      },
+      {
+        "id": "sweep", "label": "Cash sweep while curtailment > 5%",
+        "role": "good", "points": 1, "burden": 1,
+        "reason": "Excess cash repays the loan faster while the grid is constrained."
+      },
+      {
+        "id": "lockup", "label": "Dividend lock-up below 1.15x DSCR",
+        "role": "good", "points": 1, "burden": 1,
+        "reason": "Cash stays in the project instead of going to the sponsor when the DSCR falls."
+      },
+      {
+        "id": "guarantee", "label": "Sponsor guarantee covering curtailment losses until the grid upgrade",
+        "role": "sizing", "points": 0, "burden": 2,
+        "redundantIfLoanAtMost": 26.3, "redundantPoints": -1,
+        "reason": "The only way to keep USD 28.5m: the sponsor covers the lost revenue until the 220 kV line.",
+        "redundantReason": "Not needed once the loan is cut to the right size. It only adds weight for the sponsor."
+      },
+      {
+        "id": "margin", "label": "Higher margin (+50 bp)",
+        "role": "useless", "points": -1, "burden": 1, "rateIncrease": 0.005,
+        "gauges": { "revenue": 1 },
+        "reason": "More revenue for the bank, but a higher rate raises debt service and makes the DSCR worse."
+      },
+      {
+        "id": "completion", "label": "Completion guarantee from the sponsor until commercial operation",
+        "role": "useless", "points": -1, "burden": 2,
+        "gauges": { "credibility": -1 },
+        "reason": "The fixed-price, date-certain EPC contract with delay damages already covers construction risk."
+      },
+      {
+        "id": "yieldstudy", "label": "Second independent yield study before signing",
+        "role": "useless", "points": -1, "burden": 2,
+        "gauges": { "credibility": -1 },
+        "reason": "The independent engineer has already done it, and it would push signing past Friday."
+      }
     ]
   },
 
@@ -156,45 +206,111 @@
       "askedBy": "Margaret Chen",
       "role": "Head of Risk",
       "question": "Which production number did you use to size the loan, and why?",
-      "goodAnswer": "The engineer's P90 (1,430 kWh/kWp), not the sponsor's 1,750. Lenders rely on the independent view."
+      "goodAnswer": "The engineer's P90 (1,430 kWh/kWp), not the sponsor's 1,750. Lenders rely on the independent view.",
+      "analysis": {
+        "minIdeas": 1,
+        "ideas": [
+          {
+            "label": "Uses the independent engineer's P90",
+            "any": ["p90", "p 90", "p-90", "independent engineer", "independent expert", "independent view", "independent report", "independent", "ie", "lender's engineer", "lenders engineer", "technical advisor", "meridian", "engineer"]
+          }
+        ],
+        "numbers": [
+          { "label": "1,430 kWh/kWp (or 71.5 GWh)", "values": [1430, 71.5] }
+        ]
+      }
     },
     {
       "askedBy": "Margaret Chen",
       "role": "Head of Risk",
       "question": "EVN can curtail this plant without paying. How is the bank protected?",
-      "goodAnswer": "A curtailment haircut in the bank case, debt sized at 1.30x on that case, plus sponsor support or a cash sweep until the grid upgrade. The DSRA as a buffer."
+      "goodAnswer": "A curtailment haircut in the bank case, debt sized at 1.30x on that case, plus sponsor support or a cash sweep until the grid upgrade. The DSRA as a buffer.",
+      "analysis": {
+        "minIdeas": 2,
+        "ideas": [
+          {
+            "label": "Curtailment haircut in the bank case",
+            "any": ["haircut", "curtailment", "curtail", "curtailed", "bank case", "downside case", "stress", "stressed", "grid loss", "grid losses"]
+          },
+          {
+            "label": "Debt sized on that case",
+            "any": ["sized", "sizing", "size", "resize", "re-size", "reduce the loan", "reduced the loan", "cut the loan", "lower the loan", "smaller loan", "less debt", "lower debt", "reduce debt", "dscr", "cover ratio", "coverage"]
+          },
+          {
+            "label": "Sponsor support or cash sweep until the grid upgrade",
+            "any": ["cash sweep", "sweep", "sponsor support", "sponsor guarantee", "guarantee", "top-up", "top up", "topup", "cash injection", "equity cure", "lock-up", "lockup", "lock up", "dividend lock", "dividend block", "distribution lock", "distribution block"]
+          },
+          {
+            "label": "DSRA as a buffer",
+            "any": ["dsra", "debt service reserve", "reserve account", "debt reserve", "reserve", "liquidity buffer", "buffer"]
+          }
+        ],
+        "numbers": [
+          { "label": "10% curtailment (or 8-12%)", "values": [10, 8, 12], "unit": "%" },
+          { "label": "1.30x DSCR", "values": [1.3] },
+          { "label": "USD 26m loan", "values": [26, 26.3] },
+          { "label": "6 months of DSRA", "values": [6] }
+        ]
+      }
     },
     {
       "askedBy": "Kevin Lau",
       "role": "Energy Coverage",
       "question": "The client wants USD 28.5m and has an 80% offer elsewhere. Why can't we match it?",
-      "goodAnswer": "At USD 28.5m the DSCR is 1.20x, below policy. Offer USD 26m, or USD 28.5m with sponsor support. Stays firm but proposes a way to close."
+      "goodAnswer": "At USD 28.5m the DSCR is 1.20x, below policy. Offer USD 26m, or USD 28.5m with sponsor support. Stays firm but proposes a way to close.",
+      "analysis": {
+        "minIdeas": 2,
+        "ideas": [
+          {
+            "label": "The requested amount breaks policy",
+            "any": ["below", "under", "policy", "minimum", "min", "floor", "breach", "breaches", "too low", "too high", "too much", "not enough", "insufficient", "does not meet", "doesn't meet", "fails", "below 1.3", "covenant", "credit criteria", "lending criteria", "risk appetite"]
+          },
+          {
+            "label": "Proposes a way to close",
+            "any": ["offer", "propose", "proposal", "counter", "counter-offer", "alternative", "instead", "reduce", "reduced", "cut", "lower", "smaller", "guarantee", "sponsor support", "top-up", "top up", "with conditions", "restructure", "structure", "can do", "we can", "happy to"]
+          }
+        ],
+        "numbers": [
+          { "label": "1.20x DSCR at USD 28.5m", "values": [1.2] },
+          { "label": "USD 26m (or 26.3m) instead", "values": [26, 26.3] },
+          { "label": "1.30x minimum", "values": [1.3] }
+        ]
+      }
     }
   ],
-  "committeeScale": [
-    "0 = misses the point",
-    "1 = right idea without the numbers",
-    "2 = right idea backed by the numbers"
-  ],
+  "committeeScale": {
+    "0": "Misses the point",
+    "1": "Right idea without the numbers",
+    "2": "Right idea backed by the numbers"
+  },
 
   "rules": {
     "rightConditions": {
       "maxLoan": 26.3,
       "orAnyCondition": ["guarantee"]
     },
+    "competition": {
+      "maxBurden": 5,
+      "loanCutBurden": 2,
+      "explain": "Each condition, and any cut to the amount requested, weighs on the sponsor. Above 5, Lotus Peak takes the competitor's 80% offer."
+    },
     "score": {
       "traps": [
-        { "id": "yield", "label": "Trap 1 spotted: inflated energy yield", "input": "yield", "test": "max", "value": 1450, "points": 2 },
-        { "id": "curtailment", "label": "Trap 2 spotted: curtailment ignored", "input": "curtailment", "test": "min", "value": 8, "points": 2 }
+        { "id": "yield", "label": "Trap 1 spotted: inflated energy yield", "input": "yield", "test": "max", "value": 1450, "points": 3 },
+        { "id": "curtailment", "label": "Trap 2 spotted: curtailment ignored", "input": "curtailment", "test": "min", "value": 8, "points": 3 }
       ],
       "decision": {
-        "right": 3,
+        "right": 4,
         "weak": 1,
         "decline": 1,
+        "lost": 1,
         "approve": 0
       },
-      "bonusConditions": ["dsra", "sweep", "lockup"],
-      "bonusPerCondition": 1
+      "conditions": {
+        "max": 4,
+        "cleanBonus": 1
+      },
+      "committeePerQuestion": 2
     }
   },
 
@@ -211,8 +327,13 @@
     },
     "weak": {
       "label": "Approve with weak conditions",
-      "story": "Same watchlist outcome, with a slightly higher margin.",
-      "gauges": { "revenue": 3, "risk": 3, "credibility": -1 }
+      "story": "Same watchlist outcome: the conditions don't fix the sizing. DSCR falls to 1.18x and the loan goes on the watchlist.",
+      "gauges": { "revenue": 2, "risk": 3, "credibility": -1 }
+    },
+    "lost": {
+      "label": "Lost to competitor",
+      "story": "Your term sheet is too heavy for Lotus Peak. They sign with the competitor bank at 80% gearing. Kevin tells your boss you had a workable deal and over-structured it.",
+      "gauges": { "revenue": 0, "risk": 0, "credibility": -2 }
     },
     "decline": {
       "label": "Decline",
