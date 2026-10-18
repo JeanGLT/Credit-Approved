@@ -4,10 +4,110 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Credit-Approved</title>
+  <meta name="description" content="A project finance credit game: read the case, test the numbers, defend your decision.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <main id="app">Credit-Approved: coming soon.</main>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">CA</span>
+      <span class="brand-name">Credit-Approved</span>
+    </div>
+    <div class="gauges" id="gauges" hidden>
+      <div class="gauge" data-gauge="revenue">
+        <div class="gauge-head"><span>Bank revenue</span><span class="gauge-value">50</span></div>
+        <div class="gauge-track"><div class="gauge-fill"></div></div>
+      </div>
+      <div class="gauge" data-gauge="risk">
+        <div class="gauge-head"><span>Portfolio risk <small>higher is worse</small></span><span class="gauge-value">50</span></div>
+        <div class="gauge-track"><div class="gauge-fill"></div></div>
+      </div>
+      <div class="gauge" data-gauge="credibility">
+        <div class="gauge-head"><span>Credibility</span><span class="gauge-value">50</span></div>
+        <div class="gauge-track"><div class="gauge-fill"></div></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Screen 1: welcome -->
+  <main class="screen screen-welcome" id="screen-welcome">
+    <section class="welcome-card">
+      <p class="eyebrow">Harbour Pacific Bank · Energy &amp; Infrastructure</p>
+      <h1>You are a junior credit analyst.</h1>
+      <p class="lead">Sponsors want loans for their projects. Your job is to decide which ones the bank should fund, on what terms, and to defend that call in front of the credit committee.</p>
+      <ol class="rules">
+        <li>Read the case documents. Something in them doesn't add up.</li>
+        <li>Test your own assumptions in the control center. The bank only lends at a DSCR of 1.30x or more.</li>
+        <li>Send a proposal to the committee: approve, approve with conditions, or decline.</li>
+        <li>Your decisions move three gauges: bank revenue, portfolio risk and your credibility.</li>
+      </ol>
+      <p class="hint" id="welcome-hint"></p>
+      <button class="btn btn-primary btn-lg" id="start-btn" type="button" disabled>Loading case…</button>
+    </section>
+  </main>
+
+  <!-- Screen 2: the case -->
+  <main class="screen screen-case" id="screen-case" hidden>
+    <div class="case-head">
+      <div>
+        <p class="eyebrow" id="case-eyebrow"></p>
+        <h1 id="case-title"></h1>
+        <p class="muted" id="case-tagline"></p>
+      </div>
+    </div>
+
+    <div class="case-grid">
+      <!-- Left: documents -->
+      <section class="card docs" aria-label="Case documents">
+        <div class="tabs" role="tablist" id="doc-tabs"></div>
+        <div class="doc-body" id="doc-body" role="tabpanel"></div>
+      </section>
+
+      <!-- Right: control center -->
+      <section class="control" aria-label="Control center">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h2>Control center</h2>
+              <p class="muted small">Opens on the sponsor's assumptions. Change them and watch the numbers move.</p>
+            </div>
+            <button class="btn btn-ghost" id="reset-btn" type="button">Reset to sponsor case</button>
+          </div>
+
+          <div class="inputs" id="inputs"></div>
+
+          <div class="fixed" id="fixed-params" aria-label="Fixed parameters"></div>
+        </div>
+
+        <div class="card">
+          <h2>Key metrics</h2>
+          <div class="metrics" id="metrics"></div>
+        </div>
+
+        <div class="card charts">
+          <div class="chart-block">
+            <h3>CFADS vs debt service <span class="muted small">USD m</span></h3>
+            <div class="chart-box"><canvas id="chart-cashflow"></canvas></div>
+          </div>
+          <div class="chart-block">
+            <h3>DSCR by year</h3>
+            <div class="chart-box"><canvas id="chart-dscr"></canvas></div>
+          </div>
+          <div class="chart-block">
+            <h3>Loan outstanding <span class="muted small">USD m, end of year</span></h3>
+            <div class="chart-box"><canvas id="chart-balance"></canvas></div>
+          </div>
+          <p class="legend-note"><span class="swatch-dashed" aria-hidden="true"></span> Grey dashed lines: sponsor case</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="js/model.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/game.js"></script>

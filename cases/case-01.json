@@ -116,7 +116,8 @@
       "tenor": 15,
       "rate": 0.07,
       "minDSCR": 1.30,
-      "warnDSCR": 1.20
+      "warnDSCR": 1.20,
+      "maxGearing": 0.75
     },
     "sponsorCase": {
       "yield": 1750,
