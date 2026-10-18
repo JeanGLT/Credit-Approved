@@ -12,10 +12,11 @@ This is the first case a player sees. It teaches the core habit of the game: nev
 | --- | --- |
 | Level | Tutorial |
 | Reading time | About 5 minutes |
-| Player sees | Deal summary, sponsor business plan extract, independent engineer extract, one message from the front office |
-| Choices | Approve · Decline · Approve with conditions |
+| Player sees | Deal summary, sponsor business plan extract, independent engineer extract, an "Others" tab (empty for this case), one chat message from the front office |
+| Choices | Approve · Decline · Approve with conditions (7 conditions to pick from) |
 | Correct answer | Approve with conditions |
 | Tutorial hint | "Always check the sponsor's numbers against the independent engineer." |
+| Score | Out of 20: analysis 6, decision 4, conditions 4, committee 6 |
 
 ## Document 1 — Deal summary
 
@@ -87,9 +88,13 @@ Tax is ignored: the project benefits from a corporate tax holiday during its fir
 - Plant design and EPC contractor: sound, no concerns.
 - Operating budget of USD 0.75m per year: reasonable.
 
+## Document 4 — Others
+
+Fourth tab, for extra information some cases need (bank exposure, external risks, liquidity cost). Empty for this case: the player sees "No additional information for this case."
+
 ## Message from the front office
 
-*From: Kevin Lau, Director, Energy Coverage*
+*Arrives in the chat (bottom right) a few seconds after the case opens. From: Kevin Lau, Director, Energy Coverage*
 
 > Hi, quick one on Bright River. Lotus Peak wants a signed term sheet by Friday. Another bank is offering them 80% gearing, so our 75% is already a stretch. They're a key client for our renewables push in Vietnam. Please don't kill this one.
 
@@ -120,9 +125,25 @@ Conditions that earn extra credit: the 6-month DSRA funded at financial close (a
 
 Weak answers: a higher margin alone (it does not fix the cash flow), or matching the competitor's 80% gearing.
 
+**Conditions offered to the player**
+
+| Condition | Role | Points | Gauge effect (if the deal closes) | Weight on the sponsor | Why |
+| --- | --- | --- | --- | --- | --- |
+| DSRA of 6 months funded at close | Good | +1 | — | 1 | Six months of debt service set aside in cash: a buffer for a bad year. |
+| Cash sweep while curtailment > 5% | Good | +1 | — | 1 | Excess cash repays the loan faster while the grid is constrained. |
+| Dividend lock-up below 1.15x DSCR | Good | +1 | — | 1 | Cash stays in the project instead of going to the sponsor when the DSCR falls. |
+| Sponsor guarantee covering curtailment losses until the grid upgrade | Fixes the sizing | 0 if the loan is above USD 26.3m, −1 if not | — | 2 | The only way to keep USD 28.5m. Redundant once the loan is cut to the right size. |
+| Higher margin (+50 bp) | Useless | −1 | Bank revenue +1 | 1 | More revenue, but a higher rate raises debt service and makes the DSCR worse. |
+| Completion guarantee from the sponsor until commercial operation | Useless | −1 | Credibility −1 | 2 | The fixed-price, date-certain EPC contract with delay damages already covers construction risk. |
+| Second independent yield study before signing | Useless | −1 | Credibility −1 | 2 | The independent engineer has already done it, and it would push signing past Friday. |
+
+Conditions only count with "Approve with conditions".
+
+**Competition.** Each condition, and any cut to the amount requested (weight 2), weighs on the sponsor. Above 5, Lotus Peak takes the competitor's 80% offer: outcome "Lost to competitor". Both right answers weigh exactly 5: USD 26m + DSRA + sweep + lock-up, or USD 28.5m + guarantee + DSRA + sweep + lock-up. Adding the guarantee to a USD 26m loan (weight 7) loses the deal.
+
 ## Committee questions
 
-Three questions after the decision, each scored from 0 to 2. The player answers in a few lines.
+Three questions after the decision, asked one at a time in the chat. The player keeps the documents and the control center on screen while answering. Each answer is scored from 0 to 2; the good answers appear only on the result screen.
 
 | # | Asked by | Question | A good answer contains |
 | --- | --- | --- | --- |
@@ -132,6 +153,16 @@ Three questions after the decision, each scored from 0 to 2. The player answers 
 
 Scoring: 0 = misses the point, 1 = right idea without the numbers, 2 = right idea backed by the numbers.
 
+**How answers are analysed (keywords, no AI in this version).** An answer earns 1 point when it contains enough of the expected ideas, and 2 when it also contains at least one expected number. Numbers are read whatever the format: 1,430 / 1.430 / 1 430 / 1430; 26m / 26 m / 26 million / 26,000,000; 1.20x / 1,20x / 1.2. The full word lists are in `cases/case-01.json`.
+
+| # | Ideas expected (how many needed) | Numbers accepted |
+| --- | --- | --- |
+| 1 | Uses the independent engineer's P90 (1 of 1) | 1,430 kWh/kWp or 71.5 GWh |
+| 2 | Curtailment haircut in the bank case · Debt sized on that case · Sponsor support or cash sweep · DSRA as a buffer (2 of 4) | 10% (or 8%, 12%) · 1.30x · USD 26m or 26.3m · 6 months |
+| 3 | The requested amount breaks policy · Proposes a way to close (2 of 2) | 1.20x · USD 26m or 26.3m · 1.30x |
+
+After the third answer, Margaret Chen closes the session: "Thank you. The committee will deliberate. You'll hear from us shortly."
+
 ## Outcomes and gauges
 
 The consequence appears two or three cases later, when 2028 curtailment comes in at 11%. Gauge moves run from −3 to +3. For portfolio risk, higher is worse.
@@ -140,8 +171,22 @@ The consequence appears two or three cases later, when 2028 curtailment comes in
 | --- | --- | --- | --- | --- |
 | Approve with the right conditions | Deal closes at USD 26m. Curtailment hits 11%, DSCR holds at about 1.30x. Kevin grumbles, the client signs. | +2 | +1 | +2 |
 | Approve as requested | DSCR falls to 1.18x. Dividends are locked up and the loan goes on the watchlist. | +2 | +3 | −2 |
-| Approve with weak conditions | Same watchlist outcome, with a slightly higher margin. | +3 | +3 | −1 |
+| Approve with weak conditions | Same watchlist outcome: the conditions don't fix the sizing. DSCR falls to 1.18x and the loan goes on the watchlist. | +2 | +3 | −1 |
+| Lost to competitor | The term sheet is too heavy for Lotus Peak. They sign with the competitor bank at 80% gearing. Kevin tells your boss you had a workable deal and over-structured it. | 0 | 0 | −2 |
 | Decline | A competitor bank closes the deal. Kevin complains to your boss. | 0 | 0 | −1 |
+
+When the deal closes (right or weak conditions), the conditions' own gauge effects are added: for example "Higher margin" adds +1 to bank revenue. Each gauge point is worth 10 on a 0 to 100 scale; all three gauges start at 50.
+
+## Score (out of 20)
+
+Fixed when the player sends the proposal, from the control center values at that moment, except the committee part.
+
+| Part | Points | Rule |
+| --- | --- | --- |
+| Analysis | 6 | Trap 1 spotted (yield ≤ 1,450 kWh/kWp in the control center): 3. Trap 2 spotted (curtailment ≥ 8%): 3. |
+| Decision | 4 | Right conditions 4, weak conditions 1, decline 1, lost to competitor 1, approve as requested 0. |
+| Conditions | 4 | +1 per good condition, −1 per useless one, +1 for a clean structure (at least one good condition, nothing useless). Kept between 0 and 4. |
+| Committee | 6 | 0 to 2 per answer, three answers. |
 
 ## Debrief (shown to the player)
 
