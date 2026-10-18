@@ -57,11 +57,6 @@
   }
 
   function renderWelcome(caseData, onStart) {
-    var hint = $('welcome-hint');
-    hint.textContent = '';
-    hint.appendChild(el('strong', null, 'Tip: '));
-    hint.appendChild(document.createTextNode(caseData.tutorialHint));
-
     var btn = $('start-btn');
     btn.disabled = false;
     btn.textContent = 'Start';
@@ -72,8 +67,9 @@
     var btn = $('start-btn');
     btn.disabled = true;
     btn.textContent = 'Could not load the case';
-    var hint = $('welcome-hint');
-    hint.textContent = message;
+    var error = $('welcome-error');
+    error.textContent = message;
+    error.hidden = false;
   }
 
   function renderCaseHeader(caseData) {

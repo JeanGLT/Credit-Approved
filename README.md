@@ -1,6 +1,6 @@
 # Credit-Approved
 
-A web game where you play a junior credit analyst in project finance and decide whether to lend.
+A web game where you play a Project Finance Analyst and decide which projects the bank should fund, and on what terms.
 
 Work in progress.
 

@@ -37,16 +37,18 @@
   <main class="screen screen-welcome" id="screen-welcome">
     <section class="welcome-card">
       <p class="eyebrow">Harbour Pacific Bank · Energy &amp; Infrastructure</p>
-      <h1>You are a junior credit analyst.</h1>
-      <p class="lead">Sponsors want loans for their projects. Your job is to decide which ones the bank should fund, on what terms, and to defend that call in front of the credit committee.</p>
+      <h1>You are a Project Finance Analyst.</h1>
+      <p class="lead">Your job is to decide which projects the bank should fund, and on what terms.</p>
       <ol class="rules">
-        <li>Read the case documents. Something in them doesn't add up.</li>
-        <li>Test your own assumptions in the control center. The bank only lends at a DSCR of 1.30x or more.</li>
-        <li>Send a proposal to the committee: approve, approve with conditions, or decline.</li>
-        <li>Your decisions move three gauges: bank revenue, portfolio risk and your credibility.</li>
+        <li>Read the case documents.</li>
+        <li>Test your own assumptions in the control center.</li>
+        <li>Send a proposal to the committee.</li>
+        <li>Defend your case in front of the committee.</li>
       </ol>
-      <p class="hint" id="welcome-hint"></p>
-      <button class="btn btn-primary btn-lg" id="start-btn" type="button" disabled>Loading case…</button>
+      <p class="welcome-error" id="welcome-error" hidden></p>
+      <div class="welcome-actions">
+        <button class="btn btn-primary btn-lg" id="start-btn" type="button" disabled>Loading case…</button>
+      </div>
     </section>
   </main>
 
