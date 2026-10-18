@@ -1,0 +1,260 @@
+{
+  "id": "case-01",
+  "title": "Bright River Solar",
+  "country": "Vietnam",
+  "tagline": "A 50 MWp solar plant in Vietnam. The sponsor wants a term sheet by Friday.",
+  "level": "Tutorial",
+  "readingTime": "About 5 minutes",
+  "tutorialHint": "Always check the sponsor's numbers against the independent engineer.",
+
+  "documents": [
+    {
+      "id": "deal-summary",
+      "tab": "Deal summary",
+      "title": "Credit request · Energy & Infrastructure",
+      "source": "Harbour Pacific Bank",
+      "blocks": [
+        {
+          "type": "table",
+          "head": ["Item", "Detail"],
+          "rows": [
+            ["Project", "Bright River Solar, 50 MWp ground-mounted solar plant"],
+            ["Location", "Ninh Thuan Province, Vietnam"],
+            ["Sponsor", "Lotus Peak Renewables Pte. Ltd. (Singapore). Operates two solar plants in Thailand, 30 MWp in total"],
+            ["Timeline", "Construction starts Q1 2027, commercial operation Q1 2028"],
+            ["Total project cost", "USD 38.0m"],
+            ["Loan requested", "USD 28.5m senior term loan (75% gearing)"],
+            ["Tenor", "15 years after commercial operation, annuity repayment"],
+            ["All-in interest rate", "7.0%"],
+            ["Offtaker", "EVN (Vietnam Electricity), state-owned utility"],
+            ["Power purchase agreement", "20 years, USD 7.0 cents/kWh, paid in VND at the daily exchange rate"],
+            ["Construction", "Fixed-price, date-certain EPC contract with a tier-1 contractor, delay damages included"],
+            ["Sponsor's minimum DSCR", "1.72x"]
+          ]
+        },
+        { "type": "heading", "text": "Bank lending criteria" },
+        {
+          "type": "list",
+          "items": [
+            "Minimum DSCR of 1.30x on the bank's P90 case",
+            "Maximum gearing of 75%",
+            "Debt service reserve account (DSRA) covering 6 months of debt service"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "business-plan",
+      "tab": "Sponsor business plan",
+      "title": "Bright River Solar · Key assumptions",
+      "source": "Lotus Peak Renewables",
+      "blocks": [
+        {
+          "type": "table",
+          "head": ["Assumption", "Value"],
+          "rows": [
+            ["Installed capacity", "50 MWp"],
+            ["Specific yield", "1,750 kWh/kWp per year"],
+            ["Annual production", "87.5 GWh"],
+            ["Grid availability", "100%, no curtailment assumed"],
+            ["Tariff", "USD 7.0 cents/kWh"],
+            ["Annual revenue", "USD 6.1m"],
+            ["Operating costs", "USD 0.75m per year"],
+            ["Cash flow available for debt service", "USD 5.4m"],
+            ["Annual debt service", "USD 3.1m"],
+            ["Minimum DSCR", "1.72x"]
+          ]
+        },
+        { "type": "paragraph", "text": "Tax is ignored: the project benefits from a corporate tax holiday during its first years." },
+        { "type": "heading", "text": "Sponsor's comment" },
+        { "type": "quote", "text": "Ninh Thuan has the best sun in Vietnam. Our yield is based on our own satellite data and on the performance of our Thai plants. Grid connection is secured: the PPA is signed and the substation is only 4 km away." }
+      ]
+    },
+    {
+      "id": "independent-engineer",
+      "tab": "Independent engineer",
+      "title": "Independent Engineer Report · pages 4 and 11",
+      "source": "Meridian Technical Advisors",
+      "blocks": [
+        { "type": "heading", "text": "Energy yield (page 4)" },
+        {
+          "type": "table",
+          "head": ["Case", "Specific yield", "Annual production"],
+          "rows": [
+            ["P50", "1,520 kWh/kWp", "76.0 GWh"],
+            ["P90 (1 year)", "1,430 kWh/kWp", "71.5 GWh"]
+          ]
+        },
+        { "type": "quote", "text": "We could not reconcile the sponsor's yield of 1,750 kWh/kWp with long-term irradiance data for the site. The Thai plants it refers to sit in a different climate zone and are not a valid comparison." },
+        { "type": "heading", "text": "Grid connection (page 11)" },
+        { "type": "quote", "text": "The 110 kV substation also serves four other solar plants totalling 350 MWp. Until the planned 220 kV line is in service (expected 2029, not yet funded), we expect EVN to curtail the plant's output by 8% to 12% per year. The standard EVN PPA does not compensate the plant for curtailed energy." },
+        { "type": "heading", "text": "Other findings" },
+        {
+          "type": "list",
+          "items": [
+            "Plant design and EPC contractor: sound, no concerns.",
+            "Operating budget of USD 0.75m per year: reasonable."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "front-office",
+      "tab": "Message from Kevin",
+      "title": "Bright River",
+      "source": "From: Kevin Lau, Director, Energy Coverage",
+      "blocks": [
+        { "type": "message", "from": "Kevin Lau", "text": "Hi, quick one on Bright River. Lotus Peak wants a signed term sheet by Friday. Another bank is offering them 80% gearing, so our 75% is already a stretch. They're a key client for our renewables push in Vietnam. Please don't kill this one." }
+      ]
+    }
+  ],
+
+  "model": {
+    "fixed": {
+      "capacity": 50,
+      "totalCost": 38.0,
+      "tenor": 15,
+      "rate": 0.07,
+      "minDSCR": 1.30,
+      "warnDSCR": 1.20
+    },
+    "sponsorCase": {
+      "yield": 1750,
+      "curtailment": 0,
+      "tariff": 7.0,
+      "opex": 0.75,
+      "loan": 28.5
+    },
+    "inputs": {
+      "yield":       { "label": "Specific yield",  "unit": "kWh/kWp",   "min": 1200, "max": 2000, "step": 10 },
+      "curtailment": { "label": "Curtailment",     "unit": "%",         "min": 0,    "max": 20,   "step": 0.5 },
+      "tariff":      { "label": "Tariff",          "unit": "USc/kWh",   "min": 5.0,  "max": 9.0,  "step": 0.1 },
+      "opex":        { "label": "Operating costs", "unit": "USD m / yr", "min": 0.50, "max": 1.20, "step": 0.05 }
+    }
+  },
+
+  "proposal": {
+    "requestedLoan": 28.5,
+    "loan": { "min": 10, "max": 32, "step": 0.1 },
+    "decisions": [
+      { "id": "approve", "label": "Approve as requested" },
+      { "id": "conditions", "label": "Approve with conditions" },
+      { "id": "decline", "label": "Decline" }
+    ],
+    "conditions": [
+      { "id": "dsra", "label": "DSRA of 6 months funded at close" },
+      { "id": "sweep", "label": "Cash sweep while curtailment > 5%" },
+      { "id": "lockup", "label": "Dividend lock-up below 1.15x DSCR" },
+      { "id": "guarantee", "label": "Sponsor guarantee covering curtailment losses until the grid upgrade" },
+      { "id": "margin", "label": "Higher margin (+50 bp)", "rateIncrease": 0.005 }
+    ]
+  },
+
+  "committee": [
+    {
+      "askedBy": "Margaret Chen",
+      "role": "Head of Risk",
+      "question": "Which production number did you use to size the loan, and why?",
+      "goodAnswer": "The engineer's P90 (1,430 kWh/kWp), not the sponsor's 1,750. Lenders rely on the independent view."
+    },
+    {
+      "askedBy": "Margaret Chen",
+      "role": "Head of Risk",
+      "question": "EVN can curtail this plant without paying. How is the bank protected?",
+      "goodAnswer": "A curtailment haircut in the bank case, debt sized at 1.30x on that case, plus sponsor support or a cash sweep until the grid upgrade. The DSRA as a buffer."
+    },
+    {
+      "askedBy": "Kevin Lau",
+      "role": "Energy Coverage",
+      "question": "The client wants USD 28.5m and has an 80% offer elsewhere. Why can't we match it?",
+      "goodAnswer": "At USD 28.5m the DSCR is 1.20x, below policy. Offer USD 26m, or USD 28.5m with sponsor support. Stays firm but proposes a way to close."
+    }
+  ],
+  "committeeScale": [
+    "0 = misses the point",
+    "1 = right idea without the numbers",
+    "2 = right idea backed by the numbers"
+  ],
+
+  "rules": {
+    "rightConditions": {
+      "maxLoan": 26.3,
+      "orAnyCondition": ["guarantee"]
+    },
+    "score": {
+      "traps": [
+        { "id": "yield", "label": "Trap 1 spotted: inflated energy yield", "input": "yield", "test": "max", "value": 1450, "points": 2 },
+        { "id": "curtailment", "label": "Trap 2 spotted: curtailment ignored", "input": "curtailment", "test": "min", "value": 8, "points": 2 }
+      ],
+      "decision": {
+        "right": 3,
+        "weak": 1,
+        "decline": 1,
+        "approve": 0
+      },
+      "bonusConditions": ["dsra", "sweep", "lockup"],
+      "bonusPerCondition": 1
+    }
+  },
+
+  "outcomes": {
+    "right": {
+      "label": "Approve with the right conditions",
+      "story": "Deal closes at USD 26m. Curtailment hits 11%, DSCR holds at about 1.30x. Kevin grumbles, the client signs.",
+      "gauges": { "revenue": 2, "risk": 1, "credibility": 2 }
+    },
+    "approve": {
+      "label": "Approve as requested",
+      "story": "DSCR falls to 1.18x. Dividends are locked up and the loan goes on the watchlist.",
+      "gauges": { "revenue": 2, "risk": 3, "credibility": -2 }
+    },
+    "weak": {
+      "label": "Approve with weak conditions",
+      "story": "Same watchlist outcome, with a slightly higher margin.",
+      "gauges": { "revenue": 3, "risk": 3, "credibility": -1 }
+    },
+    "decline": {
+      "label": "Decline",
+      "story": "A competitor bank closes the deal. Kevin complains to your boss.",
+      "gauges": { "revenue": 0, "risk": 0, "credibility": -1 }
+    }
+  },
+  "outcomeContext": "The consequence appears two or three cases later, when 2028 curtailment comes in at 11%.",
+
+  "debrief": {
+    "spotted": [
+      "The sponsor's yield of 1,750 kWh/kWp is 22% above the independent engineer's P90 of 1,430. Banks size loans on the independent P90, not on the sponsor's figures.",
+      "The sponsor assumed no curtailment. The engineer expects 8% to 12% until a grid line that isn't funded yet, and the PPA doesn't pay for lost output."
+    ],
+    "summary": "With both fixed, a USD 28.5m loan only reaches a 1.20x DSCR. The fix: cut the loan to about USD 26m, or ask the sponsor to cover curtailment losses until the grid upgrade.",
+    "lesson": "When the numbers don't work, fix the structure before reaching for a refusal."
+  },
+
+  "answerKey": {
+    "summary": "Once both traps are fixed, the requested USD 28.5m loan only reaches a 1.20x DSCR, below the bank's 1.30x minimum. The deal works at about USD 26m.",
+    "traps": [
+      { "title": "Trap 1 — Inflated energy yield", "text": "The sponsor uses 1,750 kWh/kWp, 22% above the independent engineer's P90 of 1,430 kWh/kWp. Lenders size debt on the independent P90, never on the sponsor's case." },
+      { "title": "Trap 2 — Curtailment ignored", "text": "The sponsor assumes 100% grid availability. The engineer expects 8% to 12% curtailment until a 220 kV line that is not yet funded, and the PPA does not pay for curtailed energy. The bank case uses 10%." }
+    ],
+    "cases": {
+      "note": "Bank case at USD 28.5m (annual debt service USD 3.13m: 7.0%, 15-year annuity)",
+      "head": ["Case", "Production", "Revenue", "Cash flow for debt service", "DSCR"],
+      "rows": [
+        ["Sponsor case", "87.5 GWh", "USD 6.13m", "USD 5.38m", "1.72x"],
+        ["Engineer P90", "71.5 GWh", "USD 5.01m", "USD 4.26m", "1.36x"],
+        ["Engineer P90 with 10% curtailment (bank case)", "64.4 GWh", "USD 4.50m", "USD 3.75m", "1.20x"]
+      ],
+      "footer": "Maximum debt at 1.30x on the bank case: USD 26.3m."
+    },
+    "rightDecision": {
+      "title": "Right decision: approve with conditions",
+      "intro": "At least one condition must fix the sizing:",
+      "options": [
+        "Cut the loan to USD 26.0m (gearing 68%, DSCR 1.32x). Sponsor equity rises from USD 9.5m to USD 12.0m.",
+        "Or keep USD 28.5m only if the sponsor covers curtailment losses (guarantee or cash top-up) until the 220 kV line is in service."
+      ]
+    },
+    "extraCredit": "Conditions that earn extra credit: the 6-month DSRA funded at financial close (about USD 1.4m at USD 26m), a cash sweep while curtailment stays above 5%, a dividend lock-up below 1.15x DSCR.",
+    "weakAnswers": "Weak answers: a higher margin alone (it does not fix the cash flow), or matching the competitor's 80% gearing."
+  }
+}
