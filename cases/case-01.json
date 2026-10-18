@@ -138,9 +138,9 @@
     "requestedLoan": 28.5,
     "loan": { "min": 10, "max": 32, "step": 0.1 },
     "decisions": [
-      { "id": "approve", "label": "Approve as requested" },
-      { "id": "conditions", "label": "Approve with conditions" },
-      { "id": "decline", "label": "Decline" }
+      { "id": "approve", "label": "Approve as requested", "hint": "Lend the amount requested, on the sponsor's terms." },
+      { "id": "conditions", "label": "Approve with conditions", "hint": "Change the amount and add conditions to protect the bank." },
+      { "id": "decline", "label": "Decline", "hint": "The bank does not lend." }
     ],
     "conditions": [
       { "id": "dsra", "label": "DSRA of 6 months funded at close" },

@@ -19,4 +19,7 @@ Then open http://localhost:8000 in your browser. Stop the server with Ctrl+C.
 
 ```
 node tests/model.test.js
+node tests/game.test.js
 ```
+
+`model.test.js` checks the financial formulas, `game.test.js` the outcome, score and gauge rules.

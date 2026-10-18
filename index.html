@@ -103,8 +103,52 @@
           </div>
           <p class="legend-note"><span class="swatch-dashed" aria-hidden="true"></span> Grey dashed lines: sponsor case</p>
         </div>
+
+        <!-- Proposal to committee -->
+        <form class="card proposal" id="proposal" novalidate>
+          <h2>Proposal to committee</h2>
+          <p class="muted small">Your recommendation goes to the credit committee. The amount and margin you choose here feed the control center.</p>
+
+          <fieldset class="field">
+            <legend class="field-label">Decision</legend>
+            <div class="decisions" id="decisions"></div>
+          </fieldset>
+
+          <div class="field" id="loan-field"></div>
+
+          <fieldset class="field">
+            <legend class="field-label">Conditions <span class="muted small" id="conditions-note"></span></legend>
+            <div class="conditions" id="conditions"></div>
+          </fieldset>
+
+          <div class="preview" id="proposal-preview" aria-live="polite"></div>
+
+          <div class="field">
+            <label class="field-label" for="justification">Justification</label>
+            <textarea id="justification" rows="4" placeholder="Explain your decision in a few lines: which numbers you used, what worries you, how the structure fixes it."></textarea>
+          </div>
+
+          <div class="proposal-actions">
+            <button class="btn btn-primary btn-lg" id="submit-proposal" type="submit" disabled>Send to committee</button>
+            <span class="muted small" id="submit-note">Choose a decision first.</span>
+          </div>
+        </form>
       </section>
     </div>
+  </main>
+
+  <!-- Screen 3: credit committee -->
+  <main class="screen screen-narrow" id="screen-committee" hidden>
+    <p class="eyebrow">Credit committee</p>
+    <h1>Defend your proposal</h1>
+    <p class="muted page-intro">Three questions from the committee. Answer in a few lines, then compare with what a good answer contains.</p>
+    <div class="card recap" id="recap"></div>
+    <div class="card question" id="question"></div>
+  </main>
+
+  <!-- Screen 4: result -->
+  <main class="screen screen-narrow" id="screen-result" hidden>
+    <div id="result"></div>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
