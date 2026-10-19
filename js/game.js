@@ -19,6 +19,25 @@
   var GAUGE_START = 50;
   var GAUGE_POINT = 10; // one gauge point in the case file = 10 out of 100
 
+  // The financial model, in the browser (window.Model) or in Node (tests).
+  var ModelLib = typeof module !== 'undefined' && module.exports ? require('./model.js') : root.Model;
+
+  // ---------- The proposal as the rules see it ----------
+
+  // Tenor: an input in some cases (case 02), fixed in others (case 01).
+  function requestedTenor(caseData) {
+    var s = caseData.model.sponsorCase;
+    return s.tenor !== undefined ? s.tenor : caseData.model.fixed.tenor;
+  }
+
+  function proposalTenor(caseData, proposal) {
+    return proposal.assumptions.tenor !== undefined ? proposal.assumptions.tenor : caseData.model.fixed.tenor;
+  }
+
+  function ticked(proposal, id) {
+    return proposal.decision === 'conditions' && !!proposal.conditions[id];
+  }
+
   // ---------- Conditions ----------
 
   // How each ticked condition counts, given the loan amount.
@@ -41,28 +60,35 @@
   }
 
   /*
-   * Conditions score: +1 per good condition, −1 per useless one, plus a
-   * "clean structure" bonus when at least one good condition and no useless
-   * one are ticked. Kept between 0 and the max.
+   * Conditions score: points of each ticked condition (+1 good, −1 useless),
+   * plus a "clean structure" bonus when at least one good condition and no
+   * useless one are ticked (if the case gives one). Kept between 0 and the max.
    */
   function scoreConditions(caseData, items) {
     var rules = caseData.rules.score.conditions;
     var raw = items.reduce(function (sum, i) { return sum + i.points; }, 0);
     var anyGood = items.some(function (i) { return i.points > 0; });
     var anyBad = items.some(function (i) { return i.points < 0; });
-    var clean = anyGood && !anyBad;
+    var clean = !!rules.cleanBonus && anyGood && !anyBad;
     if (clean) raw += rules.cleanBonus;
     return { points: Math.max(0, Math.min(rules.max, raw)), max: rules.max, clean: clean, items: items };
   }
 
-  // Weight of the term sheet for the sponsor: conditions plus any cut to the amount.
+  // Weight of the term sheet for the sponsor: conditions, plus any cut to the
+  // amount or to the tenor requested.
   function burden(caseData, proposal, items) {
     var comp = caseData.rules.competition;
     var lines = items.filter(function (i) { return i.burden; }).map(function (i) {
       return { label: i.label, burden: i.burden };
     });
-    if (proposal.decision === 'conditions' && proposal.loan < caseData.proposal.requestedLoan - 1e-9) {
-      lines.unshift({ label: 'Loan cut below USD ' + caseData.proposal.requestedLoan + 'm', burden: comp.loanCutBurden });
+    if (proposal.decision === 'conditions') {
+      var tenor = proposalTenor(caseData, proposal);
+      if (comp.tenorCutBurden && tenor < requestedTenor(caseData)) {
+        lines.unshift({ label: 'Tenor cut below ' + requestedTenor(caseData) + ' years', burden: comp.tenorCutBurden });
+      }
+      if (proposal.loan < caseData.proposal.requestedLoan - 1e-9) {
+        lines.unshift({ label: 'Loan cut below USD ' + caseData.proposal.requestedLoan + 'm', burden: comp.loanCutBurden });
+      }
     }
     var total = lines.reduce(function (sum, l) { return sum + l.burden; }, 0);
     return { total: total, max: comp.maxBurden, lines: lines, explain: comp.explain };
@@ -70,26 +96,57 @@
 
   // ---------- Outcome ----------
 
+  // Largest loan within the bank's policy on the case's official bank case,
+  // for the tenor and rate of the proposal.
+  function policyMaxDebt(caseData, proposal, bankCase) {
+    var inputs = Object.assign({}, caseData.model.fixed, bankCase, {
+      tenor: proposalTenor(caseData, proposal),
+      rate: proposal.rate !== undefined ? proposal.rate : caseData.model.fixed.rate,
+      loan: proposal.loan
+    });
+    if (inputs.curtailment !== undefined && inputs.curtailmentPercent) inputs.curtailment /= 100;
+    return ModelLib.computeCase(inputs).maxDebt;
+  }
+
+  // Does one outcome check fail for this proposal? (A failing check decides the outcome.)
+  function checkFails(caseData, proposal, check, items) {
+    switch (check.type) {
+      case 'burden':
+        return burden(caseData, proposal, items).total > caseData.rules.competition.maxBurden;
+      case 'requireCondition':
+        return !ticked(proposal, check.condition);
+      case 'maxLoan': {
+        var unless = (check.unlessAny || []).some(function (id) { return ticked(proposal, id); });
+        return proposal.loan > check.max + 1e-9 && !unless;
+      }
+      case 'policySizing':
+        return proposal.loan > policyMaxDebt(caseData, proposal, check.bankCase) + 1e-6;
+      default:
+        throw new Error('Unknown outcome check: ' + check.type);
+    }
+  }
+
   /*
-   * decline / approve (as requested) / lost (term sheet too heavy, the
-   * sponsor goes to the competitor) / right (conditions fix the sizing) / weak
+   * decline / approve (as requested) / one outcome per check in the case file,
+   * tried in order (e.g. lost to competitor, blocked by compliance, weak) / right
    */
   function outcomeKey(caseData, proposal) {
     if (proposal.decision === 'decline') return 'decline';
     if (proposal.decision === 'approve') return 'approve';
     var items = conditionItems(caseData, proposal);
-    if (burden(caseData, proposal, items).total > caseData.rules.competition.maxBurden) return 'lost';
-    var rule = caseData.rules.rightConditions;
-    var smallEnough = proposal.loan <= rule.maxLoan + 1e-9;
-    var supported = rule.orAnyCondition.some(function (id) { return proposal.conditions[id]; });
-    return smallEnough || supported ? 'right' : 'weak';
+    var checks = caseData.rules.outcomeChecks;
+    for (var i = 0; i < checks.length; i++) {
+      if (checkFails(caseData, proposal, checks[i], items)) return checks[i].outcome;
+    }
+    return 'right';
   }
 
   // Gauge moves: the outcome, plus the conditions' own effects if the deal closes.
   function gaugeDeltas(caseData, key, items) {
-    var deltas = Object.assign({ revenue: 0, risk: 0, credibility: 0 }, caseData.outcomes[key].gauges);
+    var outcome = caseData.outcomes[key];
+    var deltas = Object.assign({ revenue: 0, risk: 0, credibility: 0 }, outcome.gauges);
     var sources = [];
-    if (key === 'right' || key === 'weak') {
+    if (outcome.closes) {
       items.forEach(function (i) {
         Object.keys(i.gauges).forEach(function (g) {
           deltas[g] += i.gauges[g];
@@ -110,39 +167,55 @@
     return next;
   }
 
+  // ---------- Traps ----------
+
+  /*
+   * A trap is spotted when any of its tests passes:
+   *   { input, test: "max" | "min", value }  a control center value
+   *   { condition }                          a condition ticked
+   *   { loanAtMost }                         the loan amount
+   */
+  function runTrapTest(caseData, proposal, t) {
+    if (t.condition) return { kind: 'condition', condition: t.condition, hit: ticked(proposal, t.condition) };
+    if (t.loanAtMost !== undefined) {
+      return { kind: 'loan', target: t.loanAtMost, value: proposal.loan, hit: proposal.loan <= t.loanAtMost + 1e-9 };
+    }
+    var value = t.input === 'tenor' ? proposalTenor(caseData, proposal) : proposal.assumptions[t.input];
+    var hit = t.test === 'max' ? value <= t.value + 1e-9 : value >= t.value - 1e-9;
+    return { kind: 'input', input: t.input, test: t.test, target: t.value, value: value, hit: hit };
+  }
+
+  function evaluateTrap(caseData, proposal, trap) {
+    var tests = (trap.any || [{ input: trap.input, test: trap.test, value: trap.value }]).map(function (t) {
+      return runTrapTest(caseData, proposal, t);
+    });
+    var hit = tests.some(function (t) { return t.hit; });
+    return { id: trap.id, label: trap.label, tests: tests, hit: hit, points: hit ? trap.points : 0, max: trap.points };
+  }
+
   // ---------- Proposal score ----------
 
   /*
    * Everything decided when the player sends the proposal: traps (from the
    * control center at that moment), decision, conditions, outcome, gauges.
    *
-   * proposal = { decision, loan, conditions: { id: true }, assumptions: { yield, curtailment, ... } }
+   * proposal = { decision, loan, rate, conditions: { id: true }, assumptions: { yield, tenor, ... } }
    */
   function evaluateProposal(caseData, proposal) {
     var rules = caseData.rules.score;
     var key = outcomeKey(caseData, proposal);
     var items = conditionItems(caseData, proposal);
-
-    var traps = rules.traps.map(function (trap) {
-      var value = proposal.assumptions[trap.input];
-      var hit = trap.test === 'max' ? value <= trap.value : value >= trap.value;
-      return {
-        id: trap.id, label: trap.label, input: trap.input, test: trap.test,
-        target: trap.value, value: value, hit: hit,
-        points: hit ? trap.points : 0, max: trap.points
-      };
-    });
-
     var decisionMax = Math.max.apply(null, Object.keys(rules.decision).map(function (k) { return rules.decision[k]; }));
 
     return {
       outcomeKey: key,
       outcome: caseData.outcomes[key],
-      traps: traps,
+      traps: rules.traps.map(function (trap) { return evaluateTrap(caseData, proposal, trap); }),
       decision: { points: rules.decision[key], max: decisionMax },
       conditions: scoreConditions(caseData, items),
       burden: burden(caseData, proposal, items),
-      gauges: gaugeDeltas(caseData, key, items)
+      gauges: gaugeDeltas(caseData, key, items),
+      tenor: proposalTenor(caseData, proposal)
     };
   }
 
@@ -265,6 +338,7 @@
     GAUGE_START: GAUGE_START,
     GAUGE_POINT: GAUGE_POINT,
     outcomeKey: outcomeKey,
+    policyMaxDebt: policyMaxDebt,
     evaluateProposal: evaluateProposal,
     applyGauges: applyGauges,
     extractNumbers: extractNumbers,
@@ -281,20 +355,27 @@
   // Part 2 — browser game
   // ======================================================================
 
-  // Which case to load: ?case=case-02 in the address opens cases/case-02.json.
-  // Without it, the first case opens. Only letters, digits and dashes are allowed.
-  var DEFAULT_CASE = 'case-01';
+  // The welcome screen lists the cases in cases/index.json.
+  // ?case=case-02 in the address shows only that case (handy for a class).
+  // Only letters, digits and dashes are allowed in a case name.
+  var INDEX_URL = 'cases/index.json';
 
-  function caseUrl() {
-    var requested = new URLSearchParams(window.location.search).get('case');
-    var id = requested && /^[a-z0-9-]+$/i.test(requested) ? requested : DEFAULT_CASE;
-    return 'cases/' + id + '.json';
+  function requestedCase() {
+    var id = new URLSearchParams(window.location.search).get('case');
+    return id && /^[a-z0-9-]+$/i.test(id) ? id : null;
+  }
+
+  function fetchJson(url) {
+    return fetch(url).then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    });
   }
   var TYPING_DELAY = 1400; // ms before the next committee message arrives
 
   var state = {
     caseData: null,
-    assumptions: null,     // { yield, curtailment (%), tariff, opex } — control center values
+    assumptions: null,     // control center values, keyed like model.inputs (e.g. yield, tenor)
     decision: null,        // 'approve' | 'conditions' | 'decline'
     loan: null,            // loan amount set in the control center (USD m)
     loanWasReset: false,   // true right after "Approve as requested" put it back to the request
@@ -309,9 +390,18 @@
 
   // ---------- Model inputs ----------
 
+  // The sponsor's value for every control center input.
   function sponsorAssumptions() {
     var s = state.caseData.model.sponsorCase;
-    return { yield: s.yield, curtailment: s.curtailment, tariff: s.tariff, opex: s.opex };
+    var values = {};
+    Object.keys(state.caseData.model.inputs).forEach(function (key) { values[key] = s[key]; });
+    return values;
+  }
+
+  function hasTenorInput() { return !!state.caseData.model.inputs.tenor; }
+
+  function requestedTenorValue() {
+    return hasTenorInput() ? state.caseData.model.sponsorCase.tenor : state.caseData.model.fixed.tenor;
   }
 
   // After sending, the control center keeps the proposal that was sent.
@@ -335,21 +425,15 @@
     return rate;
   }
 
-  // Turn screen values into the units model.js expects (curtailment % → fraction).
+  // Fixed parameters plus control center values, in the units model.js
+  // expects (inputs marked "percent" are typed in %, e.g. curtailment 10 → 0.10).
   function modelInputs(assumptions, loan, rate) {
-    var fixed = state.caseData.model.fixed;
-    return {
-      capacity: fixed.capacity,
-      totalCost: fixed.totalCost,
-      tenor: fixed.tenor,
-      minDSCR: fixed.minDSCR,
-      yield: assumptions.yield,
-      curtailment: assumptions.curtailment / 100,
-      tariff: assumptions.tariff,
-      opex: assumptions.opex,
-      loan: loan,
-      rate: rate
-    };
+    var config = state.caseData.model.inputs;
+    var inputs = Object.assign({}, state.caseData.model.fixed, { loan: loan, rate: rate });
+    Object.keys(assumptions).forEach(function (key) {
+      inputs[key] = config[key] && config[key].percent ? assumptions[key] / 100 : assumptions[key];
+    });
+    return inputs;
   }
 
   // ---------- Redraw ----------
@@ -361,16 +445,17 @@
     var view = proposalView();
     var rate = rateFor(view.conditions);
 
-    var current = Model.computeCase(modelInputs(state.assumptions, view.loan, rate));
+    var inputs = modelInputs(state.assumptions, view.loan, rate);
+    var current = Model.computeCase(inputs);
     var sponsor = Model.computeCase(modelInputs(sponsorAssumptions(), data.model.sponsorCase.loan, fixed.rate));
-    var status = Model.dscrStatus(current.dscr, fixed.minDSCR, fixed.warnDSCR);
+    var policy = Model.policyStatus(current, fixed.minDSCR - fixed.warnDSCR);
 
-    var params = Object.assign({}, fixed, { loan: view.loan, rate: rate });
+    var params = Object.assign({}, fixed, { loan: view.loan, rate: rate, tenor: inputs.tenor });
 
     UI.setInputValues(data.model.inputs, state.assumptions, sponsorAssumptions());
-    UI.renderFixed(params);
-    UI.renderMetrics(current, sponsor, params, status);
-    UI.updateCharts(current, sponsor, fixed.minDSCR, status);
+    UI.renderFixed(params, data.model.inputs);
+    UI.renderMetrics(current, sponsor, params, policy);
+    UI.updateCharts(current, sponsor);
     UI.setProposalState({
       decision: view.decision,
       loan: view.loan,
@@ -380,10 +465,12 @@
       loanEditable: !state.submitted && state.decision !== 'approve',
       loanWasReset: state.loanWasReset,
       requestedLoan: data.proposal.requestedLoan,
+      requestedTenor: hasTenorInput() ? requestedTenorValue() : undefined,
+      tenorLocked: !!state.submitted || state.decision === 'approve',
       locked: !!state.submitted,
       finished: !!state.committeeFinished
     });
-    UI.renderProposalPreview(view.decision, current, params, status);
+    UI.renderProposalPreview(view.decision, current, params, policy.status);
   }
 
   function setAssumption(key, value) {
@@ -401,9 +488,13 @@
   var proposalHandlers = {
     decision: function (id) {
       var requested = state.caseData.proposal.requestedLoan;
-      // "Approve as requested" means the amount the sponsor asked for.
-      state.loanWasReset = id === 'approve' && Math.abs(state.loan - requested) > 1e-9;
-      if (id === 'approve') state.loan = requested;
+      // "Approve as requested" means the amount (and tenor) the sponsor asked for.
+      var tenorChanged = hasTenorInput() && state.assumptions.tenor !== requestedTenorValue();
+      state.loanWasReset = id === 'approve' && (Math.abs(state.loan - requested) > 1e-9 || tenorChanged);
+      if (id === 'approve') {
+        state.loan = requested;
+        if (hasTenorInput()) state.assumptions.tenor = requestedTenorValue();
+      }
       state.decision = id;
       refresh();
     },
@@ -422,6 +513,7 @@
       rate: rateFor(view.conditions),
       conditions: Object.assign({}, view.conditions),
       assumptions: Object.assign({}, state.assumptions),
+      tenor: hasTenorInput() ? state.assumptions.tenor : state.caseData.model.fixed.tenor,
       justification: state.justification.trim()
     };
     // The proposal part of the score is fixed now, from what was on screen.
@@ -493,7 +585,8 @@
       gaugesBefore: before,
       gaugesAfter: state.gauges,
       answers: state.answers,
-      onRestart: function () { window.location.reload(); }
+      onRestart: function () { window.location.href = '?case=' + encodeURIComponent(state.caseData.id); },
+      onAllCases: function () { window.location.href = window.location.pathname; }
     });
     UI.showScreen('result');
     // Let the screen appear first so the gauges visibly move.
@@ -513,7 +606,7 @@
     UI.renderProposal(data.proposal, proposalHandlers);
     UI.setGauges(state.gauges);
     UI.showScreen('case');
-    UI.initCharts(data.model.fixed.tenor);
+    UI.initCharts(hasTenorInput() ? data.model.inputs.tenor.max : data.model.fixed.tenor);
     UI.chat.init(onChatSend);
     refresh();
 
@@ -525,19 +618,28 @@
     });
   }
 
-  function init() {
-    fetch(caseUrl())
-      .then(function (res) {
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return res.json();
-      })
+  function loadCase(id) {
+    fetchJson('cases/' + id + '.json')
       .then(function (data) {
         state.caseData = data;
-        UI.renderWelcome(data, startCase);
+        startCase();
+      })
+      .catch(function () {
+        UI.renderLoadError('This case could not be loaded. Check its file in the cases folder (see README).');
+      });
+  }
+
+  function init() {
+    fetchJson(INDEX_URL)
+      .then(function (index) {
+        var only = requestedCase();
+        var cases = only ? index.cases.filter(function (c) { return c.id === only; }) : index.cases;
+        if (!cases.length) throw new Error('Unknown case');
+        UI.renderWelcome(cases, loadCase);
       })
       .catch(function () {
         UI.renderLoadError(
-          'The case file could not be loaded. Check the case name in the address, ' +
+          'The cases could not be loaded. Check the case name in the address, ' +
           'or, if you opened index.html directly, start a local server instead (see README).'
         );
       });

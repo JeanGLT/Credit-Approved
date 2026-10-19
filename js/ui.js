@@ -30,6 +30,12 @@
     });
   }
 
+  // USD amounts: one decimal, or two when needed (69.75 stays 69.75, 26 shows 26.0).
+  function money(value) {
+    var oneDecimal = Math.abs(Math.round(value * 10) - value * 10) < 1e-6;
+    return fmt(value, oneDecimal ? 1 : 2);
+  }
+
   // Number of decimals implied by a slider step (10 → 0, 0.5 → 1, 0.05 → 2).
   function decimalsOf(step) {
     var s = String(step);
@@ -56,17 +62,33 @@
     window.scrollTo(0, 0);
   }
 
-  function renderWelcome(caseData, onStart) {
-    var btn = $('start-btn');
-    btn.disabled = false;
-    btn.textContent = 'Start';
-    btn.addEventListener('click', onStart);
+  // One card per case. `onPick(id)` starts that case.
+  function renderWelcome(cases, onPick) {
+    var list = $('case-list');
+    list.textContent = '';
+    cases.forEach(function (c, i) {
+      var card = el('button', 'case-card');
+      card.type = 'button';
+      var top = el('div', 'case-card-top');
+      top.appendChild(el('span', 'case-number', 'Case ' + (i + 1)));
+      top.appendChild(el('span', 'case-level level-' + c.level.toLowerCase(), c.level));
+      card.appendChild(top);
+      card.appendChild(el('span', 'case-title', c.title));
+      card.appendChild(el('span', 'case-meta', c.country + ' · ' + c.readingTime));
+      card.appendChild(el('span', 'case-tagline', c.tagline));
+      card.appendChild(el('span', 'case-start', 'Start →'));
+      card.addEventListener('click', function () {
+        list.querySelectorAll('.case-card').forEach(function (b) { b.disabled = true; });
+        card.querySelector('.case-start').textContent = 'Loading…';
+        onPick(c.id);
+      });
+      list.appendChild(card);
+    });
   }
 
   function renderLoadError(message) {
-    var btn = $('start-btn');
-    btn.disabled = true;
-    btn.textContent = 'Could not load the case';
+    var list = $('case-list');
+    list.querySelectorAll('.case-card').forEach(function (b) { b.disabled = true; });
     var error = $('welcome-error');
     error.textContent = message;
     error.hidden = false;
@@ -267,16 +289,22 @@
     });
   }
 
-  function renderFixed(params) {
+  function renderFixed(params, inputs) {
     var container = $('fixed-params');
     container.textContent = '';
     var chips = [
-      ['Capacity', fmt(params.capacity, 0) + ' MWp'],
-      ['Total cost', 'USD ' + fmt(params.totalCost, 1) + 'm'],
-      ['Tenor', params.tenor + ' years'],
-      ['Interest rate', fmt(params.rate * 100, 1) + '%'],
-      ['Bank min DSCR', fmt(params.minDSCR, 2) + 'x']
+      ['Capacity', fmt(params.capacity, 0) + ' ' + (params.capacityUnit || 'MWp')],
+      ['Total cost', 'USD ' + fmt(params.totalCost, 1) + 'm']
     ];
+    if (!inputs.tenor) chips.push(['Tenor', params.tenor + ' years']);
+    chips.push(['Interest rate', fmt(params.rate * 100, 1) + '%']);
+    if (params.ppaYears !== undefined) chips.push(['PPA', params.ppaYears + ' years']);
+    if (params.warrantyYears !== undefined) chips.push(['O&M warranty', params.warrantyYears + ' years']);
+    if (params.merchantMinDSCR !== undefined) {
+      chips.push(['Bank min DSCR', fmt(params.minDSCR, 2) + 'x contracted · ' + fmt(params.merchantMinDSCR, 2) + 'x merchant']);
+    } else {
+      chips.push(['Bank min DSCR', fmt(params.minDSCR, 2) + 'x']);
+    }
     chips.forEach(function (c) {
       var chip = el('div', 'chip');
       chip.appendChild(el('span', null, c[0]));
@@ -301,17 +329,29 @@
 
   var STATUS_TEXT = { good: 'Meets policy', warn: 'Below policy', bad: 'Well below policy' };
 
-  function renderMetrics(current, sponsor, params, status) {
+  // policy = Model.policyStatus(): worst year against its own minimum.
+  function renderMetrics(current, sponsor, params, policy) {
     var container = $('metrics');
     container.textContent = '';
+    var years = current.years;
+    var varies = years.some(function (y) { return Math.abs(y.cfads - years[0].cfads) > 1e-9; });
+    var lowestCf = years.reduce(function (m, y) { return y.cfads < m.cfads ? y : m; }, years[0]);
+
+    var dscrSub = varies
+      ? 'Lowest in year ' + current.dscrYear + ' · Sponsor case ' + fmt(sponsor.dscr, 2) + 'x'
+      : 'Bank minimum ' + fmt(params.minDSCR, 2) + 'x · Sponsor case ' + fmt(sponsor.dscr, 2) + 'x';
+    if (policy.status !== 'good' && varies) {
+      dscrSub = 'Year ' + policy.year + ': ' + fmt(policy.dscr, 2) + 'x vs ' + fmt(policy.minDSCR, 2) + 'x required · Sponsor case ' + fmt(sponsor.dscr, 2) + 'x';
+    }
+
     var tiles = [
       {
-        label: 'DSCR', className: 'is-dscr', status: status,
-        value: fmt(current.dscr, 2), unit: 'x', pill: STATUS_TEXT[status],
-        sub: 'Bank minimum ' + fmt(params.minDSCR, 2) + 'x · Sponsor case ' + fmt(sponsor.dscr, 2) + 'x'
+        label: varies ? 'Minimum DSCR' : 'DSCR', className: 'is-dscr', status: policy.status,
+        value: fmt(current.dscr, 2), unit: 'x', pill: STATUS_TEXT[policy.status], sub: dscrSub
       },
       {
-        label: 'Max debt at ' + fmt(params.minDSCR, 2) + 'x', value: fmt(current.maxDebt, 2), unit: 'USD m',
+        label: params.merchantMinDSCR !== undefined ? 'Max debt within policy' : 'Max debt at ' + fmt(params.minDSCR, 2) + 'x',
+        value: fmt(current.maxDebt, 2), unit: 'USD m',
         sub: 'Loan ' + fmt(params.loan, 2)
       },
       {
@@ -323,12 +363,12 @@
         sub: 'Sponsor ' + fmt(sponsor.production, 2)
       },
       {
-        label: 'Revenue', value: fmt(current.revenue, 2), unit: 'USD m',
+        label: varies ? 'Revenue, year 1' : 'Revenue', value: fmt(current.revenue, 2), unit: 'USD m',
         sub: 'Sponsor ' + fmt(sponsor.revenue, 2)
       },
       {
-        label: 'CFADS', value: fmt(current.cfads, 2), unit: 'USD m',
-        sub: 'Sponsor ' + fmt(sponsor.cfads, 2)
+        label: varies ? 'CFADS, year 1' : 'CFADS', value: fmt(current.cfads, 2), unit: 'USD m',
+        sub: varies ? 'Lowest ' + fmt(lowestCf.cfads, 2) + ' in year ' + lowestCf.year : 'Sponsor ' + fmt(sponsor.cfads, 2)
       },
       {
         label: 'Annual debt service', value: fmt(current.debtService, 2), unit: 'USD m',
@@ -386,12 +426,12 @@
     };
   }
 
-  function initCharts(tenor) {
+  function initCharts(maxYears) {
     if (typeof Chart === 'undefined') return; // CDN unreachable: metrics still work.
     Chart.defaults.font.family = '"Inter", system-ui, sans-serif';
 
     var labels = [];
-    for (var y = 1; y <= tenor; y++) labels.push('Y' + y);
+    for (var y = 1; y <= maxYears; y++) labels.push('Y' + y);
     var accent = cssVar('--accent');
     var text = cssVar('--text');
     var empty = labels.map(function () { return 0; });
@@ -407,7 +447,7 @@
           sponsorLine('Sponsor debt service', empty)
         ]
       },
-      options: baseOptions({ min: 0, suggestedMax: 6 }, 'm')
+      options: baseOptions({ min: 0 }, 'm')
     });
 
     charts.dscr = new Chart($('chart-dscr'), {
@@ -416,7 +456,7 @@
         labels: labels,
         datasets: [
           { label: 'Your DSCR', data: empty, borderColor: accent, borderWidth: 2.5, pointRadius: 0, order: 1 },
-          { label: 'Bank minimum', data: empty, borderColor: cssVar('--bad'), borderWidth: 1.5, pointRadius: 0, order: 2 },
+          { label: 'Bank minimum', data: empty, borderColor: cssVar('--bad'), borderWidth: 1.5, pointRadius: 0, stepped: 'middle', order: 2 },
           sponsorLine('Sponsor DSCR', empty)
         ]
       },
@@ -435,34 +475,50 @@
           sponsorLine('Sponsor case', empty)
         ]
       },
-      options: baseOptions({ min: 0, suggestedMax: 30 }, 'm')
+      options: baseOptions({ min: 0 }, 'm')
     });
   }
 
-  var STATUS_COLOUR = { good: '--good', warn: '--warn', bad: '--bad' };
-
-  function updateCharts(current, sponsor, minDSCR, status) {
+  function updateCharts(current, sponsor) {
     if (!charts.cashflow) return;
-    function pick(result, field) { return result.years.map(function (y) { return y[field]; }); }
+    // The tenor can change: show the longest of the two cases, blank after the end.
+    var length = Math.max(current.years.length, sponsor.years.length);
+    var labels = [];
+    for (var y = 1; y <= length; y++) labels.push('Y' + y);
+    function pick(result, field) {
+      var values = result.years.map(function (yr) { return yr[field]; });
+      while (values.length < length) values.push(null);
+      return values;
+    }
+    function maxOf(values) { return Math.max.apply(null, values.filter(function (v) { return v !== null; })); }
 
     var cf = charts.cashflow.data.datasets;
+    charts.cashflow.data.labels = labels;
     cf[0].data = pick(current, 'cfads');
     cf[1].data = pick(current, 'debtService');
     cf[2].data = pick(sponsor, 'cfads');
     cf[3].data = pick(sponsor, 'debtService');
+    // Keep the scale steady around the sponsor case so changes are easy to see.
+    charts.cashflow.options.scales.y.suggestedMax = Math.ceil(maxOf(cf[2].data) * 1.15);
     charts.cashflow.update();
 
     var ds = charts.dscr.data.datasets;
+    charts.dscr.data.labels = labels;
+    // Your DSCR stays in the accent colour so it never blends with the red minimum line;
+    // the green / amber / red status is shown on the DSCR tile.
     ds[0].data = pick(current, 'dscr');
-    ds[0].borderColor = cssVar(STATUS_COLOUR[status]);
-    ds[1].data = current.years.map(function () { return minDSCR; });
-    ds[1].label = 'Bank minimum ' + fmt(minDSCR, 2) + 'x';
+    ds[1].data = pick(current, 'minDSCR');
+    var minimums = current.years.map(function (yr) { return yr.minDSCR; });
+    var lo = Math.min.apply(null, minimums), hi = Math.max.apply(null, minimums);
+    ds[1].label = lo === hi ? 'Bank minimum ' + fmt(lo, 2) + 'x' : 'Bank minimum ' + fmt(lo, 2) + 'x / ' + fmt(hi, 2) + 'x';
     ds[2].data = pick(sponsor, 'dscr');
     charts.dscr.update();
 
     var bl = charts.balance.data.datasets;
+    charts.balance.data.labels = labels;
     bl[0].data = pick(current, 'balance');
     bl[1].data = pick(sponsor, 'balance');
+    charts.balance.options.scales.y.suggestedMax = Math.ceil(Math.max(sponsor.years[0].balance + sponsor.debtService, current.years[0].balance + current.debtService) * 1.1);
     charts.balance.update();
   }
 
@@ -531,7 +587,15 @@
     $('range-loan').disabled = !s.loanEditable;
     var loanField = $('loan-field');
     loanField.classList.toggle('is-disabled', !s.loanEditable && !s.locked);
-    var requested = 'USD ' + fmt(s.requestedLoan, 1) + 'm';
+    var requested = 'USD ' + money(s.requestedLoan) + 'm' +
+      (s.requestedTenor !== undefined ? ' over ' + s.requestedTenor + ' years' : '');
+
+    // Tenor, when the case lets the player change it: same lock as the amount.
+    if ($('num-tenor')) {
+      $('num-tenor').disabled = s.tenorLocked;
+      $('range-tenor').disabled = s.tenorLocked;
+      $('num-tenor').closest('.input-row').classList.toggle('is-disabled', s.tenorLocked && !s.locked);
+    }
     var loanNote = s.locked
       ? 'Sent to the committee.'
       : s.decision === 'approve'
@@ -546,8 +610,8 @@
     // Tell the player when "Approve as requested" put the amount back to the request.
     var notice = $('decision-notice');
     notice.hidden = !s.loanWasReset || s.locked;
-    notice.textContent = 'The loan amount was reset to the ' + requested +
-      ' requested by the sponsor: "Approve as requested" lends exactly what was asked.';
+    notice.textContent = (s.requestedTenor !== undefined ? 'The loan amount and tenor were' : 'The loan amount was') +
+      ' reset to the ' + requested + ' requested by the sponsor: "Approve as requested" lends exactly what was asked.';
     if (s.loanWasReset && !lastLoanReset) {
       loanField.classList.remove('flash');
       void loanField.offsetWidth;
@@ -579,15 +643,16 @@
     var box = $('proposal-preview');
     box.textContent = '';
     box.dataset.status = status;
+    var terms = 'USD ' + money(params.loan) + 'm over ' + params.tenor + ' years at ' + fmt(params.rate * 100, 1) + '%';
     var lead = decision === 'decline'
-      ? 'For reference, the request at USD ' + fmt(params.loan, 1) + 'm and ' + fmt(params.rate * 100, 1) + '%, on your assumptions:'
-      : 'At USD ' + fmt(params.loan, 1) + 'm and ' + fmt(params.rate * 100, 1) + '%, on your assumptions:';
+      ? 'For reference, ' + terms + ', on your assumptions:'
+      : 'At ' + terms + ', on your assumptions:';
     box.appendChild(el('p', 'preview-lead', lead));
     var line = el('div', 'preview-figures');
     [
-      ['DSCR', fmt(current.dscr, 2) + 'x', 'is-dscr'],
+      [params.merchantMinDSCR !== undefined ? 'Minimum DSCR' : 'DSCR', fmt(current.dscr, 2) + 'x', 'is-dscr'],
       ['Gearing', fmt(current.gearing * 100, 1) + '%'],
-      ['Max debt at ' + fmt(params.minDSCR, 2) + 'x', 'USD ' + fmt(current.maxDebt, 2) + 'm']
+      [params.merchantMinDSCR !== undefined ? 'Max debt within policy' : 'Max debt at ' + fmt(params.minDSCR, 2) + 'x', 'USD ' + fmt(current.maxDebt, 2) + 'm']
     ].forEach(function (f) {
       var item = el('div', 'preview-item' + (f[2] ? ' ' + f[2] : ''));
       item.appendChild(el('span', null, f[0]));
@@ -614,7 +679,7 @@
     var wrap = el('div', 'recap-body');
     var rows = [['Decision', decisionLabel(caseData, proposal.decision)]];
     if (proposal.decision !== 'decline') {
-      rows.push(['Loan', 'USD ' + fmt(proposal.loan, 1) + 'm at ' + fmt(proposal.rate * 100, 1) + '%']);
+      rows.push(['Loan', 'USD ' + money(proposal.loan) + 'm over ' + proposal.tenor + ' years at ' + fmt(proposal.rate * 100, 1) + '%']);
     }
     if (proposal.decision === 'conditions') {
       var labels = conditionLabels(caseData, proposal.conditions);
@@ -900,6 +965,30 @@
     return ul;
   }
 
+  // What the player did for a trap, and (if missed) what would have counted.
+  function trapDetail(data, trap) {
+    function conditionName(id) {
+      var c = data.proposal.conditions.filter(function (x) { return x.id === id; })[0];
+      return c ? '"' + c.label + '"' : id;
+    }
+    function describe(t, withTarget) {
+      if (t.kind === 'condition') return (t.hit ? 'You ticked ' : 'tick ') + conditionName(t.condition);
+      if (t.kind === 'loan') {
+        return withTarget ? 'a loan of USD ' + fmt(t.target, 0) + 'm or less' : 'Your loan: USD ' + fmt(t.value, 2) + 'm';
+      }
+      var input = data.model.inputs[t.input];
+      var d = decimalsOf(input.step);
+      var name = input.label.charAt(0).toLowerCase() + input.label.slice(1);
+      if (withTarget) return name + ' ' + (t.test === 'max' ? '≤' : '≥') + ' ' + fmt(t.target, d) + ' ' + input.unit;
+      return 'You used ' + fmt(t.value, d) + ' ' + input.unit + ' (' + name + ')';
+    }
+    var hits = trap.tests.filter(function (t) { return t.hit; });
+    if (hits.length) return describe(hits[0], false);
+    var used = trap.tests.filter(function (t) { return t.kind !== 'condition'; }).map(function (t) { return describe(t, false); });
+    var needed = trap.tests.map(function (t) { return describe(t, true); });
+    return (used.length ? used.join(' · ') + ' · ' : '') + 'needed: ' + needed.join(', or ');
+  }
+
   function renderResult(opts) {
     var data = opts.caseData;
     var ev = opts.evaluation;
@@ -930,12 +1019,7 @@
     var trapMax = ev.traps.reduce(function (s, t) { return s + t.max; }, 0);
     card.appendChild(scoreSection('Analysis', trapPoints, trapMax));
     ev.traps.forEach(function (t) {
-      var input = data.model.inputs[t.input];
-      var d = decimalsOf(input.step);
-      var sign = t.test === 'max' ? '≤' : '≥';
-      var detail = 'You used ' + fmt(t.value, d) + ' ' + input.unit +
-        (t.hit ? '' : ' · needed ' + sign + ' ' + fmt(t.target, d) + ' ' + input.unit);
-      card.appendChild(scoreRow(t.label, detail, t.points, t.max));
+      card.appendChild(scoreRow(t.label, trapDetail(data, t), t.points, t.max));
     });
 
     card.appendChild(scoreSection('Decision', ev.decision.points, ev.decision.max));
@@ -1072,14 +1156,19 @@
       keyNode.appendChild(el('h4', null, t.title));
       keyNode.appendChild(el('p', null, t.text));
     });
-    keyNode.appendChild(el('h4', null, key.cases.note));
-    keyNode.appendChild(renderBlock({ type: 'table', head: key.cases.head, rows: key.cases.rows }));
-    keyNode.appendChild(el('p', null, key.cases.footer));
+    (key.tables || [key.cases]).forEach(function (t) {
+      keyNode.appendChild(el('h4', null, t.note));
+      keyNode.appendChild(renderBlock({ type: 'table', head: t.head, rows: t.rows }));
+      if (t.footer) keyNode.appendChild(el('p', null, t.footer));
+    });
     keyNode.appendChild(el('h4', null, key.rightDecision.title));
     keyNode.appendChild(el('p', null, key.rightDecision.intro));
     keyNode.appendChild(renderBlock({ type: 'list', items: key.rightDecision.options }));
     keyNode.appendChild(el('h4', null, 'How each condition counts'));
-    var roles = { good: 'Good', useless: 'Useless', sizing: 'Fixes the sizing' };
+    var roles = {
+      good: 'Good', useless: 'Useless', sizing: 'Fixes the sizing', exposure: 'Fixes the exposure',
+      compliance: 'Fixes the compliance gap', insufficient: 'Insufficient', neutral: 'Neutral'
+    };
     keyNode.appendChild(renderBlock({
       type: 'table',
       head: ['Condition', 'Role', 'Why'],
@@ -1094,6 +1183,10 @@
     root.appendChild(keyNode);
 
     var actions = el('div', 'result-actions');
+    var all = el('button', 'btn btn-ghost btn-lg', 'All cases');
+    all.type = 'button';
+    all.addEventListener('click', opts.onAllCases);
+    actions.appendChild(all);
     var again = el('button', 'btn btn-primary btn-lg', 'Play again');
     again.type = 'button';
     again.addEventListener('click', opts.onRestart);

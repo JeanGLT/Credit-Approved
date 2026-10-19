@@ -1,0 +1,271 @@
+# Case 02 — Amihan Wind (Philippines)
+
+Oct 19, 2026 · @Jean
+
+Intermediate case for Credit-Approved: a 60 MW onshore wind farm in the Philippines, four traps of different kinds (revenue, costs, portfolio, compliance), and more than one acceptable structure.
+
+## Game card
+
+The second case a player sees. It builds on case 01 (check the sponsor's numbers) and adds three new habits: look at the whole life of the loan, not just year 1; think about the bank's portfolio, not just the project; and never skip compliance to close faster.
+
+| Item | Value |
+| --- | --- |
+| Level | Intermediate |
+| Reading time | About 10 minutes (about 30 minutes for the whole case) |
+| Player sees | Deal summary, sponsor business plan extract, independent engineer extract, market study extract, "Others" tab (portfolio note and shareholding chart), one chat message from the front office |
+| Choices | Approve · Decline · Approve with conditions (10 conditions to pick from) |
+| Correct answer | Approve with conditions: tenor cut to the PPA, debt sized on the bank case, the bank's share capped at its limit, full KYC |
+| Characters | Kevin Lau (front office), Margaret Chen (Head of Risk), Priya Nair (Credit Portfolio Management, new) |
+| Score | Out of 20: analysis 6, decision 4, conditions 2, committee 8 (four questions) |
+
+What is new compared with case 01: assumptions that change over time (tariff after the PPA, operating costs after the warranty), the debt tenor as a control center input, a stricter DSCR on merchant revenues, and two traps that are fixed with conditions rather than numbers.
+
+## Document 1 — Deal summary
+
+*Harbour Pacific Bank · Credit request · Energy & Infrastructure*
+
+| Item | Detail |
+| --- | --- |
+| Project | Amihan Wind, 60 MW onshore wind farm (20 turbines of 3 MW) |
+| Location | Ilocos Norte Province, Luzon, Philippines |
+| Borrower | Amihan Wind Power Inc., a special purpose company |
+| Sponsor | Northpoint Energy Group, listed on the Philippine Stock Exchange. Operates 180 MW of solar in Luzon; first wind project |
+| Timeline | Construction starts Q2 2027, commercial operation Q3 2028 |
+| Total project cost | USD 93.0m |
+| Loan requested | USD 69.75m senior term loan (75% gearing) |
+| Tenor | 18 years after commercial operation, annuity repayment |
+| All-in interest rate | 7.5% |
+| Offtaker | Luzon Power Distribution Corp., a large regional distribution utility |
+| Power purchase agreement | 12 years from commercial operation, USD 7.6 cents/kWh, USD-indexed, paid in PHP |
+| Construction | Fixed-price, date-certain EPC contract with the turbine manufacturer's EPC arm, delay damages included |
+| Sponsor's minimum DSCR | 1.53x |
+
+**Bank lending criteria**
+
+- Minimum DSCR: 1.30x on contracted revenues, 1.50x on merchant revenues, on the bank's case
+- Maximum gearing of 75%
+- Debt service reserve account (DSRA) covering 6 months of debt service
+
+## Document 2 — Sponsor business plan (extract)
+
+*Northpoint Energy Group · Amihan Wind · Key assumptions*
+
+| Assumption | Value |
+| --- | --- |
+| Installed capacity | 60 MW |
+| Net specific yield | 2,803 kWh/kW per year (32% capacity factor, independent engineer's P90) |
+| Annual production | 168.2 GWh |
+| Tariff | USD 7.6 cents/kWh for 12 years, then re-contracted or sold on the spot market at a similar level |
+| Annual revenue | USD 12.8m |
+| Operating costs | USD 1.8m per year (full-service O&M agreement with the turbine manufacturer) |
+| Cash flow available for debt service | USD 11.0m |
+| Annual debt service | USD 7.2m (USD 69.75m, 18 years, 7.5%) |
+| Minimum DSCR | 1.53x |
+
+Tax is ignored: the project benefits from an income tax holiday.
+
+**Sponsor's comment**
+
+> Luzon needs every megawatt of clean power it can get, and spot prices on the wholesale market have risen for three years in a row. We will re-contract at the same level or better. Our solar portfolio was financed over 18 years by two other banks; we expect the same here.
+
+## Document 3 — Independent engineer report (extract)
+
+*Meridian Technical Advisors · Independent Engineer Report · pages 6, 14 and 19*
+
+**Energy yield (page 6)**
+
+| Case | Capacity factor | Annual production |
+| --- | --- | --- |
+| P50 | 35% | 184.0 GWh |
+| P90 (1 year) | 32% | 168.2 GWh |
+
+> The sponsor's base case uses our P90. We have no concerns on the yield.
+
+**Typhoon exposure (page 14)**
+
+> The selected turbine is certified for typhoon-class winds (IEC class T) and has more than ten years of operating history in Taiwan and Japan. Insurance quotes include typhoon damage and business interruption.
+
+**Operation and maintenance (page 19)**
+
+> The full-service agreement covers the first 5 years of operation, including the manufacturer's warranty and a 97% availability guarantee. The USD 1.8m per year in the business plan reflects that price. From year 6, once the warranty ends, we estimate USD 3.0m per year for a comparable scope: scheduled and unscheduled maintenance, major component replacement and higher insurance premiums.
+
+**Other findings**
+
+- Plant design, EPC contract and grid connection: sound, no concerns.
+
+## Document 4 — Market study (extract)
+
+*Asia Energy Insight · Luzon wholesale electricity price outlook · page 22*
+
+Average price received by a wind plant on the wholesale spot market, in USD cents/kWh (real terms):
+
+| Case | 2028–2035 | 2036–2045 |
+| --- | --- | --- |
+| High | 8.6 | 8.2 |
+| Base | 7.6 | 7.0 |
+| Low (recommended for lenders) | 6.6 | 6.0 |
+
+> Spot prices have been high since 2023, but more than 6 GW of solar and wind is planned in Luzon by 2035. We expect prices captured by wind plants to soften from the mid-2030s. Lenders should not rely on a re-contracting price above our low case.
+
+## Document 5 — Others
+
+*Harbour Pacific Bank · internal*
+
+**Credit Portfolio Management — single-group exposure**
+
+| Group | Outstanding | Group limit | Available |
+| --- | --- | --- | --- |
+| Luzon Power Distribution Corp. and subsidiaries | USD 155m | USD 200m | USD 45m |
+
+> Exposure to a project company counts against the limit of its offtaker's group when the offtaker provides more than 75% of revenues.
+
+**Shareholding of the borrower (provided by the sponsor)**
+
+| Level | Company | Stake |
+| --- | --- | --- |
+| Borrower | Amihan Wind Power Inc. | 100% owned by Amihan Renewables Holdings Inc. |
+| Holding | Amihan Renewables Holdings Inc. | 75% Northpoint Energy Group (listed) · 25% Silverbay Holdings Ltd (British Virgin Islands) |
+
+> Sponsor's note next to Silverbay: "Confidential family investment vehicle, long-standing partner of the group."
+
+## Message from the front office
+
+*Arrives in the chat (bottom right) a few seconds after the case opens. From: Kevin Lau, Director, Energy Coverage*
+
+> Hi, Amihan is Northpoint's first wind project and they want to bring us their whole Luzon pipeline if this goes well. Their solar portfolio got 18 years elsewhere, so they expect the same from us. Term sheet by Friday, and please keep the documentation light, they found our last requests heavy.
+
+## Answer key (hidden from the player)
+
+The project is sound in its first years, but the sponsor's case hides two step-downs in cash flow, and two bank-side constraints apply whatever the DSCR. As requested (USD 69.75m over 18 years), the deal fails all four tests.
+
+**Trap 1 — PPA shorter than the debt.** The PPA runs 12 years, the loan 18. The sponsor assumes the same 7.6 cents after year 12. The market study's low case, recommended for lenders, is 6.0 cents from the mid-2030s. On the bank case, the DSCR falls to 0.99x from year 13, and policy requires 1.50x on merchant revenues. The fix is to cut the tenor to 12 years: with no merchant tail, the bank can lend more (USD 58.2m) than over 18 years (USD 45.9m).
+
+**Trap 2 — Operating costs after the warranty.** The USD 1.8m per year only holds for the 5-year full-service agreement. The engineer expects USD 3.0m from year 6. On its own the trap is discreet (DSCR 1.36x from year 6 at USD 69.75m), but it cuts the maximum debt over 12 years from USD 65.3m to USD 58.2m.
+
+**Trap 3 — Single-group exposure.** The loan counts against the offtaker's group limit: USD 45m available. The bank can hold at most USD 45m, whatever the DSCR. The rest must be syndicated to another bank, or the loan reduced.
+
+**Trap 4 — Incomplete KYC.** A 25% indirect shareholder (Silverbay, British Virgin Islands) has no identified beneficial owner. KYC on the listed parent alone does not cover it. Full KYC on all direct and indirect shareholders above 10% must be a condition before signing. It does not stop the approval, only the signing.
+
+**Bank case at USD 69.75m over 18 years** (annual debt service USD 7.19m)
+
+| Years | Revenue | Operating costs | Cash flow for debt service | DSCR | Policy minimum |
+| --- | --- | --- | --- | --- | --- |
+| 1–5 | USD 12.78m | USD 1.8m | USD 10.98m | 1.53x | 1.30x |
+| 6–12 | USD 12.78m | USD 3.0m | USD 9.78m | 1.36x | 1.30x |
+| 13–18 | USD 10.09m (6.0 cents) | USD 3.0m | USD 7.09m | 0.99x | 1.50x |
+
+**Maximum debt on the bank case, by tenor** (1.30x on contracted years, 1.50x on merchant years)
+
+| Tenor | Maximum debt | Binding constraint |
+| --- | --- | --- |
+| 12 years | USD 58.2m | Years 6–12 at 1.30x |
+| 15 years | USD 41.7m | Years 13–15 at 1.50x |
+| 18 years | USD 45.9m | Years 13–18 at 1.50x |
+
+If the player only finds trap 1 (operating costs left at USD 1.8m), the maximum debt over 12 years looks like USD 65.3m: USD 7m too much.
+
+**Right decision: approve with conditions.** All four must hold:
+
+- Debt sized within policy on the bank case: USD 58.2m at most over 12 years (best for the client), or USD 45.9m at most over 18 years (acceptable). Over 12 years at USD 58m: debt service USD 7.50m, DSCR 1.30x, gearing 62%, sponsor equity USD 35.0m.
+- The bank's share capped at USD 45m: syndicate the rest, or lend USD 45m only.
+- Full KYC on all direct and indirect shareholders above 10% before signing.
+
+Conditions that earn extra credit: the 6-month DSRA funded at close (about USD 3.8m at USD 58m over 12 years) and a dividend lock-up below 1.20x DSCR.
+
+Weak answers: an 18-year loan sized on the sponsor's prices, a PPA extension the sponsor cannot deliver, a higher margin, or declining because of the KYC request (the right move is to require it, not to walk away).
+
+**Conditions offered to the player**
+
+| Condition | Role | Points | Gauge effect (if the deal closes) | Weight on the sponsor | Why |
+| --- | --- | --- | --- | --- | --- |
+| DSRA of 6 months funded at close | Good | +1 | — | 1 | Six months of debt service set aside in cash. |
+| Dividend lock-up below 1.20x DSCR | Good | +1 | — | 1 | Cash stays in the project if the DSCR falls. |
+| Syndicate the amount above USD 45m to another bank | Fixes the exposure | 0 if the loan is above USD 45m, −1 if not | — | 1 | The only way to lend more than the group limit allows. Redundant if the loan is already USD 45m or less. |
+| Full KYC on all direct and indirect shareholders above 10% before signing | Fixes the compliance gap | 0 | — | 1 | Covers Silverbay (25%, indirect). Required before signing. |
+| Standard KYC on Northpoint Energy, the listed parent | Insufficient | 0 | — | 0 | Looks enough, but does not cover the 25% shareholder. |
+| Legal opinion on the enforceability of the PPA | Neutral | 0 | — | 1 | Already part of the standard documentation for this deal. |
+| Copy of the environmental compliance certificate before first drawdown | Neutral | 0 | — | 1 | Already a standard condition. |
+| PPA extended to 18 years before signing | Useless | −1 | Credibility −1 | 3 | Only the offtaker can grant it, and not by Friday. |
+| Higher margin (+50 bp) | Useless | −1 | Bank revenue +1 | 1 | More revenue, but a higher rate makes every DSCR worse. |
+
+The tenor and the amount are set in the control center. Cutting the tenor below 18 years weighs 1 on the sponsor, cutting the amount below USD 69.75m weighs 2.
+
+**Competition.** Above a total weight of 7, Northpoint takes its pipeline to another bank: outcome "Lost to competitor". The best answer weighs 6 (shorter tenor 1, smaller loan 2, syndication 1, full KYC 1, DSRA 1); adding the lock-up brings it to 7, still fine. Adding the neutral conditions on top loses the deal.
+
+## Committee questions
+
+Four questions after the decision, asked one at a time in the chat, each person in their own conversation. Each answer is scored from 0 to 2; the good answers appear only on the result screen.
+
+| # | Asked by | Question | A good answer contains |
+| --- | --- | --- | --- |
+| 1 | Margaret Chen, Head of Risk | What happens to the cash flows after year 12, and how did you size the tenor? | The PPA ends in year 12; after that the plant sells at merchant prices, 6.0 cents in the market study's low case, not 7.6. Over 18 years the DSCR would fall to 0.99x against a 1.50x requirement. A 12-year tenor removes the merchant tail and supports USD 58m. |
+| 2 | Margaret Chen, Head of Risk | Are the operating costs in the business plan realistic for the whole life of the loan? | No: USD 1.8m only covers the 5-year warranty period. The engineer expects USD 3.0m from year 6, which brings the cash flow down to USD 9.78m and the maximum debt to USD 58m. |
+| 3 | Priya Nair, Credit Portfolio Management | Can we hold this loan on our balance sheet? | Not all of it: the loan counts against the offtaker's group, with USD 155m used out of a USD 200m limit, so USD 45m available. Hold USD 45m and syndicate the rest, or lend less. |
+| 4 | Kevin Lau, Energy Coverage | Northpoint is unhappy with our document requests. Can we keep it simple to close by Friday? | No on KYC: a 25% shareholder in the British Virgin Islands has no identified beneficial owner, and full KYC above 10% is required before signing. It does not block the approval; offer to help them provide it quickly. Firm but constructive. |
+
+Scoring: 0 = misses the point, 1 = right idea without the numbers, 2 = right idea backed by the numbers.
+
+**Ideas and numbers the analysis looks for**
+
+| # | Ideas expected (how many needed) | Numbers accepted |
+| --- | --- | --- |
+| 1 | PPA ends in year 12, merchant prices after · Sponsor's price too high, market study's low case · Tenor cut to the PPA (2 of 3) | 12 years · 6.0 cents · 0.99x · 1.50x · USD 58m |
+| 2 | Cost rises after the warranty · Impact on cash flow or debt size (2 of 2) | USD 3.0m · USD 1.8m · 5 years · year 6 · USD 9.78m · USD 58m |
+| 3 | Group exposure limit · Hold part and syndicate, or lend less (2 of 2) | USD 45m · USD 155m · USD 200m |
+| 4 | KYC is not optional · Unidentified shareholder · Offers a way forward (2 of 3) | 25% · 10% |
+
+After the fourth answer, Margaret Chen closes the session.
+
+## Outcomes and gauges
+
+The consequence appears a few cases later. Gauge moves run from −3 to +3; each point is worth 10 on a 0 to 100 scale. For portfolio risk, higher is worse. When the deal closes, the conditions' own gauge effects are added.
+
+| Outcome | When | What happens later | Bank revenue | Portfolio risk | Credibility |
+| --- | --- | --- | --- | --- | --- |
+| Approve with the right conditions | All four tests pass | The deal closes. In 2034 the O&M contract is renewed at USD 3.1m; the DSCR holds above 1.30x. Northpoint brings its next wind project to the bank. | +2 | +1 | +2 |
+| Approve with weak conditions | Sizing outside policy on the bank case | Year 6 brings the cost step-up, and the merchant tail looms. The loan goes on the watchlist. | +2 | +3 | −1 |
+| Sent back by Portfolio Management | Sizing fine, but the bank holds more than USD 45m | Priya Nair refuses to sign off: the group limit would be breached. The deal goes back to the drawing board and misses Friday. | 0 | +1 | −1 |
+| Blocked by Compliance | Approved without full KYC | Two days before signing, Compliance freezes the deal: Silverbay's owner was never identified. The sponsor is furious and the case reaches the Head of Credit. | 0 | +1 | −2 |
+| Lost to competitor | Total weight above 7 | Northpoint finds the term sheet too heavy and signs with another bank. Kevin reminds everyone about the pipeline. | 0 | 0 | −2 |
+| Approve as requested | — | Portfolio Management and Compliance both stop the deal at final sign-off: the limit is breached and a 25% shareholder was never identified. | 0 | +1 | −3 |
+| Decline | — | A competitor finances the project. Northpoint takes its pipeline elsewhere. | 0 | 0 | −1 |
+
+When several problems apply, the first one in this order decides the outcome: lost to competitor, blocked by Compliance, sent back by Portfolio Management, weak conditions.
+
+## Score (out of 20)
+
+Fixed when the player sends the proposal, from the control center values at that moment, except the committee part.
+
+| Part | Points | Rule |
+| --- | --- | --- |
+| Analysis | 6 | Trap 1 spotted (merchant price ≤ 6.2 cents or tenor ≤ 12 years in the control center): 2. Trap 2 spotted (operating costs after the warranty ≥ USD 2.8m): 2. Trap 3 spotted (loan ≤ USD 45m or syndication ticked): 1. Trap 4 spotted (full KYC ticked): 1. |
+| Decision | 4 | Right conditions 4; weak conditions, sent back, lost and decline 1; blocked by Compliance and approve as requested 0. |
+| Conditions | 2 | +1 per good condition (DSRA, lock-up), −1 per useless or redundant one. Kept between 0 and 2. |
+| Committee | 8 | 0 to 2 per answer, four answers. |
+
+## Control center for this case
+
+| Input | Range | Starts at (sponsor case) |
+| --- | --- | --- |
+| Net specific yield | 2,000 to 3,500 kWh/kW, step 1 | 2,803 |
+| PPA tariff | 5.0 to 9.0 cents/kWh, step 0.1 | 7.6 |
+| Merchant price after the PPA | 4.0 to 9.0 cents/kWh, step 0.1 | 7.6 |
+| Operating costs, years 1–5 | USD 1.0m to 3.0m, step 0.05 | 1.80 |
+| Operating costs from year 6 | USD 1.0m to 4.0m, step 0.05 | 1.80 |
+| Loan amount | USD 20m to 80m, step 0.05 | 69.75 |
+| Debt tenor | 8 to 18 years, step 1 | 18 |
+
+Fixed: capacity 60 MW, total cost USD 93.0m, rate 7.5%, PPA 12 years, warranty 5 years, minimum DSCR 1.30x contracted and 1.50x merchant.
+
+## Debrief (shown to the player)
+
+> **What you should have spotted**
+>
+> 1. The PPA ends after 12 years, but the loan runs 18. The sponsor assumed the same price forever; the market study's low case is 6.0 cents, and policy requires 1.50x on merchant revenues. Over 18 years the DSCR falls to 0.99x from year 13.
+> 2. The USD 1.8m of operating costs only covers the 5-year warranty. From year 6 the engineer expects USD 3.0m.
+> 3. The loan counts against the offtaker's group limit: only USD 45m is available, whatever the DSCR.
+> 4. A 25% shareholder in the British Virgin Islands has no identified owner. KYC on the listed parent does not cover it.
+>
+> The fix: a 12-year tenor (which supports more debt, USD 58m, than 18 years), the bank's share capped at USD 45m with the rest syndicated, and full KYC before signing.
+>
+> **Lesson:** a good project is not automatically a good loan. Look at the whole life of the debt, and at the whole bank.

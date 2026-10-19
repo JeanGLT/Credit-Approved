@@ -143,7 +143,7 @@
     },
     "inputs": {
       "yield":       { "label": "Specific yield",  "unit": "kWh/kWp",   "min": 1200, "max": 2000, "step": 10 },
-      "curtailment": { "label": "Curtailment",     "unit": "%",         "min": 0,    "max": 20,   "step": 0.5 },
+      "curtailment": { "label": "Curtailment",     "unit": "%",         "min": 0,    "max": 20,   "step": 0.5, "percent": true },
       "tariff":      { "label": "Tariff",          "unit": "USc/kWh",   "min": 5.0,  "max": 9.0,  "step": 0.1 },
       "opex":        { "label": "Operating costs", "unit": "USD m / yr", "min": 0.50, "max": 1.20, "step": 0.05 }
     }
@@ -285,10 +285,10 @@
   },
 
   "rules": {
-    "rightConditions": {
-      "maxLoan": 26.3,
-      "orAnyCondition": ["guarantee"]
-    },
+    "outcomeChecks": [
+      { "type": "burden", "outcome": "lost" },
+      { "type": "maxLoan", "max": 26.3, "unlessAny": ["guarantee"], "outcome": "weak" }
+    ],
     "competition": {
       "maxBurden": 5,
       "loanCutBurden": 2,
@@ -317,6 +317,7 @@
   "outcomes": {
     "right": {
       "label": "Approve with the right conditions",
+      "closes": true,
       "story": "Deal closes at USD 26m. Curtailment hits 11%, DSCR holds at about 1.30x. Kevin grumbles, the client signs.",
       "gauges": { "revenue": 2, "risk": 1, "credibility": 2 }
     },
@@ -327,6 +328,7 @@
     },
     "weak": {
       "label": "Approve with weak conditions",
+      "closes": true,
       "story": "Same watchlist outcome: the conditions don't fix the sizing. DSCR falls to 1.18x and the loan goes on the watchlist.",
       "gauges": { "revenue": 2, "risk": 3, "credibility": -1 }
     },

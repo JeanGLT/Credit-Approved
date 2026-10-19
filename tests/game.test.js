@@ -167,5 +167,85 @@ test('Gauges stay between 0 and 100', () =>
   assert.deepStrictEqual(Rules.applyGauges({ revenue: 90, risk: 5, credibility: 50 }, { revenue: 3, risk: -3, credibility: 0 }),
     { revenue: 100, risk: 0, credibility: 50 }));
 
+// ---------------------------------------------------------------------
+// Case 02: outcome checks in order, traps found by conditions, policy sizing
+const case2 = require(path.join(__dirname, '..', 'cases', 'case-02.json'));
+const BANK2 = { yield: 2803, tariff: 7.6, merchantPrice: 6.0, opex: 1.8, opexAfter: 3.0 };
+const SPONSOR2 = { yield: 2803, tariff: 7.6, merchantPrice: 7.6, opex: 1.8, opexAfter: 1.8, tenor: 18 };
+
+function p2(decision, loan, tenor, ids, assumptions) {
+  const conditions = {};
+  (ids || []).forEach((id) => { conditions[id] = true; });
+  return { decision, loan, rate: 0.075, conditions, assumptions: Object.assign({}, assumptions || BANK2, { tenor }) };
+}
+function out2(...args) { return Rules.outcomeKey(case2, p2(...args)); }
+
+console.log('\nCase 02: outcomes');
+test('Policy max debt on the bank case: 58.20 over 12 years, 45.88 over 18', () => {
+  assert.ok(Math.abs(Rules.policyMaxDebt(case2, p2('conditions', 58, 12), case2.rules.outcomeChecks[3].bankCase) - 58.20) < 0.01);
+  assert.ok(Math.abs(Rules.policyMaxDebt(case2, p2('conditions', 45, 18), case2.rules.outcomeChecks[3].bankCase) - 45.88) < 0.01);
+});
+test('58m / 12y + syndication + full KYC + DSRA → right', () =>
+  assert.strictEqual(out2('conditions', 58, 12, ['syndicate', 'kycfull', 'dsra']), 'right'));
+test('45m / 18y + full KYC + DSRA + lock-up → right (acceptable)', () =>
+  assert.strictEqual(out2('conditions', 45, 18, ['kycfull', 'dsra', 'lockup']), 'right'));
+test('58m / 12y + full KYC, no syndication → sent back by Portfolio Management', () =>
+  assert.strictEqual(out2('conditions', 58, 12, ['kycfull']), 'limit'));
+test('58m / 12y + syndication + KYC on the parent only → blocked by Compliance', () =>
+  assert.strictEqual(out2('conditions', 58, 12, ['syndicate', 'kycparent']), 'compliance'));
+test('58m / 18y + syndication + full KYC → weak (policy max 45.9 over 18 years)', () =>
+  assert.strictEqual(out2('conditions', 58, 18, ['syndicate', 'kycfull']), 'weak'));
+test('65m / 12y (only trap 1 found) + syndication + full KYC → weak', () =>
+  assert.strictEqual(out2('conditions', 65, 12, ['syndicate', 'kycfull']), 'weak'));
+test('Best answer + lock-up (weight 7) → still right', () =>
+  assert.strictEqual(out2('conditions', 58, 12, ['syndicate', 'kycfull', 'dsra', 'lockup']), 'right'));
+test('Best answer + lock-up + legal opinion (weight 8) → lost to competitor', () =>
+  assert.strictEqual(out2('conditions', 58, 12, ['syndicate', 'kycfull', 'dsra', 'lockup', 'legalopinion']), 'lost'));
+test('Lost to competitor comes before Compliance', () =>
+  assert.strictEqual(out2('conditions', 58, 12, ['syndicate', 'dsra', 'lockup', 'ppaext']), 'lost'));
+test('Approve as requested → approve; decline → decline', () => {
+  assert.strictEqual(out2('approve', 69.75, 18, [], SPONSOR2), 'approve');
+  assert.strictEqual(out2('decline', 69.75, 18, []), 'decline');
+});
+
+console.log('\nCase 02: traps, conditions and score');
+function ev2(...args) { return Rules.evaluateProposal(case2, p2(...args)); }
+test('All four traps found → 6 / 6', () => {
+  const ev = ev2('conditions', 58, 12, ['syndicate', 'kycfull', 'dsra']);
+  assert.deepStrictEqual(ev.traps.map((t) => t.points), [2, 2, 1, 1]);
+});
+test('Trap 1 also counts with a 12-year tenor and the sponsor\'s merchant price', () => {
+  const ev = ev2('conditions', 58, 12, [], Object.assign({}, BANK2, { merchantPrice: 7.6 }));
+  assert.strictEqual(ev.traps[0].hit, true);
+});
+test('Sponsor case, approve as requested → no trap found', () => {
+  const ev = ev2('approve', 69.75, 18, [], SPONSOR2);
+  assert.deepStrictEqual(ev.traps.map((t) => t.hit), [false, false, false, false]);
+});
+test('Trap 3 counts with a loan of USD 45m, without syndication', () =>
+  assert.strictEqual(ev2('conditions', 45, 18, ['kycfull']).traps[2].hit, true));
+test('Syndication is redundant at USD 45m → −1', () => {
+  const item = ev2('conditions', 45, 18, ['syndicate', 'kycfull']).conditions.items.find((i) => i.id === 'syndicate');
+  assert.strictEqual(item.points, -1);
+});
+test('Conditions: DSRA + lock-up → 2 / 2 (no clean bonus in this case)', () =>
+  assert.strictEqual(ev2('conditions', 58, 12, ['syndicate', 'kycfull', 'dsra', 'lockup']).conditions.points, 2));
+test('Tenor cut weighs 1 on the sponsor, loan cut 2', () => {
+  const b = ev2('conditions', 58, 12, ['syndicate', 'kycfull', 'dsra']).burden;
+  assert.strictEqual(b.total, 6);
+});
+test('Perfect game → 20 / 20', () => {
+  const ev = ev2('conditions', 58, 12, ['syndicate', 'kycfull', 'dsra', 'lockup']);
+  const s = Rules.finalScore(case2, ev, case2.committee.map((q) => q.goodAnswer));
+  assert.strictEqual(s.max, 20);
+  assert.strictEqual(s.total, 20);
+});
+test('Committee good answers each score 2', () =>
+  case2.committee.forEach((q) => assert.strictEqual(Rules.evaluateAnswer(q, q.goodAnswer, 2).points, 2, q.question)));
+test('Q4 "Sure, let\'s skip it" → 0', () =>
+  assert.strictEqual(Rules.evaluateAnswer(case2.committee[3], "Sure, let's keep it simple and close.", 2).points, 0));
+test('Q3 "We can hold 45m and syndicate the rest" → 2', () =>
+  assert.strictEqual(Rules.evaluateAnswer(case2.committee[2], 'Only up to the group limit: we hold 45m and syndicate the rest.', 2).points, 2));
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed === 0 ? 0 : 1);

@@ -1,0 +1,516 @@
+{
+  "id": "case-02",
+  "title": "Amihan Wind",
+  "country": "Philippines",
+  "tagline": "A 60 MW wind farm in Luzon. A listed sponsor, a 12-year PPA and an 18-year loan request.",
+  "level": "Intermediate",
+  "readingTime": "About 10 minutes",
+  "tutorialHint": "Look at the whole life of the loan, and at the whole bank.",
+
+  "documents": [
+    {
+      "id": "deal-summary",
+      "tab": "Deal summary",
+      "title": "Credit request · Energy & Infrastructure",
+      "source": "Harbour Pacific Bank",
+      "blocks": [
+        {
+          "type": "table",
+          "head": ["Item", "Detail"],
+          "rows": [
+            ["Project", "Amihan Wind, 60 MW onshore wind farm (20 turbines of 3 MW)"],
+            ["Location", "Ilocos Norte Province, Luzon, Philippines"],
+            ["Borrower", "Amihan Wind Power Inc., a special purpose company"],
+            ["Sponsor", "Northpoint Energy Group, listed on the Philippine Stock Exchange. Operates 180 MW of solar in Luzon; first wind project"],
+            ["Timeline", "Construction starts Q2 2027, commercial operation Q3 2028"],
+            ["Total project cost", "USD 93.0m"],
+            ["Loan requested", "USD 69.75m senior term loan (75% gearing)"],
+            ["Tenor", "18 years after commercial operation, annuity repayment"],
+            ["All-in interest rate", "7.5%"],
+            ["Offtaker", "Luzon Power Distribution Corp., a large regional distribution utility"],
+            ["Power purchase agreement", "12 years from commercial operation, USD 7.6 cents/kWh, USD-indexed, paid in PHP"],
+            ["Construction", "Fixed-price, date-certain EPC contract with the turbine manufacturer's EPC arm, delay damages included"],
+            ["Sponsor's minimum DSCR", "1.53x"]
+          ]
+        },
+        { "type": "heading", "text": "Bank lending criteria" },
+        {
+          "type": "list",
+          "items": [
+            "Minimum DSCR: 1.30x on contracted revenues, 1.50x on merchant revenues, on the bank's case",
+            "Maximum gearing of 75%",
+            "Debt service reserve account (DSRA) covering 6 months of debt service"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "business-plan",
+      "tab": "Sponsor business plan",
+      "title": "Amihan Wind · Key assumptions",
+      "source": "Northpoint Energy Group",
+      "blocks": [
+        {
+          "type": "table",
+          "head": ["Assumption", "Value"],
+          "rows": [
+            ["Installed capacity", "60 MW"],
+            ["Net specific yield", "2,803 kWh/kW per year (32% capacity factor, independent engineer's P90)"],
+            ["Annual production", "168.2 GWh"],
+            ["Tariff", "USD 7.6 cents/kWh for 12 years, then re-contracted or sold on the spot market at a similar level"],
+            ["Annual revenue", "USD 12.8m"],
+            ["Operating costs", "USD 1.8m per year (full-service O&M agreement with the turbine manufacturer)"],
+            ["Cash flow available for debt service", "USD 11.0m"],
+            ["Annual debt service", "USD 7.2m (USD 69.75m, 18 years, 7.5%)"],
+            ["Minimum DSCR", "1.53x"]
+          ]
+        },
+        { "type": "paragraph", "text": "Tax is ignored: the project benefits from an income tax holiday." },
+        { "type": "heading", "text": "Sponsor's comment" },
+        { "type": "quote", "text": "Luzon needs every megawatt of clean power it can get, and spot prices on the wholesale market have risen for three years in a row. We will re-contract at the same level or better. Our solar portfolio was financed over 18 years by two other banks; we expect the same here." }
+      ]
+    },
+    {
+      "id": "independent-engineer",
+      "tab": "Independent engineer",
+      "title": "Independent Engineer Report · pages 6, 14 and 19",
+      "source": "Meridian Technical Advisors",
+      "blocks": [
+        { "type": "heading", "text": "Energy yield (page 6)" },
+        {
+          "type": "table",
+          "head": ["Case", "Capacity factor", "Annual production"],
+          "rows": [
+            ["P50", "35%", "184.0 GWh"],
+            ["P90 (1 year)", "32%", "168.2 GWh"]
+          ]
+        },
+        { "type": "quote", "text": "The sponsor's base case uses our P90. We have no concerns on the yield." },
+        { "type": "heading", "text": "Typhoon exposure (page 14)" },
+        { "type": "quote", "text": "The selected turbine is certified for typhoon-class winds (IEC class T) and has more than ten years of operating history in Taiwan and Japan. Insurance quotes include typhoon damage and business interruption." },
+        { "type": "heading", "text": "Operation and maintenance (page 19)" },
+        { "type": "quote", "text": "The full-service agreement covers the first 5 years of operation, including the manufacturer's warranty and a 97% availability guarantee. The USD 1.8m per year in the business plan reflects that price. From year 6, once the warranty ends, we estimate USD 3.0m per year for a comparable scope: scheduled and unscheduled maintenance, major component replacement and higher insurance premiums." },
+        { "type": "heading", "text": "Other findings" },
+        { "type": "list", "items": ["Plant design, EPC contract and grid connection: sound, no concerns."] }
+      ]
+    },
+    {
+      "id": "market-study",
+      "tab": "Market study",
+      "title": "Luzon wholesale electricity price outlook · page 22",
+      "source": "Asia Energy Insight",
+      "blocks": [
+        { "type": "paragraph", "text": "Average price received by a wind plant on the wholesale spot market, in USD cents/kWh (real terms):" },
+        {
+          "type": "table",
+          "head": ["Case", "2028–2035", "2036–2045"],
+          "rows": [
+            ["High", "8.6", "8.2"],
+            ["Base", "7.6", "7.0"],
+            ["Low (recommended for lenders)", "6.6", "6.0"]
+          ]
+        },
+        { "type": "quote", "text": "Spot prices have been high since 2023, but more than 6 GW of solar and wind is planned in Luzon by 2035. We expect prices captured by wind plants to soften from the mid-2030s. Lenders should not rely on a re-contracting price above our low case." }
+      ]
+    },
+    {
+      "id": "others",
+      "tab": "Others",
+      "title": "Internal information",
+      "source": "Harbour Pacific Bank",
+      "blocks": [
+        { "type": "heading", "text": "Credit Portfolio Management — single-group exposure" },
+        {
+          "type": "table",
+          "head": ["Group", "Outstanding", "Group limit", "Available"],
+          "rows": [
+            ["Luzon Power Distribution Corp. and subsidiaries", "USD 155m", "USD 200m", "USD 45m"]
+          ]
+        },
+        { "type": "quote", "text": "Exposure to a project company counts against the limit of its offtaker's group when the offtaker provides more than 75% of revenues." },
+        { "type": "heading", "text": "Shareholding of the borrower (provided by the sponsor)" },
+        {
+          "type": "table",
+          "head": ["Level", "Company", "Stake"],
+          "rows": [
+            ["Borrower", "Amihan Wind Power Inc.", "100% owned by Amihan Renewables Holdings Inc."],
+            ["Holding", "Amihan Renewables Holdings Inc.", "75% Northpoint Energy Group (listed) · 25% Silverbay Holdings Ltd (British Virgin Islands)"]
+          ]
+        },
+        { "type": "quote", "text": "Sponsor's note next to Silverbay: \"Confidential family investment vehicle, long-standing partner of the group.\"" }
+      ]
+    }
+  ],
+
+  "messages": {
+    "onStart": [
+      {
+        "from": "Kevin Lau",
+        "role": "Director, Energy Coverage",
+        "delay": 2500,
+        "text": "Hi, Amihan is Northpoint's first wind project and they want to bring us their whole Luzon pipeline if this goes well. Their solar portfolio got 18 years elsewhere, so they expect the same from us. Term sheet by Friday, and please keep the documentation light, they found our last requests heavy."
+      }
+    ],
+    "committeeClosing": {
+      "from": "Margaret Chen",
+      "role": "Head of Risk",
+      "text": "Thank you. The committee will deliberate. You'll hear from us shortly."
+    }
+  },
+
+  "model": {
+    "fixed": {
+      "capacity": 60,
+      "capacityUnit": "MW",
+      "totalCost": 93.0,
+      "rate": 0.075,
+      "minDSCR": 1.30,
+      "warnDSCR": 1.20,
+      "merchantMinDSCR": 1.50,
+      "maxGearing": 0.75,
+      "ppaYears": 12,
+      "warrantyYears": 5
+    },
+    "sponsorCase": {
+      "yield": 2803,
+      "tariff": 7.6,
+      "merchantPrice": 7.6,
+      "opex": 1.8,
+      "opexAfter": 1.8,
+      "tenor": 18,
+      "loan": 69.75
+    },
+    "inputs": {
+      "yield":         { "label": "Net specific yield",           "unit": "kWh/kW",     "min": 2000, "max": 3500, "step": 1 },
+      "tariff":        { "label": "PPA tariff (years 1–12)",       "unit": "USc/kWh",    "min": 5.0,  "max": 9.0,  "step": 0.1 },
+      "merchantPrice": { "label": "Merchant price after the PPA", "unit": "USc/kWh",    "min": 4.0,  "max": 9.0,  "step": 0.1 },
+      "opex":          { "label": "Operating costs, years 1–5",   "unit": "USD m / yr", "min": 1.0,  "max": 3.0,  "step": 0.05 },
+      "opexAfter":     { "label": "Operating costs from year 6",  "unit": "USD m / yr", "min": 1.0,  "max": 4.0,  "step": 0.05 },
+      "tenor":         { "label": "Debt tenor",                   "unit": "years",      "min": 8,    "max": 18,   "step": 1 }
+    }
+  },
+
+  "proposal": {
+    "requestedLoan": 69.75,
+    "loan": { "min": 20, "max": 80, "step": 0.05 },
+    "decisions": [
+      { "id": "approve", "label": "Approve as requested", "hint": "Lend the amount and tenor requested, on the sponsor's terms." },
+      { "id": "conditions", "label": "Approve with conditions", "hint": "Change the amount or tenor and add conditions to protect the bank." },
+      { "id": "decline", "label": "Decline", "hint": "The bank does not lend." }
+    ],
+    "conditions": [
+      {
+        "id": "dsra", "label": "DSRA of 6 months funded at close",
+        "role": "good", "points": 1, "burden": 1,
+        "reason": "Six months of debt service set aside in cash: a buffer for a bad year."
+      },
+      {
+        "id": "lockup", "label": "Dividend lock-up below 1.20x DSCR",
+        "role": "good", "points": 1, "burden": 1,
+        "reason": "Cash stays in the project instead of going to the sponsor if the DSCR falls."
+      },
+      {
+        "id": "syndicate", "label": "Syndicate the amount above USD 45m to another bank",
+        "role": "exposure", "points": 0, "burden": 1,
+        "redundantIfLoanAtMost": 45, "redundantPoints": -1,
+        "reason": "The only way to lend more than the group limit allows the bank to hold.",
+        "redundantReason": "Not needed: the loan is already within the USD 45m the bank can hold."
+      },
+      {
+        "id": "kycfull", "label": "Full KYC on all direct and indirect shareholders above 10% before signing",
+        "role": "compliance", "points": 0, "burden": 1,
+        "reason": "Covers Silverbay (25%, indirect, no identified owner). Required before signing, it does not stop the approval."
+      },
+      {
+        "id": "kycparent", "label": "Standard KYC on Northpoint Energy, the listed parent",
+        "role": "insufficient", "points": 0, "burden": 0,
+        "reason": "Looks enough, but does not cover the 25% shareholder in the British Virgin Islands."
+      },
+      {
+        "id": "legalopinion", "label": "Legal opinion on the enforceability of the PPA",
+        "role": "neutral", "points": 0, "burden": 1,
+        "reason": "Already part of the standard documentation for this deal: it only adds weight."
+      },
+      {
+        "id": "envcert", "label": "Copy of the environmental compliance certificate before first drawdown",
+        "role": "neutral", "points": 0, "burden": 1,
+        "reason": "Already a standard condition: it only adds weight."
+      },
+      {
+        "id": "ppaext", "label": "PPA extended to 18 years before signing",
+        "role": "useless", "points": -1, "burden": 3,
+        "gauges": { "credibility": -1 },
+        "reason": "Only the offtaker can grant it, and not by Friday: an impossible condition."
+      },
+      {
+        "id": "margin", "label": "Higher margin (+50 bp)",
+        "role": "useless", "points": -1, "burden": 1, "rateIncrease": 0.005,
+        "gauges": { "revenue": 1 },
+        "reason": "More revenue for the bank, but a higher rate raises debt service and makes every DSCR worse."
+      }
+    ]
+  },
+
+  "committee": [
+    {
+      "askedBy": "Margaret Chen",
+      "role": "Head of Risk",
+      "question": "What happens to the cash flows after year 12, and how did you size the tenor?",
+      "goodAnswer": "The PPA ends in year 12; after that the plant sells at merchant prices, 6.0 cents in the market study's low case, not 7.6. Over 18 years the DSCR would fall to 0.99x against a 1.50x requirement. A 12-year tenor removes the merchant tail and supports USD 58m.",
+      "analysis": {
+        "minIdeas": 2,
+        "ideas": [
+          {
+            "label": "The PPA ends in year 12, merchant prices after",
+            "any": ["ppa ends", "end of the ppa", "after the ppa", "ppa expires", "ppa expiry", "ppa runs out", "after year 12", "merchant", "spot", "wesm", "wholesale", "uncontracted", "re-contract", "recontract", "re-contracting", "tail"]
+          },
+          {
+            "label": "The sponsor's price is too high: the market study's low case",
+            "any": ["market study", "low case", "consultant", "asia energy insight", "too optimistic", "optimistic", "too high", "lower price", "lower prices", "price falls", "prices fall", "soften", "softer", "decline", "drop", "not 7.6"]
+          },
+          {
+            "label": "Tenor cut to the PPA",
+            "any": ["tenor", "shorter", "shorten", "shortened", "cut the tenor", "reduce the tenor", "match the ppa", "matched the ppa", "matches the ppa", "within the ppa", "12-year", "12 year", "maturity"]
+          }
+        ],
+        "numbers": [
+          { "label": "12 years", "values": [12] },
+          { "label": "6.0 cents (low case)", "values": [6] },
+          { "label": "0.99x over 18 years", "values": [0.99] },
+          { "label": "1.50x on merchant revenues", "values": [1.5] },
+          { "label": "USD 58m over 12 years", "values": [58, 58.2] }
+        ]
+      }
+    },
+    {
+      "askedBy": "Margaret Chen",
+      "role": "Head of Risk",
+      "question": "Are the operating costs in the business plan realistic for the whole life of the loan?",
+      "goodAnswer": "No: USD 1.8m only covers the 5-year warranty period. The engineer expects USD 3.0m from year 6, which brings the cash flow down to USD 9.78m and the maximum debt to USD 58m.",
+      "analysis": {
+        "minIdeas": 2,
+        "ideas": [
+          {
+            "label": "Costs rise after the warranty",
+            "any": ["warranty", "after year 5", "from year 6", "year 6", "step-up", "step up", "increase", "increases", "rise", "rises", "higher", "goes up", "jump", "jumps", "not realistic", "unrealistic"]
+          },
+          {
+            "label": "Impact on the cash flow or the debt size",
+            "any": ["cfads", "cash flow", "cash-flow", "cashflow", "dscr", "debt size", "sizing", "sized", "max debt", "maximum debt", "less debt", "lower debt", "reduce the loan", "smaller loan", "debt capacity", "coverage"]
+          }
+        ],
+        "numbers": [
+          { "label": "USD 3.0m from year 6", "values": [3] },
+          { "label": "USD 1.8m under warranty", "values": [1.8] },
+          { "label": "USD 9.78m of cash flow", "values": [9.78] },
+          { "label": "USD 58m of maximum debt", "values": [58, 58.2] }
+        ]
+      }
+    },
+    {
+      "askedBy": "Priya Nair",
+      "role": "Credit Portfolio Management",
+      "question": "Can we hold this loan on our balance sheet?",
+      "goodAnswer": "Not all of it: the loan counts against the offtaker's group, with USD 155m used out of a USD 200m limit, so USD 45m available. Hold USD 45m and syndicate the rest, or lend less.",
+      "analysis": {
+        "minIdeas": 2,
+        "ideas": [
+          {
+            "label": "The group exposure limit",
+            "any": ["limit", "exposure", "group", "concentration", "single-group", "single group", "headroom", "available", "portfolio"]
+          },
+          {
+            "label": "Hold part and syndicate, or lend less",
+            "any": ["syndicate", "syndicated", "syndication", "sell down", "sell-down", "club", "another bank", "other bank", "other banks", "co-lender", "participation", "hold", "reduce", "lend less", "smaller", "cap", "capped"]
+          }
+        ],
+        "numbers": [
+          { "label": "USD 45m available", "values": [45] },
+          { "label": "USD 155m used", "values": [155] },
+          { "label": "USD 200m limit", "values": [200] }
+        ]
+      }
+    },
+    {
+      "askedBy": "Kevin Lau",
+      "role": "Director, Energy Coverage",
+      "question": "Northpoint is unhappy with our document requests. Can we keep it simple to close by Friday?",
+      "goodAnswer": "No on KYC: a 25% shareholder in the British Virgin Islands has no identified beneficial owner, and full KYC above 10% is required before signing. It does not block the approval; offer to help them provide it quickly. Firm but constructive.",
+      "analysis": {
+        "minIdeas": 2,
+        "ideas": [
+          {
+            "label": "KYC is not optional",
+            "any": ["kyc", "know your customer", "compliance", "mandatory", "required", "requirement", "non-negotiable", "cannot skip", "can't skip", "cannot drop", "can't drop", "must", "regulatory", "aml", "anti-money"]
+          },
+          {
+            "label": "An unidentified shareholder",
+            "any": ["silverbay", "bvi", "british virgin islands", "beneficial owner", "ubo", "ultimate owner", "owner", "shareholder", "family vehicle", "investment vehicle", "offshore"]
+          },
+          {
+            "label": "Offers a way forward",
+            "any": ["help", "quickly", "fast", "faster", "speed", "support", "assist", "guide", "checklist", "approve", "approval", "conditional", "before signing", "in parallel", "work with", "propose"]
+          }
+        ],
+        "numbers": [
+          { "label": "25% shareholder", "values": [25] },
+          { "label": "10% threshold", "values": [10] }
+        ]
+      }
+    }
+  ],
+  "committeeScale": {
+    "0": "Misses the point",
+    "1": "Right idea without the numbers",
+    "2": "Right idea backed by the numbers"
+  },
+
+  "rules": {
+    "outcomeChecks": [
+      { "type": "burden", "outcome": "lost" },
+      { "type": "requireCondition", "condition": "kycfull", "outcome": "compliance" },
+      { "type": "maxLoan", "max": 45, "unlessAny": ["syndicate"], "outcome": "limit" },
+      {
+        "type": "policySizing", "outcome": "weak",
+        "bankCase": { "yield": 2803, "tariff": 7.6, "merchantPrice": 6.0, "opex": 1.8, "opexAfter": 3.0 }
+      }
+    ],
+    "competition": {
+      "maxBurden": 7,
+      "loanCutBurden": 2,
+      "tenorCutBurden": 1,
+      "explain": "Each condition, and any cut to the amount (2) or the tenor (1) requested, weighs on the sponsor. Above 7, Northpoint takes its pipeline to another bank."
+    },
+    "score": {
+      "traps": [
+        {
+          "id": "tail", "label": "Trap 1 spotted: PPA shorter than the debt", "points": 2,
+          "any": [
+            { "input": "merchantPrice", "test": "max", "value": 6.2 },
+            { "input": "tenor", "test": "max", "value": 12 }
+          ]
+        },
+        {
+          "id": "opex", "label": "Trap 2 spotted: operating costs after the warranty", "points": 2,
+          "any": [{ "input": "opexAfter", "test": "min", "value": 2.8 }]
+        },
+        {
+          "id": "exposure", "label": "Trap 3 spotted: single-group exposure limit", "points": 1,
+          "any": [{ "loanAtMost": 45 }, { "condition": "syndicate" }]
+        },
+        {
+          "id": "kyc", "label": "Trap 4 spotted: incomplete KYC", "points": 1,
+          "any": [{ "condition": "kycfull" }]
+        }
+      ],
+      "decision": {
+        "right": 4,
+        "weak": 1,
+        "limit": 1,
+        "lost": 1,
+        "decline": 1,
+        "compliance": 0,
+        "approve": 0
+      },
+      "conditions": {
+        "max": 2,
+        "cleanBonus": 0
+      },
+      "committeePerQuestion": 2
+    }
+  },
+
+  "outcomes": {
+    "right": {
+      "label": "Approve with the right conditions",
+      "closes": true,
+      "story": "The deal closes. In 2034 the O&M contract is renewed at USD 3.1m; the DSCR holds above 1.30x. Northpoint brings its next wind project to the bank.",
+      "gauges": { "revenue": 2, "risk": 1, "credibility": 2 }
+    },
+    "weak": {
+      "label": "Approve with weak conditions",
+      "closes": true,
+      "story": "The debt is sized outside policy on the bank case. Year 6 brings the cost step-up, the merchant tail looms, and the loan goes on the watchlist.",
+      "gauges": { "revenue": 2, "risk": 3, "credibility": -1 }
+    },
+    "limit": {
+      "label": "Sent back by Portfolio Management",
+      "story": "Priya Nair refuses to sign off: holding more than USD 45m would breach the group limit. The deal goes back to the drawing board and misses Friday.",
+      "gauges": { "revenue": 0, "risk": 1, "credibility": -1 }
+    },
+    "compliance": {
+      "label": "Blocked by Compliance",
+      "story": "Two days before signing, Compliance freezes the deal: Silverbay's owner was never identified. The sponsor is furious and the case reaches the Head of Credit.",
+      "gauges": { "revenue": 0, "risk": 1, "credibility": -2 }
+    },
+    "lost": {
+      "label": "Lost to competitor",
+      "story": "Northpoint finds the term sheet too heavy and signs with another bank. Kevin reminds everyone about the pipeline.",
+      "gauges": { "revenue": 0, "risk": 0, "credibility": -2 }
+    },
+    "approve": {
+      "label": "Approve as requested",
+      "story": "Portfolio Management and Compliance both stop the deal at final sign-off: the group limit is breached and a 25% shareholder was never identified.",
+      "gauges": { "revenue": 0, "risk": 1, "credibility": -3 }
+    },
+    "decline": {
+      "label": "Decline",
+      "story": "A competitor finances the project. Northpoint takes its pipeline elsewhere.",
+      "gauges": { "revenue": 0, "risk": 0, "credibility": -1 }
+    }
+  },
+  "outcomeContext": "The consequence appears a few cases later, when the O&M contract comes up for renewal.",
+
+  "debrief": {
+    "spotted": [
+      "The PPA ends after 12 years, but the loan runs 18. The sponsor assumed the same price forever; the market study's low case is 6.0 cents, and policy requires 1.50x on merchant revenues. Over 18 years the DSCR falls to 0.99x from year 13.",
+      "The USD 1.8m of operating costs only covers the 5-year warranty. From year 6 the engineer expects USD 3.0m.",
+      "The loan counts against the offtaker's group limit: only USD 45m is available, whatever the DSCR.",
+      "A 25% shareholder in the British Virgin Islands has no identified owner. KYC on the listed parent does not cover it."
+    ],
+    "summary": "The fix: a 12-year tenor (which supports more debt, USD 58m, than 18 years), the bank's share capped at USD 45m with the rest syndicated, and full KYC before signing.",
+    "lesson": "A good project is not automatically a good loan. Look at the whole life of the debt, and at the whole bank."
+  },
+
+  "answerKey": {
+    "summary": "The project is sound in its first years, but the sponsor's case hides two step-downs in cash flow, and two bank-side constraints apply whatever the DSCR. As requested (USD 69.75m over 18 years), the deal fails all four tests.",
+    "traps": [
+      { "title": "Trap 1 — PPA shorter than the debt", "text": "The PPA runs 12 years, the loan 18. The sponsor assumes the same 7.6 cents after year 12. The market study's low case, recommended for lenders, is 6.0 cents from the mid-2030s. On the bank case, the DSCR falls to 0.99x from year 13, and policy requires 1.50x on merchant revenues. Cutting the tenor to 12 years removes the merchant tail: the bank can then lend more (USD 58.2m) than over 18 years (USD 45.9m)." },
+      { "title": "Trap 2 — Operating costs after the warranty", "text": "The USD 1.8m per year only holds for the 5-year full-service agreement. The engineer expects USD 3.0m from year 6. On its own the trap is discreet (DSCR 1.36x from year 6 at USD 69.75m), but it cuts the maximum debt over 12 years from USD 65.3m to USD 58.2m." },
+      { "title": "Trap 3 — Single-group exposure", "text": "The loan counts against the offtaker's group limit: USD 45m available. The bank can hold at most USD 45m, whatever the DSCR. The rest must be syndicated to another bank, or the loan reduced." },
+      { "title": "Trap 4 — Incomplete KYC", "text": "A 25% indirect shareholder (Silverbay, British Virgin Islands) has no identified beneficial owner. KYC on the listed parent alone does not cover it. Full KYC on all direct and indirect shareholders above 10% must be a condition before signing. It does not stop the approval, only the signing." }
+    ],
+    "tables": [
+      {
+        "note": "Bank case at USD 69.75m over 18 years (annual debt service USD 7.19m)",
+        "head": ["Years", "Revenue", "Operating costs", "Cash flow for debt service", "DSCR", "Policy minimum"],
+        "rows": [
+          ["1–5", "USD 12.78m", "USD 1.8m", "USD 10.98m", "1.53x", "1.30x"],
+          ["6–12", "USD 12.78m", "USD 3.0m", "USD 9.78m", "1.36x", "1.30x"],
+          ["13–18", "USD 10.09m (6.0 cents)", "USD 3.0m", "USD 7.09m", "0.99x", "1.50x"]
+        ]
+      },
+      {
+        "note": "Maximum debt on the bank case, by tenor (1.30x on contracted years, 1.50x on merchant years)",
+        "head": ["Tenor", "Maximum debt", "Binding constraint"],
+        "rows": [
+          ["12 years", "USD 58.2m", "Years 6–12 at 1.30x"],
+          ["15 years", "USD 41.7m", "Years 13–15 at 1.50x"],
+          ["18 years", "USD 45.9m", "Years 13–18 at 1.50x"]
+        ],
+        "footer": "If only trap 1 is found (operating costs left at USD 1.8m), the maximum debt over 12 years looks like USD 65.3m: USD 7m too much."
+      }
+    ],
+    "rightDecision": {
+      "title": "Right decision: approve with conditions",
+      "intro": "All of these must hold:",
+      "options": [
+        "Debt sized within policy on the bank case: USD 58.2m at most over 12 years (best for the client), or USD 45.9m at most over 18 years (acceptable). Over 12 years at USD 58m: debt service USD 7.50m, DSCR 1.30x, gearing 62%, sponsor equity USD 35.0m.",
+        "The bank's share capped at USD 45m: syndicate the rest, or lend USD 45m only.",
+        "Full KYC on all direct and indirect shareholders above 10% before signing."
+      ]
+    },
+    "extraCredit": "Conditions that earn extra credit: the 6-month DSRA funded at close (about USD 3.8m at USD 58m over 12 years) and a dividend lock-up below 1.20x DSCR.",
+    "weakAnswers": "Weak answers: an 18-year loan sized on the sponsor's prices, a PPA extension the sponsor cannot deliver, a higher margin, or declining because of the KYC request (the right move is to require it, not to walk away)."
+  }
+}

@@ -70,37 +70,80 @@
     return rows;
   }
 
+  // ---------- Assumptions that change over time ----------
+  // A case can say that some assumptions change after a given year:
+  //   ppaYears + merchantPrice   tariff after the power purchase agreement ends
+  //   warrantyYears + opexAfter  operating costs after the warranty ends
+  //   merchantMinDSCR            the bank's minimum DSCR on merchant years
+  // Without them, assumptions are constant over the tenor (case 01).
+
+  function isMerchantYear(inputs, year) {
+    return inputs.ppaYears !== undefined && year > inputs.ppaYears;
+  }
+
+  function tariffInYear(inputs, year) {
+    return isMerchantYear(inputs, year) ? inputs.merchantPrice : inputs.tariff;
+  }
+
+  function opexInYear(inputs, year) {
+    var after = inputs.warrantyYears !== undefined && year > inputs.warrantyYears;
+    return after ? inputs.opexAfter : inputs.opex;
+  }
+
+  function minDSCRInYear(inputs, year) {
+    var merchant = isMerchantYear(inputs, year) && inputs.merchantMinDSCR !== undefined;
+    return merchant ? inputs.merchantMinDSCR : inputs.minDSCR;
+  }
+
   /*
-   * Full case: key metrics plus 15-year series for the charts.
-   * Assumptions are constant over the tenor in this version.
+   * Full case: key metrics plus year-by-year series for the charts.
    *
    * inputs = { capacity, yield, curtailment, tariff, opex,
-   *            loan, rate, tenor, totalCost, minDSCR }
+   *            loan, rate, tenor, totalCost, minDSCR,
+   *            optional: ppaYears, merchantPrice, warrantyYears, opexAfter, merchantMinDSCR }
+   *
+   * dscr is the lowest DSCR over the tenor (dscrYear says when).
+   * maxDebt is the largest loan that meets the bank's minimum DSCR in every year.
    */
   function computeCase(inputs) {
-    var prod = production(inputs.capacity, inputs.yield, inputs.curtailment);
-    var rev = revenue(prod, inputs.tariff);
-    var cf = cfads(rev, inputs.opex);
+    var prod = production(inputs.capacity, inputs.yield, inputs.curtailment || 0);
     var ds = debtService(inputs.loan, inputs.rate, inputs.tenor);
     var schedule = amortisation(inputs.loan, inputs.rate, inputs.tenor);
 
+    var lowest = Infinity;
+    var lowestYear = 1;
+    var debtServiceCap = Infinity; // highest debt service every year can carry
+
+    var years = schedule.map(function (row) {
+      var y = row.year;
+      var rev = revenue(prod, tariffInYear(inputs, y));
+      var cf = cfads(rev, opexInYear(inputs, y));
+      var minimum = minDSCRInYear(inputs, y);
+      var dscr = cf / row.debtService;
+      if (dscr < lowest - 1e-12) { lowest = dscr; lowestYear = y; }
+      debtServiceCap = Math.min(debtServiceCap, cf / minimum);
+      return {
+        year: y,
+        revenue: rev,
+        cfads: cf,
+        debtService: row.debtService,
+        dscr: dscr,
+        minDSCR: minimum,
+        merchant: isMerchantYear(inputs, y),
+        balance: row.closing
+      };
+    });
+
     return {
       production: prod,
-      revenue: rev,
-      cfads: cf,
+      revenue: years[0].revenue,
+      cfads: years[0].cfads,
       debtService: ds,
-      dscr: cf / ds,
-      maxDebt: maxDebt(cf, inputs.minDSCR, inputs.rate, inputs.tenor),
+      dscr: lowest,
+      dscrYear: lowestYear,
+      maxDebt: debtServiceCap * annuityFactor(inputs.rate, inputs.tenor),
       gearing: inputs.loan / inputs.totalCost,
-      years: schedule.map(function (row) {
-        return {
-          year: row.year,
-          cfads: cf,
-          debtService: row.debtService,
-          dscr: cf / row.debtService,
-          balance: row.closing
-        };
-      })
+      years: years
     };
   }
 
@@ -114,6 +157,20 @@
     return 'bad';
   }
 
+  // Worst status over the tenor, each year against its own minimum.
+  // The amber band is the same width below every minimum (e.g. 0.10x).
+  function policyStatus(result, warnGap) {
+    var rank = { good: 0, warn: 1, bad: 2 };
+    var worst = { status: 'good', year: result.years[0].year, dscr: result.years[0].dscr, minDSCR: result.years[0].minDSCR };
+    result.years.forEach(function (y) {
+      var status = dscrStatus(y.dscr, y.minDSCR, y.minDSCR - warnGap);
+      if (rank[status] > rank[worst.status]) {
+        worst = { status: status, year: y.year, dscr: y.dscr, minDSCR: y.minDSCR };
+      }
+    });
+    return worst;
+  }
+
   var Model = {
     annuityFactor: annuityFactor,
     debtService: debtService,
@@ -123,7 +180,8 @@
     maxDebt: maxDebt,
     amortisation: amortisation,
     computeCase: computeCase,
-    dscrStatus: dscrStatus
+    dscrStatus: dscrStatus,
+    policyStatus: policyStatus
   };
 
   // Works both in the browser (window.Model) and in Node (require).

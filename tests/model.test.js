@@ -66,6 +66,51 @@ check('Final balance', schedule[14].closing, 0);
 const totalPrincipal = schedule.reduce((sum, r) => sum + r.principal, 0);
 check('Total repaid', totalPrincipal, 28.5);
 
+// Case 02: assumptions that change over time (content/case-02.md).
+const wind = {
+  capacity: 60, yield: 2803, tariff: 7.6, opex: 1.8, rate: 0.075, totalCost: 93.0,
+  minDSCR: 1.30, merchantMinDSCR: 1.50, ppaYears: 12, warrantyYears: 5
+};
+function windCase(extra) { return Model.computeCase(Object.assign({}, wind, extra)); }
+
+console.log('\nCase 02: sponsor case (69.75m, 18 years, same price and costs forever, meets policy)');
+const sponsor2 = windCase({ loan: 69.75, tenor: 18, merchantPrice: 7.6, opexAfter: 1.8 });
+check('Production', sponsor2.production, 168.19);
+check('Revenue yr 1', sponsor2.revenue, 12.78);
+check('CFADS yr 1', sponsor2.cfads, 10.98);
+check('Debt service', sponsor2.debtService, 7.19);
+check('Min DSCR', sponsor2.dscr, 1.53);
+assert.strictEqual(Model.policyStatus(sponsor2, 0.10).status, 'good');
+
+console.log('\nCase 02: bank case at 69.75m over 18 years (merchant 6.0, opex 3.0 from year 6)');
+const bank18 = windCase({ loan: 69.75, tenor: 18, merchantPrice: 6.0, opexAfter: 3.0 });
+check('DSCR yr 1-5', bank18.years[0].dscr, 1.53);
+check('DSCR yr 6-12', bank18.years[5].dscr, 1.36);
+check('DSCR yr 13-18', bank18.years[12].dscr, 0.99);
+check('Lowest in year', bank18.dscrYear, 13);
+check('CFADS yr 13', bank18.years[12].cfads, 7.09);
+check('Minimum yr 13', bank18.years[12].minDSCR, 1.50);
+check('Max debt 18y', bank18.maxDebt, 45.88);
+
+console.log('\nCase 02: maximum debt by tenor on the bank case');
+check('Max debt 12y', windCase({ loan: 56, tenor: 12, merchantPrice: 6.0, opexAfter: 3.0 }).maxDebt, 58.20);
+check('Max debt 15y', windCase({ loan: 56, tenor: 15, merchantPrice: 6.0, opexAfter: 3.0 }).maxDebt, 41.73);
+check('Only trap 1, 12y', windCase({ loan: 56, tenor: 12, merchantPrice: 6.0, opexAfter: 1.8 }).maxDebt, 65.34);
+const best = windCase({ loan: 58, tenor: 12, merchantPrice: 6.0, opexAfter: 3.0 });
+check('58m/12y DS', best.debtService, 7.50);
+check('58m/12y DSCR', best.dscr, 1.30);
+check('58m/12y gearing %', best.gearing * 100, 62.37);
+
+console.log('\nCase 02: policy status, each year against its own minimum');
+assert.strictEqual(Model.policyStatus(bank18, 0.10).status, 'bad');
+assert.strictEqual(Model.policyStatus(bank18, 0.10).year, 13);
+assert.strictEqual(Model.policyStatus(best, 0.10).status, 'good');
+// 1.40x is fine on contracted years but amber on merchant years (minimum 1.50x).
+const merchantAmber = windCase({ loan: 45.88 * 1.50 / 1.40, tenor: 18, merchantPrice: 6.0, opexAfter: 3.0 });
+assert.strictEqual(Model.policyStatus(merchantAmber, 0.10).status, 'warn');
+passed++;
+console.log('  ✓ worst year decides: red at 0.99x vs 1.50x, amber at 1.40x on merchant years, green at 58m/12y');
+
 // DSCR traffic light.
 console.log('\nDSCR colour');
 assert.strictEqual(Model.dscrStatus(1.32, 1.30, 1.20), 'good');
