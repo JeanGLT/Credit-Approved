@@ -50,10 +50,7 @@
         <li>Send a proposal to the committee.</li>
         <li>Defend your case in front of the committee.</li>
       </ol>
-      <div class="welcome-note">
-        <strong>Before you start</strong>
-        <p>The committee reads every word. Write your answers in full sentences and back them with numbers whenever you can: both count in your score.</p>
-      </div>
+      <p class="welcome-tip">The committee reads every word: write your answers in full sentences and back them with numbers whenever you can. Both count in your score.</p>
       <h2 class="case-list-title">Choose a case</h2>
       <div class="case-list" id="case-list"><p class="muted small">Loading cases…</p></div>
       <p class="welcome-error" id="welcome-error" hidden></p>
@@ -83,7 +80,7 @@
           <div class="card-head">
             <div>
               <h2>Control center</h2>
-              <p class="muted small">Opens on the sponsor's assumptions. Change them and watch the numbers move.</p>
+              <p class="muted small" id="control-note">Opens on the sponsor's assumptions. Change them and watch the numbers move.</p>
             </div>
             <button class="btn btn-ghost" id="reset-btn" type="button">Reset to sponsor case</button>
           </div>
@@ -92,7 +89,6 @@
 
           <div class="loan-block" id="loan-field"></div>
 
-          <div class="fixed" id="fixed-params" aria-label="Fixed parameters"></div>
         </div>
 
         <div class="card">
@@ -102,10 +98,6 @@
 
         <div class="card charts">
           <div class="chart-block">
-            <h3>CFADS vs debt service <span class="muted small">USD m</span></h3>
-            <div class="chart-box"><canvas id="chart-cashflow"></canvas></div>
-          </div>
-          <div class="chart-block">
             <h3>DSCR by year</h3>
             <div class="chart-box"><canvas id="chart-dscr"></canvas></div>
           </div>
@@ -113,7 +105,6 @@
             <h3>Loan outstanding <span class="muted small">USD m, end of year</span></h3>
             <div class="chart-box"><canvas id="chart-balance"></canvas></div>
           </div>
-          <p class="legend-note"><span class="swatch-dashed" aria-hidden="true"></span> Grey dashed lines: sponsor case</p>
         </div>
 
         <!-- Proposal to committee -->
@@ -133,16 +124,13 @@
               <span class="info" tabindex="0" aria-describedby="conditions-tip">i
                 <span class="tooltip" id="conditions-tip" role="tooltip">Choose carefully: some conditions might have a negative impact. Useless or excessive conditions can cost you points, credibility, or even the deal.</span>
               </span>
-              <span class="muted small" id="conditions-note"></span>
             </legend>
             <div class="conditions" id="conditions"></div>
           </fieldset>
 
-          <div class="preview" id="proposal-preview" aria-live="polite"></div>
-
           <div class="field">
             <label class="field-label" for="justification">Justification</label>
-            <textarea id="justification" rows="4" placeholder="Explain your decision in a few lines: which numbers you used, what worries you, how the structure fixes it."></textarea>
+            <textarea id="justification" rows="8" placeholder="Explain your decision in a few lines: which numbers you used, what worries you, how the structure fixes it."></textarea>
           </div>
 
           <div class="proposal-actions">

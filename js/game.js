@@ -453,8 +453,7 @@
     var params = Object.assign({}, fixed, { loan: view.loan, rate: rate, tenor: inputs.tenor });
 
     UI.setInputValues(data.model.inputs, state.assumptions, sponsorAssumptions());
-    UI.renderFixed(params, data.model.inputs);
-    UI.renderMetrics(current, sponsor, params, policy);
+    UI.renderMetrics(current, sponsor, params, policy, { loan: data.model.sponsorCase.loan });
     UI.updateCharts(current, sponsor);
     UI.setProposalState({
       decision: view.decision,
@@ -470,15 +469,17 @@
       locked: !!state.submitted,
       finished: !!state.committeeFinished
     });
-    UI.renderProposalPreview(view.decision, current, params, policy.status);
   }
 
   function setAssumption(key, value) {
+    // The control center is locked once the proposal is sent: redraw the values it holds.
+    if (state.submitted) { refresh(); return; }
     state.assumptions[key] = value;
     refresh();
   }
 
   function resetToSponsor() {
+    if (state.submitted) return;
     state.assumptions = sponsorAssumptions();
     refresh();
   }

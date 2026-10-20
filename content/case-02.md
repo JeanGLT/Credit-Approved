@@ -257,6 +257,8 @@ Fixed when the player sends the proposal, from the control center values at that
 
 Fixed: capacity 60 MW, total cost USD 93.0m, rate 7.5%, PPA 12 years, warranty 5 years, minimum DSCR 1.30x contracted and 1.50x merchant.
 
+Neutral key metrics: unlike case 01, each tile only shows the player's value and the sponsor case. No colour, no "meets policy", no maximum debt and no bank thresholds: the player must work them out from the lending criteria.
+
 ## Debrief (shown to the player)
 
 > **What you should have spotted**

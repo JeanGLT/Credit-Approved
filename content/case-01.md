@@ -10,7 +10,7 @@ This is the first case a player sees. It teaches the core habit of the game: nev
 
 | Item | Value |
 | --- | --- |
-| Level | Tutorial |
+| Level | Beginner |
 | Reading time | About 5 minutes |
 | Player sees | Deal summary, sponsor business plan extract, independent engineer extract, an "Others" tab (empty for this case), one chat message from the front office |
 | Choices | Approve · Decline · Approve with conditions (7 conditions to pick from) |

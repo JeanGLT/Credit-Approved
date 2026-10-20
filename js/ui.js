@@ -74,9 +74,10 @@
       top.appendChild(el('span', 'case-level level-' + c.level.toLowerCase(), c.level));
       card.appendChild(top);
       card.appendChild(el('span', 'case-title', c.title));
-      card.appendChild(el('span', 'case-meta', c.country + ' · ' + c.readingTime));
-      card.appendChild(el('span', 'case-tagline', c.tagline));
-      card.appendChild(el('span', 'case-start', 'Start →'));
+      var bottom = el('div', 'case-card-bottom');
+      bottom.appendChild(el('span', 'case-meta', c.readingTime));
+      bottom.appendChild(el('span', 'case-start', 'Start →'));
+      card.appendChild(bottom);
       card.addEventListener('click', function () {
         list.querySelectorAll('.case-card').forEach(function (b) { b.disabled = true; });
         card.querySelector('.case-start').textContent = 'Loading…';
@@ -289,30 +290,6 @@
     });
   }
 
-  function renderFixed(params, inputs) {
-    var container = $('fixed-params');
-    container.textContent = '';
-    var chips = [
-      ['Capacity', fmt(params.capacity, 0) + ' ' + (params.capacityUnit || 'MWp')],
-      ['Total cost', 'USD ' + fmt(params.totalCost, 1) + 'm']
-    ];
-    if (!inputs.tenor) chips.push(['Tenor', params.tenor + ' years']);
-    chips.push(['Interest rate', fmt(params.rate * 100, 1) + '%']);
-    if (params.ppaYears !== undefined) chips.push(['PPA', params.ppaYears + ' years']);
-    if (params.warrantyYears !== undefined) chips.push(['O&M warranty', params.warrantyYears + ' years']);
-    if (params.merchantMinDSCR !== undefined) {
-      chips.push(['Bank min DSCR', fmt(params.minDSCR, 2) + 'x contracted · ' + fmt(params.merchantMinDSCR, 2) + 'x merchant']);
-    } else {
-      chips.push(['Bank min DSCR', fmt(params.minDSCR, 2) + 'x']);
-    }
-    chips.forEach(function (c) {
-      var chip = el('div', 'chip');
-      chip.appendChild(el('span', null, c[0]));
-      chip.appendChild(el('strong', null, c[1]));
-      container.appendChild(chip);
-    });
-  }
-
   // ---------- Control center: metrics ----------
 
   function metricTile(opts) {
@@ -329,8 +306,27 @@
 
   var STATUS_TEXT = { good: 'Meets policy', warn: 'Below policy', bad: 'Well below policy' };
 
+  // Neutral mode (cases that set "neutralMetrics"): each tile shows your value
+  // and the sponsor's, nothing else: no colours, no thresholds, no max debt.
+  function renderNeutralMetrics(current, sponsor, params, sponsorParams) {
+    var container = $('metrics');
+    container.textContent = '';
+    var varies = current.years.some(function (y) { return Math.abs(y.cfads - current.years[0].cfads) > 1e-9; });
+    function sp(v, unit) { return 'Sponsor case ' + v + (unit || ''); }
+    [
+      { label: varies ? 'Minimum DSCR' : 'DSCR', className: 'is-dscr', value: fmt(current.dscr, 2), unit: 'x', sub: sp(fmt(sponsor.dscr, 2), 'x') },
+      { label: 'Loan', value: money(params.loan), unit: 'USD m', sub: sp(money(sponsorParams.loan)) },
+      { label: 'Gearing', value: fmt(current.gearing * 100, 1), unit: '%', sub: sp(fmt(sponsor.gearing * 100, 1), '%') },
+      { label: 'Annual production', value: fmt(current.production, 2), unit: 'GWh', sub: sp(fmt(sponsor.production, 2)) },
+      { label: varies ? 'Revenue, year 1' : 'Revenue', value: fmt(current.revenue, 2), unit: 'USD m', sub: sp(fmt(sponsor.revenue, 2)) },
+      { label: varies ? 'CFADS, year 1' : 'CFADS', value: fmt(current.cfads, 2), unit: 'USD m', sub: sp(fmt(sponsor.cfads, 2)) },
+      { label: 'Annual debt service', value: fmt(current.debtService, 2), unit: 'USD m', sub: sp(fmt(sponsor.debtService, 2)) }
+    ].forEach(function (t) { container.appendChild(metricTile(t)); });
+  }
+
   // policy = Model.policyStatus(): worst year against its own minimum.
-  function renderMetrics(current, sponsor, params, policy) {
+  function renderMetrics(current, sponsor, params, policy, sponsorParams) {
+    if (params.neutralMetrics) return renderNeutralMetrics(current, sponsor, params, sponsorParams);
     var container = $('metrics');
     container.textContent = '';
     var years = current.years;
@@ -387,11 +383,10 @@
       data: data,
       borderColor: cssVar('--sponsor'),
       backgroundColor: 'transparent',
-      borderDash: [6, 5],
       borderWidth: 2,
       pointRadius: 0,
       fill: false,
-      order: 0
+      order: 5 // drawn underneath: your line stays visible when both are equal
     };
   }
 
@@ -433,22 +428,7 @@
     var labels = [];
     for (var y = 1; y <= maxYears; y++) labels.push('Y' + y);
     var accent = cssVar('--accent');
-    var text = cssVar('--text');
     var empty = labels.map(function () { return 0; });
-
-    charts.cashflow = new Chart($('chart-cashflow'), {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [
-          { type: 'bar', label: 'Your CFADS', data: empty, backgroundColor: accent, borderRadius: 3, order: 2 },
-          { type: 'line', label: 'Your debt service', data: empty, borderColor: text, borderWidth: 2, pointRadius: 0, order: 1 },
-          sponsorLine('Sponsor CFADS', empty),
-          sponsorLine('Sponsor debt service', empty)
-        ]
-      },
-      options: baseOptions({ min: 0 }, 'm')
-    });
 
     charts.dscr = new Chart($('chart-dscr'), {
       type: 'line',
@@ -469,8 +449,7 @@
         labels: labels,
         datasets: [
           {
-            label: 'Your case', data: empty, borderColor: accent, borderWidth: 2.5, pointRadius: 0,
-            fill: 'origin', backgroundColor: cssVar('--accent-soft'), order: 1
+            label: 'Your case', data: empty, borderColor: accent, borderWidth: 2.5, pointRadius: 0, order: 1
           },
           sponsorLine('Sponsor case', empty)
         ]
@@ -480,7 +459,7 @@
   }
 
   function updateCharts(current, sponsor) {
-    if (!charts.cashflow) return;
+    if (!charts.dscr) return;
     // The tenor can change: show the longest of the two cases, blank after the end.
     var length = Math.max(current.years.length, sponsor.years.length);
     var labels = [];
@@ -490,17 +469,6 @@
       while (values.length < length) values.push(null);
       return values;
     }
-    function maxOf(values) { return Math.max.apply(null, values.filter(function (v) { return v !== null; })); }
-
-    var cf = charts.cashflow.data.datasets;
-    charts.cashflow.data.labels = labels;
-    cf[0].data = pick(current, 'cfads');
-    cf[1].data = pick(current, 'debtService');
-    cf[2].data = pick(sponsor, 'cfads');
-    cf[3].data = pick(sponsor, 'debtService');
-    // Keep the scale steady around the sponsor case so changes are easy to see.
-    charts.cashflow.options.scales.y.suggestedMax = Math.ceil(maxOf(cf[2].data) * 1.15);
-    charts.cashflow.update();
 
     var ds = charts.dscr.data.datasets;
     charts.dscr.data.labels = labels;
@@ -624,7 +592,17 @@
       box.disabled = !s.editable;
       box.closest('.condition-option').classList.toggle('is-disabled', !s.editable && !s.locked);
     });
-    $('conditions-note').textContent = s.editable || s.locked ? '' : '(with "Approve with conditions" only)';
+
+    // Once the proposal is sent, every control center input is locked.
+    document.querySelectorAll('#inputs input').forEach(function (input) {
+      if (s.locked) input.disabled = true;
+      else if (input.id !== 'num-tenor' && input.id !== 'range-tenor') input.disabled = false;
+    });
+    $('reset-btn').disabled = s.locked;
+    $('control-note').textContent = s.locked
+      ? 'Locked: your proposal is with the committee. You can still read every figure while you answer.'
+      : 'Opens on the sponsor\'s assumptions. Change them and watch the numbers move.';
+    document.querySelector('.control').classList.toggle('is-locked', s.locked);
 
     $('justification').readOnly = s.locked;
     var submit = $('submit-proposal');
@@ -633,33 +611,10 @@
     $('submit-note').textContent = s.finished
       ? 'The committee has finished. See the results at the bottom of the screen.'
       : s.locked
-      ? 'The committee will message you (bottom right). You can still use the control center to check your numbers.'
+      ? 'Sent. The control center is locked; the committee will message you in the chat (bottom right).'
       : s.decision
-        ? 'Your proposal is scored as it stands when you send it, with the control center values at that moment.'
+        ? 'Once sent, your proposal and the control center are locked, and your score is based on them as they stand. The committee will then question you in the chat.'
         : 'Choose a decision first.';
-  }
-
-  function renderProposalPreview(decision, current, params, status) {
-    var box = $('proposal-preview');
-    box.textContent = '';
-    box.dataset.status = status;
-    var terms = 'USD ' + money(params.loan) + 'm over ' + params.tenor + ' years at ' + fmt(params.rate * 100, 1) + '%';
-    var lead = decision === 'decline'
-      ? 'For reference, ' + terms + ', on your assumptions:'
-      : 'At ' + terms + ', on your assumptions:';
-    box.appendChild(el('p', 'preview-lead', lead));
-    var line = el('div', 'preview-figures');
-    [
-      [params.merchantMinDSCR !== undefined ? 'Minimum DSCR' : 'DSCR', fmt(current.dscr, 2) + 'x', 'is-dscr'],
-      ['Gearing', fmt(current.gearing * 100, 1) + '%'],
-      [params.merchantMinDSCR !== undefined ? 'Max debt within policy' : 'Max debt at ' + fmt(params.minDSCR, 2) + 'x', 'USD ' + fmt(current.maxDebt, 2) + 'm']
-    ].forEach(function (f) {
-      var item = el('div', 'preview-item' + (f[2] ? ' ' + f[2] : ''));
-      item.appendChild(el('span', null, f[0]));
-      item.appendChild(el('strong', null, f[1]));
-      line.appendChild(item);
-    });
-    box.appendChild(line);
   }
 
   // ---------- Recap of the proposal (result screen) ----------
@@ -1203,13 +1158,11 @@
     renderDocuments: renderDocuments,
     renderInputs: renderInputs,
     setInputValues: setInputValues,
-    renderFixed: renderFixed,
     renderMetrics: renderMetrics,
     initCharts: initCharts,
     updateCharts: updateCharts,
     renderProposal: renderProposal,
     setProposalState: setProposalState,
-    renderProposalPreview: renderProposalPreview,
     renderResult: renderResult,
     showResultsBar: showResultsBar,
     chat: chat
