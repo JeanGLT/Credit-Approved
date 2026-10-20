@@ -696,6 +696,7 @@
   }
 
   function init() {
+    UI.initFooter();
     fetchJson(INDEX_URL)
       .then(function (index) {
         var only = requestedCase();

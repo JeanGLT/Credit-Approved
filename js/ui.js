@@ -54,7 +54,20 @@
 
   // ---------- Screens ----------
 
+  // Footer contact link. The address is put together on click, so it never
+  // appears in the page source where spam robots could collect it.
+  function initFooter() {
+    var link = $('contact-link');
+    if (!link) return;
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      var address = ['jean', 'grollet.com'].join('@');
+      window.location.href = 'mailto:' + address + '?subject=' + encodeURIComponent('Credit Approved');
+    });
+  }
+
   function showScreen(name) {
+    document.body.dataset.screen = name;
     document.querySelectorAll('.screen').forEach(function (screen) {
       screen.hidden = screen.id !== 'screen-' + name;
     });
@@ -1240,6 +1253,7 @@
 
   window.UI = {
     showScreen: showScreen,
+    initFooter: initFooter,
     renderWelcome: renderWelcome,
     renderLoadError: renderLoadError,
     renderCaseHeader: renderCaseHeader,
