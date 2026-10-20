@@ -111,13 +111,11 @@ Average price received by a wind plant on the wholesale spot market, in USD cent
 
 *Harbour Pacific Bank · internal*
 
-**Credit Portfolio Management — single-group exposure**
+**Credit Portfolio Management — Northpoint Energy Group**
 
-Shown as a bar: USD 155m used, USD 45m available, group limit USD 200m (Luzon Power Distribution Corp. and subsidiaries).
+Shown as three figures side by side: group limit USD 200m · already used USD 155m · available USD 45m.
 
-> The bank cannot hold more than USD 45m of new exposure to this group. Any amount above USD 45m must be syndicated to another bank.
-
-Exposure to a project company counts against the limit of its offtaker's group when the offtaker provides more than 75% of revenues.
+This loan counts against the Northpoint group limit (Northpoint owns 75% of the borrower). The bank can hold USD 45m at most; any amount above must be syndicated to another bank.
 
 **Shareholding of the borrower (provided by the sponsor)**
 
@@ -148,7 +146,7 @@ The project is sound in its first years, but the sponsor's case hides two step-d
 
 **Trap 2 — Operating costs after the warranty.** The USD 1.8m per year only holds for the 5-year full-service agreement. The engineer expects USD 3.0m from year 6. On its own the trap is discreet (DSCR 1.36x from year 6 at USD 69.75m), but it cuts the maximum debt over 12 years from USD 65.3m to USD 58.2m.
 
-**Trap 3 — Single-group exposure.** The loan counts against the offtaker's group limit: USD 45m available. The bank can hold at most USD 45m, whatever the DSCR. The rest must be syndicated to another bank, or the loan reduced.
+**Trap 3 — Single-group exposure.** The bank already lends USD 155m to the Northpoint group, against a USD 200m limit, and this loan counts against it because Northpoint owns 75% of the borrower: USD 45m available. The bank can hold at most USD 45m, whatever the DSCR. The rest must be syndicated to another bank, or the loan reduced.
 
 **Trap 4 — Incomplete KYC.** A 25% indirect shareholder (Silverbay, British Virgin Islands) has no identified beneficial owner. KYC on the listed parent alone does not cover it. Full KYC on all direct and indirect shareholders above 10% must be a condition before signing. It does not stop the approval, only the signing.
 
@@ -206,7 +204,7 @@ Four questions after the decision, asked one at a time in the chat, each person 
 | --- | --- | --- | --- |
 | 1 | Margaret Chen, Head of Risk | The PPA ends after year 12. What price did you assume for years 13 to 18, and how did it shape the tenor you propose? | The market study's low case, 6.0 cents, not the sponsor's 7.6. At that price an 18-year loan falls to a 0.99x DSCR from year 13, against 1.50x required on merchant revenues. So the tenor stops at 12 years, the end of the PPA, which also supports more debt: USD 58m. |
 | 2 | Margaret Chen, Head of Risk | Are the operating costs in the business plan realistic for the whole life of the loan? | No: USD 1.8m only covers the 5-year warranty period. The engineer expects USD 3.0m from year 6, which brings the cash flow down to USD 9.78m and the maximum debt to USD 58m. |
-| 3 | Priya Nair, Credit Portfolio Management | Can we hold this loan on our balance sheet? | Not all of it: the loan counts against the offtaker's group, with USD 155m used out of a USD 200m limit, so USD 45m available. Hold USD 45m and syndicate the rest, or lend less. |
+| 3 | Priya Nair, Credit Portfolio Management | Can we hold this loan on our balance sheet? | Not all of it: the loan counts against the Northpoint group limit, since Northpoint owns 75% of the borrower. USD 155m is already used out of USD 200m, so USD 45m is available. Hold USD 45m and syndicate the rest, or lend less. |
 | 4 | Kevin Lau, Energy Coverage | Northpoint won't say who is behind Silverbay, their 25% partner. They say Northpoint is listed, so KYC on Northpoint should be enough. Can we accept that and close on Friday? | No. Silverbay holds 25% indirectly and its beneficial owner is unknown; KYC on the listed parent does not cover it. Full KYC on all shareholders above 10% is required before signing. It does not stop the approval: offer to help them provide it quickly so we can still close. |
 
 Scoring: 0 = misses the point, 1 = right idea without the numbers, 2 = right idea backed by the numbers.
@@ -271,7 +269,7 @@ Neutral key metrics: unlike case 01, each tile only shows the player's value and
 >
 > 1. The PPA ends after 12 years, but the loan runs 18. The sponsor assumed the same price forever; the market study's low case is 6.0 cents, and policy requires 1.50x on merchant revenues. Over 18 years the DSCR falls to 0.99x from year 13.
 > 2. The USD 1.8m of operating costs only covers the 5-year warranty. From year 6 the engineer expects USD 3.0m.
-> 3. The loan counts against the offtaker's group limit: only USD 45m is available, whatever the DSCR.
+> 3. The loan counts against the sponsor's group limit (Northpoint owns 75% of the borrower): only USD 45m is available, whatever the DSCR.
 > 4. A 25% shareholder in the British Virgin Islands has no identified owner. KYC on the listed parent does not cover it.
 >
 > The fix: a 12-year tenor (which supports more debt, USD 58m, than 18 years), the bank's share capped at USD 45m with the rest syndicated, and full KYC before signing.

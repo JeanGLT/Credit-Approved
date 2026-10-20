@@ -264,22 +264,16 @@
       "blocks": [
         {
           "type": "heading",
-          "text": "Credit Portfolio Management — single-group exposure"
+          "text": "Credit Portfolio Management — Northpoint Energy Group"
         },
         {
           "type": "exposure",
-          "group": "Luzon Power Distribution Corp. and subsidiaries",
           "outstanding": 155,
-          "limit": 200,
-          "unit": "USD m"
-        },
-        {
-          "type": "callout",
-          "text": "The bank cannot hold more than USD 45m of new exposure to this group. Any amount above USD 45m must be syndicated to another bank."
+          "limit": 200
         },
         {
           "type": "paragraph",
-          "text": "Exposure to a project company counts against the limit of its offtaker's group when the offtaker provides more than 75% of revenues."
+          "text": "This loan counts against the Northpoint group limit (Northpoint owns 75% of the borrower). The bank can hold USD 45m at most; any amount above must be syndicated to another bank."
         },
         {
           "type": "heading",
@@ -683,7 +677,7 @@
       "askedBy": "Priya Nair",
       "role": "Credit Portfolio Management",
       "question": "Can we hold this loan on our balance sheet?",
-      "goodAnswer": "Not all of it: the loan counts against the offtaker's group, with USD 155m used out of a USD 200m limit, so USD 45m available. Hold USD 45m and syndicate the rest, or lend less.",
+      "goodAnswer": "Not all of it: the loan counts against the Northpoint group limit, since Northpoint owns 75% of the borrower. USD 155m is already used out of USD 200m, so USD 45m is available. Hold USD 45m and syndicate the rest, or lend less.",
       "analysis": {
         "minIdeas": 2,
         "ideas": [
@@ -1035,7 +1029,7 @@
     "spotted": [
       "The PPA ends after 12 years, but the loan runs 18. The sponsor assumed the same price forever; the market study's low case is 6.0 cents, and policy requires 1.50x on merchant revenues. Over 18 years the DSCR falls to 0.99x from year 13.",
       "The USD 1.8m of operating costs only covers the 5-year warranty. From year 6 the engineer expects USD 3.0m.",
-      "The loan counts against the offtaker's group limit: only USD 45m is available, whatever the DSCR.",
+      "The loan counts against the sponsor's group limit (Northpoint owns 75% of the borrower): only USD 45m is available, whatever the DSCR.",
       "A 25% shareholder in the British Virgin Islands has no identified owner. KYC on the listed parent does not cover it."
     ],
     "summary": "The fix: a 12-year tenor (which supports more debt, USD 58m, than 18 years), the bank's share capped at USD 45m with the rest syndicated, and full KYC before signing.",
@@ -1054,7 +1048,7 @@
       },
       {
         "title": "Trap 3 — Single-group exposure",
-        "text": "The loan counts against the offtaker's group limit: USD 45m available. The bank can hold at most USD 45m, whatever the DSCR. The rest must be syndicated to another bank, or the loan reduced."
+        "text": "The bank already lends USD 155m to the Northpoint group, against a USD 200m limit, and this loan counts against it because Northpoint owns 75% of the borrower. The bank can hold at most USD 45m, whatever the DSCR. The rest must be syndicated to another bank, or the loan reduced."
       },
       {
         "title": "Trap 4 — Incomplete KYC",

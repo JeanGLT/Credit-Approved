@@ -314,21 +314,11 @@ p { margin: 0; }
   font-weight: 500;
 }
 
-/* Exposure gauge (Others tab) */
-.exposure { margin: 8px 0 4px; }
-.exposure-group { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
-.exposure-bar {
-  display: flex;
-  height: 34px;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  font-size: 12px;
-  font-weight: 600;
-}
-.exposure-used, .exposure-free { display: flex; align-items: center; padding: 0 10px; white-space: nowrap; }
-.exposure-used { background: #fde2e1; color: var(--bad); }
-.exposure-free { flex: 1; background: var(--good-soft); color: var(--good); }
-.exposure-scale { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 4px; }
+/* Exposure figures (Others tab) */
+.exposure { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 10px 0 12px; }
+.exposure-figure { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; }
+.exposure-label { font-size: 12px; color: var(--muted); font-weight: 500; }
+.exposure-value { font-size: 18px; font-weight: 600; margin-top: 2px; }
 
 /* Organisation chart (Others tab) */
 .orgchart { display: grid; justify-items: center; gap: 0; margin: 8px 0 4px; }

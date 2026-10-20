@@ -149,24 +149,16 @@
       case 'callout':
         return el('p', 'doc-callout', block.text);
       case 'exposure': {
-        // Group limit as a bar: used, available, limit.
-        var available = block.limit - block.outstanding;
-        var box = el('div', 'exposure');
-        box.appendChild(el('div', 'exposure-group', block.group));
-        var bar = el('div', 'exposure-bar');
-        var used = el('div', 'exposure-used');
-        used.style.width = (block.outstanding / block.limit) * 100 + '%';
-        used.appendChild(el('span', null, 'Used USD ' + block.outstanding + 'm'));
-        bar.appendChild(used);
-        var free = el('div', 'exposure-free');
-        free.appendChild(el('span', null, 'Available USD ' + available + 'm'));
-        bar.appendChild(free);
-        box.appendChild(bar);
-        var scale = el('div', 'exposure-scale');
-        scale.appendChild(el('span', null, '0'));
-        scale.appendChild(el('span', null, 'Group limit USD ' + block.limit + 'm'));
-        box.appendChild(scale);
-        return box;
+        // Group limit as three plain figures: limit, already used, available.
+        var figures = el('div', 'exposure');
+        [['Group limit', block.limit], ['Already used', block.outstanding], ['Available', block.limit - block.outstanding]]
+          .forEach(function (f) {
+            var cell = el('div', 'exposure-figure');
+            cell.appendChild(el('div', 'exposure-label', f[0]));
+            cell.appendChild(el('div', 'exposure-value', 'USD ' + f[1] + 'm'));
+            figures.appendChild(cell);
+          });
+        return figures;
       }
       case 'orgchart': {
         // Shareholders on top, borrower at the bottom; stakes on the links.
