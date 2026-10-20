@@ -79,7 +79,8 @@
           "items": [
             "Minimum DSCR of 1.30x on the bank's P90 case",
             "Maximum gearing of 75%",
-            "Debt service reserve account (DSRA) covering 6 months of debt service"
+            "Debt service reserve account (DSRA) covering 6 months of debt service",
+            "KYC: every direct and indirect shareholder above 10% must be identified, up to its ultimate beneficial owner, before signing"
           ]
         }
       ]

@@ -45,6 +45,7 @@ What is new compared with case 01: assumptions that change over time (tariff aft
 - Minimum DSCR: 1.30x on contracted revenues, 1.50x on merchant revenues, on the bank's case
 - Maximum gearing of 75%
 - Debt service reserve account (DSRA) covering 6 months of debt service
+- KYC: every direct and indirect shareholder above 10% must be identified, up to its ultimate beneficial owner, before signing
 
 ## Document 2 — Sponsor business plan (extract)
 
