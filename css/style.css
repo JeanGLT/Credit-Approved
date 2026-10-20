@@ -147,22 +147,27 @@ p { margin: 0; }
 
 /* ---------- Welcome ---------- */
 
-.screen-welcome { display: grid; place-items: center; min-height: calc(100vh - 60px); }
-.welcome-card {
-  max-width: 760px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
-  padding: 48px;
+.screen-welcome { max-width: 1160px; padding-top: 72px; }
+.welcome-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 56px;
+  align-items: start;
 }
-.welcome-card h1 { font-size: 34px; margin-bottom: 16px; }
-.lead { font-size: 17px; color: #374151; margin-bottom: 28px; }
+.welcome-title {
+  font-family: "DM Serif Display", Georgia, serif;
+  font-weight: 400;
+  font-size: 56px;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin: -6px 0 18px; /* the serif's line box sits low: lift it so its top lines up with the case panel */
+}
+.lead { font-size: 18px; color: #374151; margin-bottom: 28px; }
 .rules {
   counter-reset: rule;
   list-style: none;
   padding: 20px 22px;
-  margin: 0 0 16px;
+  margin: 0 0 18px;
   background: var(--accent-soft);
   border-radius: var(--radius);
   color: #1e3a8a;
@@ -188,16 +193,23 @@ p { margin: 0; }
   font-weight: 600;
   font-size: 13px;
 }
-.case-list-title { font-size: 15px; margin-bottom: 12px; }
-.case-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.welcome-cases {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 24px;
+}
+.case-list-title { font-size: 15px; margin-bottom: 14px; }
+.case-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 .case-card {
   font: inherit;
   color: inherit;
   text-align: left;
   display: grid;
-  gap: 10px;
+  gap: 8px;
   align-content: start;
-  padding: 20px;
+  padding: 18px 20px;
   background: var(--surface);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
@@ -213,6 +225,7 @@ p { margin: 0; }
 .case-level.level-intermediate { background: var(--warn-soft); color: var(--warn); }
 .case-level.level-advanced { background: var(--bad-soft); color: var(--bad); }
 .case-title { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+.case-intro { font-size: 14px; color: #374151; line-height: 1.45; }
 .case-card-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
 .case-meta { font-size: 13px; color: var(--muted); }
 .case-start {
@@ -226,8 +239,8 @@ p { margin: 0; }
 .case-card:hover:not(:disabled) .case-start { background: #2449c7; }
 .input-row.is-disabled { opacity: 0.5; }
 
-.welcome-tip { font-size: 14px; color: var(--muted); margin: 0 0 28px; }
-.welcome-error { color: var(--bad); font-size: 14px; margin-bottom: 20px; text-align: center; }
+.welcome-tip { font-size: 14px; color: var(--muted); margin: 0; }
+.welcome-error { color: var(--bad); font-size: 14px; margin: 14px 0 0; }
 
 /* ---------- Case screen ---------- */
 

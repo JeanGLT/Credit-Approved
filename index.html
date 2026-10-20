@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=2026-10-20k">
+  <link rel="stylesheet" href="css/style.css?v=2026-10-20l">
 </head>
 <body>
   <p class="small-screen-note">This game is designed for a computer screen. For the best experience, open it on a laptop or desktop.</p>
@@ -44,21 +44,25 @@
 
   <!-- Screen 1: welcome -->
   <main class="screen screen-welcome" id="screen-welcome">
-    <section class="welcome-card">
-      <p class="eyebrow">Harbour Pacific Bank · Energy &amp; Infrastructure</p>
-      <h1>You are a Project Finance Analyst.</h1>
-      <p class="lead">Your job is to decide which projects the bank should fund, and on what terms.</p>
-      <ol class="rules">
-        <li>Read the case documents.</li>
-        <li>Test your own assumptions in the control center.</li>
-        <li>Send a proposal to the committee.</li>
-        <li>Defend your case in front of the committee.</li>
-      </ol>
-      <p class="welcome-tip">The committee reads every word: write your answers in full sentences and back them with numbers whenever you can. Both count in your score.</p>
-      <h2 class="case-list-title">Choose a case</h2>
-      <div class="case-list" id="case-list"><p class="muted small">Loading cases…</p></div>
-      <p class="welcome-error" id="welcome-error" hidden></p>
-    </section>
+    <div class="welcome-grid">
+      <section class="welcome-pitch">
+        <h1 class="welcome-title">Every deal has a trap.</h1>
+        <p class="lead">Play a Project Finance Analyst at a bank in Asia. Read the case, test the numbers, and take your proposal to the credit committee.</p>
+        <ol class="rules">
+          <li>Read the case documents.</li>
+          <li>Test your own assumptions in the control center.</li>
+          <li>Send a proposal to the committee.</li>
+          <li>Defend your case in front of the committee.</li>
+        </ol>
+        <p class="welcome-tip">The committee reads every word: write your answers in full sentences and back them with numbers whenever you can. Both count in your score.</p>
+      </section>
+
+      <section class="welcome-cases" aria-labelledby="cases-title">
+        <h2 class="case-list-title" id="cases-title">Choose a case</h2>
+        <div class="case-list" id="case-list"><p class="muted small">Loading cases…</p></div>
+        <p class="welcome-error" id="welcome-error" hidden></p>
+      </section>
+    </div>
   </main>
 
   <!-- Screen 2: the case -->
@@ -196,8 +200,8 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="js/model.js?v=2026-10-20k"></script>
-  <script src="js/ui.js?v=2026-10-20k"></script>
-  <script src="js/game.js?v=2026-10-20k"></script>
+  <script src="js/model.js?v=2026-10-20l"></script>
+  <script src="js/ui.js?v=2026-10-20l"></script>
+  <script src="js/game.js?v=2026-10-20l"></script>
 </body>
 </html>

@@ -74,6 +74,7 @@
       top.appendChild(el('span', 'case-level level-' + c.level.toLowerCase(), c.level));
       card.appendChild(top);
       card.appendChild(el('span', 'case-title', c.title));
+      if (c.intro) card.appendChild(el('span', 'case-intro', c.intro));
       var bottom = el('div', 'case-card-bottom');
       bottom.appendChild(el('span', 'case-meta', c.readingTime));
       bottom.appendChild(el('span', 'case-start', 'Start →'));
