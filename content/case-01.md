@@ -180,6 +180,8 @@ The checks follow the order of a real deal: Risk first (policy), then the sponso
 
 **Best answer (shown on the result screen).** Control center on the bank case (yield 1,430 kWh/kWp, curtailment 10%, tariff 7.0, operating costs 0.75), loan USD 26.3m (the largest within policy: DSCR 1.30x, gearing 69%), with the DSRA, the cash sweep and the dividend lock-up. Keeping USD 28.5m with the sponsor guarantee is also a right answer.
 
+On the result screen the player's control center is compared with ranges: yield 1,400 to 1,450 kWh/kWp, curtailment 8 to 12%, and a loan between USD 22.4m and USD 26.3m (up to USD 28.5m with the sponsor guarantee, which is then expected).
+
 ## Score (out of 20)
 
 Fixed when the player sends the proposal, from the control center values at that moment, except the committee part.

@@ -191,8 +191,8 @@ test('Policy max debt on the bank case: 58.20 over 12 years, 45.88 over 18', () 
 });
 test('58m / 12y + syndication + full KYC + DSRA → right', () =>
   assert.strictEqual(out2('conditions', 58, 12, ['syndicate', 'kycfull', 'dsra']), 'right'));
-test('45m / 18y + full KYC + DSRA + lock-up → right (acceptable)', () =>
-  assert.strictEqual(out2('conditions', 45, 18, ['kycfull', 'dsra', 'lockup']), 'right'));
+test('45m / 18y + full KYC + DSRA + lock-up → acceptable (passes policy, longer tenor)', () =>
+  assert.strictEqual(out2('conditions', 45, 18, ['kycfull', 'dsra', 'lockup']), 'acceptable'));
 test('58m / 12y + full KYC, no syndication → sent back by Portfolio Management', () =>
   assert.strictEqual(out2('conditions', 58, 12, ['kycfull']), 'limit'));
 test('58m / 12y + syndication + KYC on the parent only → blocked by Compliance', () =>
@@ -264,6 +264,33 @@ test('Q4 "Sure, let\'s skip it" → 0', () =>
   assert.strictEqual(Rules.evaluateAnswer(case2.committee[3], "Sure, let's keep it simple and close.", 2).points, 0));
 test('Q3 "We can hold 45m and syndicate the rest" → 2', () =>
   assert.strictEqual(Rules.evaluateAnswer(case2.committee[2], 'Only up to the group limit: we hold 45m and syndicate the rest.', 2).points, 2));
+
+// ---------------------------------------------------------------------
+console.log('\nTenor outside 10-12 years (case 02) and best-answer ranges');
+test('45m / 18y + full KYC + DSRA + lock-up → acceptable, decision 3 / 4, total 19 / 20', () => {
+  const ev = ev2('conditions', 45, 18, ['kycfull', 'dsra', 'lockup']);
+  assert.strictEqual(ev.outcomeKey, 'acceptable');
+  assert.strictEqual(ev.decision.points, 3);
+  assert.strictEqual(Rules.finalScore(case2, ev, case2.committee.map((q) => q.goodAnswer)).total, 19);
+});
+test('44m / 8y + full KYC + DSRA + lock-up → acceptable (19 / 20 at best)', () =>
+  assert.strictEqual(out2('conditions', 44, 8, ['kycfull', 'dsra', 'lockup']), 'acceptable'));
+test('55m / 11y + syndication + full KYC + DSRA + lock-up → right', () =>
+  assert.strictEqual(out2('conditions', 55, 11, ['syndicate', 'kycfull', 'dsra', 'lockup']), 'right'));
+test('Best loan range over 12 years: 49.47 to 58.20', () => {
+  const r = Rules.bestLoanRange(case2, p2('conditions', 58, 12, []));
+  assert.ok(Math.abs(r.min - 49.47) < 0.01 && Math.abs(r.max - 58.20) < 0.01, JSON.stringify(r));
+});
+test('Best loan range over 18 years: 39.00 to 45.88', () => {
+  const r = Rules.bestLoanRange(case2, p2('conditions', 45, 18, []));
+  assert.ok(Math.abs(r.min - 39.00) < 0.01 && Math.abs(r.max - 45.88) < 0.01, JSON.stringify(r));
+});
+test('Case 01 best loan range: 22.36 to 26.30, up to 28.5 with the sponsor guarantee', () => {
+  const plain = Rules.bestLoanRange(caseData, proposal('conditions', 26, ['dsra'], BANK));
+  const backed = Rules.bestLoanRange(caseData, proposal('conditions', 28.5, ['guarantee'], BANK));
+  assert.ok(Math.abs(plain.min - 22.36) < 0.01 && Math.abs(plain.max - 26.30) < 0.01, JSON.stringify(plain));
+  assert.ok(Math.abs(backed.max - 28.5) < 0.01, JSON.stringify(backed));
+});
 
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed === 0 ? 0 : 1);

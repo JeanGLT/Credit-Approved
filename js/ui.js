@@ -943,16 +943,29 @@
     return fmt(value, decimalsOf(cfg.step)) + ' ' + cfg.unit;
   }
 
-  // Close enough to the best value: within one slider step or 2%.
-  function closeTo(value, best, step) {
-    return Math.abs(value - best) <= Math.max(step, Math.abs(best) * 0.02) + 1e-9;
-  }
-
+  // Marks: true = ✓ (best answer), 'partial' = ≈ (acceptable), false = ✗.
   function mark(ok) {
+    if (ok === 'partial') return el('span', 'mark mark-partial', '≈');
     return el('span', 'mark ' + (ok ? 'mark-ok' : 'mark-no'), ok ? '✓' : '✗');
   }
 
-  function compareTable(data, proposal, best, evaluation) {
+  // A control center value against the best answer: a range when the case
+  // gives one (e.g. 5.5 to 6.2, best 6.0), otherwise the exact value.
+  function judgeInput(cfg, value, best, range) {
+    var d = decimalsOf(cfg.step);
+    var eps = cfg.step / 2;
+    if (!range) {
+      return { text: inputValue(cfg, best), ok: Math.abs(value - best) <= eps + 1e-9 };
+    }
+    var text = fmt(range.min, d) + ' – ' + fmt(range.max, d) + ' ' + cfg.unit + ' (best ' + fmt(best, d) + ')';
+    if (value >= range.min - 1e-9 && value <= range.max + 1e-9) return { text: text, ok: true };
+    if (range.okMin !== undefined && value >= range.okMin - 1e-9 && value <= range.okMax + 1e-9) {
+      return { text: text, ok: 'partial', note: range.okNote };
+    }
+    return { text: text, ok: false };
+  }
+
+  function compareTable(data, proposal, best, evaluation, loanRange) {
     var table = el('table', 'compare');
     var head = el('tr');
     ['', 'You', 'Best answer', ''].forEach(function (h) { head.appendChild(el('th', null, h)); });
@@ -962,10 +975,10 @@
     var body = el('tbody');
 
     function row(label, yours, bestValue, ok, note) {
-      var tr = el('tr', ok ? null : 'is-off');
+      var tr = el('tr', ok === true ? null : 'is-off');
       var th = el('td', 'compare-label');
       th.appendChild(el('div', null, label));
-      if (note && !ok) th.appendChild(el('div', 'compare-note', note));
+      if (note && ok !== true) th.appendChild(el('div', 'compare-note', note));
       tr.appendChild(th);
       tr.appendChild(el('td', null, yours));
       tr.appendChild(el('td', null, bestValue));
@@ -986,16 +999,21 @@
     row('Decision', decisionLabel(data, proposal.decision), decisionLabel(data, best.decision), proposal.decision === best.decision);
 
     section('Control center');
+    var ranges = best.ranges || {};
     Object.keys(data.model.inputs).forEach(function (key) {
       var cfg = data.model.inputs[key];
       var yours = proposal.assumptions[key];
       var target = best.assumptions[key];
       if (target === undefined) return;
-      row(cfg.label, inputValue(cfg, yours), inputValue(cfg, target), closeTo(yours, target, cfg.step));
+      var j = judgeInput(cfg, yours, target, ranges[key]);
+      row(cfg.label, inputValue(cfg, yours), j.text, j.ok, j.note);
     });
-    var loanOk = proposal.loan <= best.loan + 0.05 && proposal.loan >= best.loan * 0.85;
-    row('Loan amount', 'USD ' + money(proposal.loan) + 'm', 'USD ' + money(best.loan) + 'm', loanOk,
-      proposal.loan > best.loan ? 'Above what the bank case supports.' : 'Well below what the bank could lend.');
+    // Loan: from the "too conservative" floor to the largest loan within policy,
+    // for the tenor the player chose.
+    var loanText = 'USD ' + money(Math.round(loanRange.min * 10) / 10) + 'm – ' + money(Math.round(loanRange.max * 10) / 10) + 'm';
+    var loanOk = proposal.loan >= loanRange.min - 0.05 && proposal.loan <= loanRange.max + 0.05;
+    row('Loan amount', 'USD ' + money(proposal.loan) + 'm', loanText, loanOk,
+      proposal.loan > loanRange.max ? 'Above what the bank case supports for this tenor.' : 'Well below what the bank could lend for this tenor.');
 
     section('Conditions');
     var bestSet = {};
@@ -1003,7 +1021,11 @@
     var yourSet = proposal.decision === 'conditions' ? proposal.conditions : {};
     data.proposal.conditions.forEach(function (c) {
       var yours = !!yourSet[c.id];
-      var wanted = !!bestSet[c.id];
+      // Conditions that depend on the amount (syndication, sponsor guarantee)
+      // are only wanted when the player's loan is above their threshold.
+      var wanted = c.redundantIfLoanAtMost !== undefined
+        ? proposal.loan > c.redundantIfLoanAtMost + 1e-9
+        : !!bestSet[c.id];
       if (!yours && !wanted) return;
       var item = evaluation.conditions.items.filter(function (i) { return i.id === c.id; })[0];
       row(c.label, yours ? 'Ticked' : '—', wanted ? 'Ticked' : '—', yours === wanted, item ? item.reason : c.reason);
@@ -1061,7 +1083,7 @@
     // 2. Your answer next to the best answer
     var compare = el('section', 'card');
     compare.appendChild(el('h2', null, 'Your answer vs the best answer'));
-    compare.appendChild(compareTable(data, opts.proposal, best, ev));
+    compare.appendChild(compareTable(data, opts.proposal, best, ev, opts.loanRange));
     if (best.note) compare.appendChild(el('p', 'best-note', best.note));
     if (opts.proposal.justification) {
       compare.appendChild(el('div', 'answer-label', 'Your justification'));

@@ -825,7 +825,17 @@
         "sweep",
         "lockup"
       ],
-      "note": "The bank's best answer: the bank case in the control center (engineer's P90, 10% curtailment), the largest loan within policy (USD 26.3m, DSCR 1.30x, gearing 69%), and the three protective conditions. Keeping USD 28.5m with the sponsor guarantee is also a right answer."
+      "note": "The bank's best answer: the bank case in the control center (yield around the engineer's P90 of 1,430, curtailment 8 to 12%), a loan between USD 22.4m and USD 26.3m (the largest within policy: DSCR 1.30x, gearing 69%), and the three protective conditions. Keeping USD 28.5m with the sponsor guarantee is also a right answer.",
+      "ranges": {
+        "yield": {
+          "min": 1400,
+          "max": 1450
+        },
+        "curtailment": {
+          "min": 8,
+          "max": 12
+        }
+      }
     }
   }
 }

@@ -855,6 +855,7 @@ textarea[readonly] { background: var(--bg); color: #374151; }
 .result-hero { border-top: 4px solid var(--accent); }
 .result-hero[data-outcome="right"] { border-top-color: var(--good); }
 .result-hero[data-outcome="conservative"],
+.result-hero[data-outcome="acceptable"],
 .result-hero[data-outcome="limit"],
 .result-hero[data-outcome="decline"] { border-top-color: var(--warn); }
 .result-hero[data-outcome="risk"],
@@ -911,6 +912,7 @@ textarea[readonly] { background: var(--bg); color: #374151; }
 .mark { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 99px; font-size: 12px; font-weight: 700; }
 .mark-ok { background: var(--good-soft); color: var(--good); }
 .mark-no { background: var(--bad-soft); color: var(--bad); }
+.mark-partial { background: var(--warn-soft); color: var(--warn); }
 .best-note { margin-top: 14px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--good-soft); color: #14532d; font-size: 14px; }
 .answer-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 14px 0 6px; }
 .doc-quote { white-space: pre-wrap; }

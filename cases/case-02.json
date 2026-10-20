@@ -870,6 +870,12 @@
         "type": "requireCondition",
         "condition": "kycfull",
         "outcome": "compliance"
+      },
+      {
+        "type": "tenorRange",
+        "min": 10,
+        "max": 12,
+        "outcome": "acceptable"
       }
     ],
     "competition": {
@@ -941,7 +947,8 @@
         "conservative": 1,
         "compliance": 0,
         "decline": 1,
-        "approve": 0
+        "approve": 0,
+        "acceptable": 3
       },
       "conditions": {
         "max": 3,
@@ -1022,6 +1029,16 @@
         "revenue": 0,
         "risk": 0,
         "credibility": -1
+      }
+    },
+    "acceptable": {
+      "label": "Approve with acceptable conditions",
+      "closes": true,
+      "story": "The deal closes and passes policy, but it is not the strongest structure: outside a 10 to 12-year tenor, the bank either lends into the merchant years or supports less debt than a 12-year loan would.",
+      "gauges": {
+        "revenue": 1,
+        "risk": 2,
+        "credibility": 1
       }
     }
   },
@@ -1149,7 +1166,24 @@
         "syndicate",
         "kycfull"
       ],
-      "note": "The bank's best answer: the bank case in the control center (merchant price 6.0, operating costs 3.0 from year 6), a 12-year tenor, the largest loan within policy (USD 58.2m, DSCR 1.30x, gearing 63%), USD 45m held and USD 13.2m syndicated, and full KYC before signing. USD 45m over 18 years also passes, but supports less debt."
+      "note": "The bank's best answer: the bank case in the control center (merchant price about 6.0, operating costs about 3.0 from year 6), a 10 to 12-year tenor, a loan sized within policy for that tenor (up to USD 58.2m over 12 years: DSCR 1.30x, gearing 63%), USD 45m held and the rest syndicated, and full KYC before signing. A longer tenor (up to 18 years, USD 45.9m at most) also passes, but scores 19/20: the bank lends into the merchant years for less debt.",
+      "ranges": {
+        "merchantPrice": {
+          "min": 5.5,
+          "max": 6.2
+        },
+        "opexAfter": {
+          "min": 2.8,
+          "max": 3.2
+        },
+        "tenor": {
+          "min": 10,
+          "max": 12,
+          "okMin": 13,
+          "okMax": 18,
+          "okNote": "Passes policy only with a smaller loan: the bank lends into the merchant years and supports less debt (USD 45.9m at most over 18 years)."
+        }
+      }
     }
   }
 }

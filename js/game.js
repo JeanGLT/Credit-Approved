@@ -131,6 +131,11 @@
         return !ticked(proposal, check.condition);
       case 'maxLoan':
         return proposal.loan > check.max + 1e-9 && !anyTicked(proposal, check.unlessAny);
+      case 'tenorRange': {
+        // Passes policy, but outside the ideal tenor: a sound deal, not the strongest one.
+        var tenor = proposalTenor(caseData, proposal);
+        return tenor < check.min || tenor > check.max;
+      }
       default:
         throw new Error('Unknown outcome check: ' + check.type);
     }
@@ -149,6 +154,24 @@
       if (checkFails(caseData, proposal, checks[i], items)) return checks[i].outcome;
     }
     return proposal.decision === 'approve' ? 'approve' : 'right';
+  }
+
+  /*
+   * Loan range shown as the best answer on the result screen, for the tenor
+   * the player chose: from the "too conservative" floor to the largest loan
+   * within policy (higher when a condition such as a sponsor guarantee
+   * lifts the sizing limit, never above the maximum gearing).
+   */
+  function bestLoanRange(caseData, proposal) {
+    var checks = caseData.rules.outcomeChecks;
+    var policy = checks.filter(function (c) { return c.type === 'policy'; })[0];
+    var floor = checks.filter(function (c) { return c.type === 'conservative'; })[0];
+    var fixed = caseData.model.fixed;
+    var cap = fixed.maxGearing * fixed.totalCost;
+    var max = Math.min(policyMaxDebt(caseData, proposal, policy.bankCase), cap);
+    var min = floor ? floor.minShare * max : 0;
+    if (anyTicked(proposal, policy.unlessAny)) max = Math.min(Math.max(max, caseData.proposal.requestedLoan), cap);
+    return { min: min, max: max };
   }
 
   // Gauge moves: the outcome, plus the conditions' own effects if the deal closes.
@@ -349,6 +372,7 @@
     GAUGE_POINT: GAUGE_POINT,
     outcomeKey: outcomeKey,
     policyMaxDebt: policyMaxDebt,
+    bestLoanRange: bestLoanRange,
     evaluateProposal: evaluateProposal,
     applyGauges: applyGauges,
     extractNumbers: extractNumbers,
@@ -594,6 +618,7 @@
       proposal: state.submitted,
       evaluation: evaluation,
       score: score,
+      loanRange: bestLoanRange(state.caseData, state.submitted),
       gaugesBefore: before,
       gaugesAfter: state.gauges,
       answers: state.answers,

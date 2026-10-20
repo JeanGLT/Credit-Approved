@@ -195,7 +195,9 @@ The tenor and the amount are set in the control center. Cutting the tenor below 
 
 **Competition.** Above a total weight of 7, Northpoint takes its pipeline to another bank: outcome "Lost to competitor". The best answer weighs exactly 7 (shorter tenor 1, smaller loan 2, syndication 1, full KYC 1, DSRA 1, lock-up 1). Adding the comfort letter on top (weight 8) loses the deal.
 
-**Best answer (shown on the result screen).** Control center on the bank case (merchant price 6.0 cents, operating costs USD 3.0m from year 6), tenor 12 years, loan USD 58.2m (the largest within policy: DSCR 1.30x, gearing 63%), USD 45m held and USD 13.2m syndicated, with the DSRA, the lock-up and full KYC. USD 45m over 18 years also passes, but supports less debt.
+**Best answer (shown on the result screen).** Control center on the bank case (merchant price 6.0 cents, operating costs USD 3.0m from year 6), tenor 12 years, loan USD 58.2m (the largest within policy: DSCR 1.30x, gearing 63%), USD 45m held and USD 13.2m syndicated, with the DSRA, the lock-up and full KYC. USD 45m over 18 years also passes (19/20), but supports less debt.
+
+On the result screen the player's control center is compared with ranges, not single values: merchant price 5.5 to 6.2, operating costs from year 6 USD 2.8m to 3.2m, tenor 10 to 12 years (13 to 18 shown as acceptable), and a loan between 85% and 100% of what policy allows for the tenor chosen (USD 49.5m to 58.2m over 12 years, USD 39.0m to 45.9m over 18 years). Syndication is expected only when the loan is above USD 45m.
 
 ## Committee questions
 
@@ -232,10 +234,11 @@ The consequence appears a few cases later. Gauge moves run from −3 to +3; each
 | Sent back by Portfolio Management | The bank holds more than USD 45m (no syndication) | Priya Nair refuses to sign off: the group limit would be breached. The deal misses Friday. | 0 | +1 | −1 |
 | Lost to competitor | Total weight above 7 | Northpoint finds the term sheet too heavy and signs with another bank. | 0 | 0 | −2 |
 | Too conservative | Loan below 85% of what policy allows for the tenor proposed (e.g. below USD 49.5m over 12 years) | Northpoint takes the whole pipeline to a bank that offered more. Kevin asks why we left money on the table. | 0 | 0 | −1 |
+| Approve with acceptable conditions | All checks pass, but the tenor is outside 10 to 12 years | The deal closes and passes policy, but the bank lends into the merchant years (or, below 10 years, supports less debt) instead of the 12-year structure. | +1 | +2 | +1 |
 | Blocked by Compliance | Full KYC not required | Two days before signing, Compliance freezes the deal: Silverbay's owner was never identified. | 0 | +1 | −2 |
 | Decline | — | A competitor finances the project. Northpoint takes its pipeline elsewhere. | 0 | 0 | −1 |
 
-The checks follow the order of a real deal: Risk (policy), Portfolio Management (limit), the sponsor (too heavy, or too conservative), Compliance (KYC before signing). The first one that fails decides the outcome.
+The checks follow the order of a real deal: Risk (policy), Portfolio Management (limit), the sponsor (too heavy, or too conservative), Compliance (KYC before signing), and last the tenor (10 to 12 years for the best structure). The first one that fails decides the outcome.
 
 ## Score (out of 20)
 
@@ -244,7 +247,7 @@ Fixed when the player sends the proposal, from the control center values at that
 | Part | Points | Rule |
 | --- | --- | --- |
 | Analysis | 5 | Trap 1 spotted (merchant price ≤ 6.2 cents or tenor ≤ 12 years in the control center): 2. Trap 2 spotted (operating costs after the warranty ≥ USD 2.8m): 1. Trap 3 spotted (loan ≤ USD 45m or syndication ticked): 1. Trap 4 spotted (full KYC ticked): 1. |
-| Decision | 4 | Right conditions 4; sent back, lost, too conservative and decline 1; rejected by Risk and blocked by Compliance 0. |
+| Decision | 4 | Right conditions 4; acceptable conditions (tenor outside 10 to 12 years) 3; sent back, lost, too conservative and decline 1; rejected by Risk and blocked by Compliance 0. A perfect 18-year answer therefore scores 19/20. |
 | Conditions | 3 | +1 per good condition, −1 per bad one. Kept between 0 and 3. |
 | Committee | 8 | 0 to 2 per answer, four answers. |
 
