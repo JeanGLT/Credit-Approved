@@ -41,7 +41,7 @@ This is the first case a player sees. It teaches the core habit of the game: nev
 
 - Minimum DSCR of 1.30x on the bank's P90 case
 - Maximum gearing of 75%
-- Debt service reserve account (DSRA) covering 6 months of debt service
+- A debt service reserve account (DSRA) covering 6 months of debt service is expected
 - KYC: every direct and indirect shareholder above 10% must be identified, up to its ultimate beneficial owner, before signing
 
 ## Document 2 — Sponsor business plan (extract)
