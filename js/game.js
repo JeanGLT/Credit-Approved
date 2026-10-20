@@ -436,6 +436,7 @@
     questionIndex: -1,     // committee question waiting for an answer
     answers: [],           // committee answers
     committeeFinished: false,
+    finished: false,       // the result screen has been shown (no confirmation needed to leave)
     gauges: { revenue: GAUGE_START, risk: GAUGE_START, credibility: GAUGE_START }
   };
 
@@ -620,6 +621,42 @@
     });
   }
 
+  // ---------- Navigation ----------
+
+  function goHome() {
+    window.location.href = window.location.pathname;
+  }
+
+  // Leaving a case in progress loses it: ask first.
+  function leaveCase() {
+    if (state.caseData && !state.finished &&
+        !window.confirm('Leave this case? Your progress will be lost.')) return;
+    goHome();
+  }
+
+  // Skip the whole case: straight to the answer key, without a score.
+  function skipCase() {
+    if (!window.confirm('Skip this case and go straight to the results and the answer key? There will be no score.')) return;
+    state.finished = true;
+    UI.chat.hide();
+    UI.renderSkipped({
+      caseData: state.caseData,
+      onRestart: function () { window.location.href = '?case=' + encodeURIComponent(state.caseData.id); },
+      onAllCases: goHome
+    });
+    UI.showScreen('result');
+  }
+
+  // From the result, look at the case again (it stays locked), then come back.
+  function reviewCase() {
+    UI.showScreen('case');
+    UI.showResultsBar(function () { UI.showScreen('result'); }, {
+      title: 'You are reviewing your case.',
+      text: 'Everything is shown as you sent it.',
+      button: 'Back to the results'
+    });
+  }
+
   // ---------- Result ----------
 
   // Loan range of the best answer itself (its tenor and conditions), to show
@@ -639,6 +676,7 @@
     var score = finalScore(state.caseData, evaluation, state.answers);
     var before = Object.assign({}, state.gauges);
     state.gauges = applyGauges(state.gauges, evaluation.gauges.deltas);
+    state.finished = true;
 
     UI.chat.hide();
     UI.renderResult({
@@ -652,7 +690,8 @@
       gaugesAfter: state.gauges,
       answers: state.answers,
       onRestart: function () { window.location.href = '?case=' + encodeURIComponent(state.caseData.id); },
-      onAllCases: function () { window.location.href = window.location.pathname; }
+      onAllCases: goHome,
+      onReview: reviewCase
     });
     UI.showScreen('result');
     // Let the screen appear first so the gauges visibly move.
@@ -677,6 +716,8 @@
     refresh();
 
     document.getElementById('reset-btn').addEventListener('click', resetToSponsor);
+    document.getElementById('back-to-cases').addEventListener('click', leaveCase);
+    document.getElementById('skip-link').addEventListener('click', skipCase);
 
     // Messages that arrive while the player reads the case (e.g. the front office).
     (data.messages.onStart || []).forEach(function (msg) {
@@ -697,6 +738,10 @@
 
   function init() {
     UI.initFooter();
+    document.getElementById('home-link').addEventListener('click', function (e) {
+      e.preventDefault();
+      leaveCase();
+    });
     fetchJson(INDEX_URL)
       .then(function (index) {
         var only = requestedCase();

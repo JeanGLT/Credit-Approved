@@ -674,6 +674,7 @@
     document.querySelector('.control').classList.toggle('is-locked', s.locked);
 
     $('justification').readOnly = s.locked;
+    $('skip-link').hidden = s.locked;
     var submit = $('submit-proposal');
     submit.disabled = !s.decision || s.locked;
     submit.textContent = s.locked ? 'Sent to committee' : 'Send to committee';
@@ -902,10 +903,15 @@
 
   // ---------- "See the results" bar ----------
 
-  function showResultsBar(onClick) {
+  // labels (optional): { title, text, button } to reuse the bar elsewhere.
+  function showResultsBar(onClick, labels) {
+    labels = labels || {};
     var bar = $('results-bar');
     bar.hidden = false;
+    $('results-bar-title').textContent = labels.title || 'The committee has finished.';
+    $('results-bar-sub').textContent = labels.text || 'Your results are ready.';
     var btn = $('results-btn');
+    btn.textContent = (labels.button || 'See the results') + ' →';
     btn.onclick = function () {
       bar.hidden = true;
       onClick();
@@ -1085,6 +1091,7 @@
     var best = data.answerKey.best;
     var root = $('result');
     root.textContent = '';
+    root.appendChild(resultNav(opts, true));
 
     // 1. Outcome, score and gauges
     var hero = el('section', 'card result-hero');
@@ -1239,16 +1246,109 @@
     keyNode.appendChild(el('p', null, key.weakAnswers));
     root.appendChild(keyNode);
 
-    var actions = el('div', 'result-actions');
-    var all = el('button', 'btn btn-ghost btn-lg', 'All cases');
+    root.appendChild(resultNav(opts, false));
+  }
+
+  // Buttons shown above and below the result: back to the case (when there
+  // is one to review), all cases, play again.
+  function resultNav(opts, top) {
+    var nav = el('div', top ? 'result-nav' : 'result-actions');
+    if (top && opts.onReview) {
+      var back = el('button', 'back-link', '← Back to the case');
+      back.type = 'button';
+      back.addEventListener('click', opts.onReview);
+      nav.appendChild(back);
+    }
+    var group = el('div', 'result-nav-group');
+    var all = el('button', 'btn btn-ghost' + (top ? '' : ' btn-lg'), 'All cases');
     all.type = 'button';
     all.addEventListener('click', opts.onAllCases);
-    actions.appendChild(all);
-    var again = el('button', 'btn btn-primary btn-lg', 'Play again');
+    group.appendChild(all);
+    var again = el('button', 'btn btn-primary' + (top ? '' : ' btn-lg'), 'Play again');
     again.type = 'button';
     again.addEventListener('click', opts.onRestart);
-    actions.appendChild(again);
-    root.appendChild(actions);
+    group.appendChild(again);
+    nav.appendChild(group);
+    return nav;
+  }
+
+  // Case skipped: the answer key and the best answer, without a score.
+  function renderSkipped(opts) {
+    var data = opts.caseData;
+    var best = data.answerKey.best;
+    var root = $('result');
+    root.textContent = '';
+    root.appendChild(resultNav(opts, true));
+
+    var hero = el('section', 'card result-hero');
+    hero.dataset.outcome = 'skipped';
+    hero.appendChild(el('p', 'eyebrow', 'Answer key · ' + data.title));
+    hero.appendChild(el('h1', null, 'Case skipped'));
+    hero.appendChild(el('p', 'lead', 'No score and no change to your gauges. Here is what the case was testing, and the best answer.'));
+    root.appendChild(hero);
+
+    // Best answer: the control center and the conditions
+    var card = el('section', 'card');
+    card.appendChild(el('h2', null, 'The best answer'));
+    var rows = [['Decision', decisionLabel(data, best.decision)]];
+    Object.keys(data.model.inputs).forEach(function (key) {
+      if (best.assumptions[key] === undefined) return;
+      var cfg = data.model.inputs[key];
+      var range = (best.ranges || {})[key];
+      var d = decimalsOf(cfg.step);
+      rows.push([cfg.label, range
+        ? fmt(range.min, d) + ' – ' + fmt(range.max, d) + ' ' + cfg.unit + ' (best ' + fmt(best.assumptions[key], d) + ')'
+        : inputValue(cfg, best.assumptions[key])]);
+    });
+    rows.push(['Loan amount', 'USD ' + money(best.loan) + 'm']);
+    rows.push(['Conditions', data.proposal.conditions
+      .filter(function (c) { return best.conditions.indexOf(c.id) !== -1; })
+      .map(function (c) { return c.label; }).join(' · ')]);
+    card.appendChild(renderBlock({ type: 'table', head: ['', 'Best answer'], rows: rows }));
+    if (best.note) card.appendChild(el('p', 'best-note', best.note));
+    root.appendChild(card);
+
+    // The traps
+    var traps = el('section', 'card');
+    traps.appendChild(el('h2', null, 'The traps'));
+    data.rules.score.traps.forEach(function (t, i) {
+      var line = el('div', 'trap-line');
+      line.appendChild(el('span', 'mark mark-partial', String(i + 1)));
+      var body = el('div');
+      body.appendChild(el('div', 'score-label', t.label.replace(/ spotted/, '')));
+      if (data.debrief.spotted[i]) body.appendChild(el('p', 'trap-text', data.debrief.spotted[i]));
+      line.appendChild(body);
+      traps.appendChild(line);
+    });
+    root.appendChild(traps);
+
+    // The committee questions and what a good answer contains
+    var committee = el('section', 'card');
+    committee.appendChild(el('h2', null, 'Committee'));
+    data.committee.forEach(function (q) {
+      var block = el('div', 'qa');
+      var who = el('div');
+      who.appendChild(el('div', 'qa-who', q.askedBy + ' · ' + q.role));
+      who.appendChild(el('div', 'qa-question', q.question));
+      block.appendChild(who);
+      var expected = el('div', 'qa-col qa-expected');
+      expected.style.marginTop = '10px';
+      expected.appendChild(el('div', 'answer-label', 'What a good answer contains'));
+      expected.appendChild(el('p', null, q.goodAnswer));
+      block.appendChild(expected);
+      committee.appendChild(block);
+    });
+    root.appendChild(committee);
+
+    var lesson = el('section', 'card lesson-card');
+    lesson.appendChild(el('p', null, data.debrief.summary));
+    var l = el('p', 'lesson');
+    l.appendChild(el('strong', null, 'Lesson: '));
+    l.appendChild(document.createTextNode(data.debrief.lesson));
+    lesson.appendChild(l);
+    root.appendChild(lesson);
+
+    root.appendChild(resultNav(opts, false));
   }
 
   window.UI = {
@@ -1267,6 +1367,7 @@
     renderProposal: renderProposal,
     setProposalState: setProposalState,
     renderResult: renderResult,
+    renderSkipped: renderSkipped,
     showResultsBar: showResultsBar,
     chat: chat
   };

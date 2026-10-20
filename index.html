@@ -12,20 +12,20 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=2026-10-20n">
+  <link rel="stylesheet" href="css/style.css?v=2026-10-21a">
 </head>
 <body>
   <p class="small-screen-note">This game is designed for a computer screen. For the best experience, open it on a laptop or desktop.</p>
 
   <header class="topbar">
-    <div class="brand">
+    <a class="brand" href="./" id="home-link" aria-label="Credit Approved, back to all cases">
       <svg class="brand-mark" width="32" height="32" viewBox="0 0 34 34" aria-hidden="true">
         <circle cx="17" cy="17" r="15" fill="none" stroke="currentColor" stroke-width="2.5"/>
         <circle cx="17" cy="17" r="10.5" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 2"/>
         <path d="M11.5 17.5l3.8 3.8 7.4-7.6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <span class="brand-name">Credit Approved</span>
-    </div>
+    </a>
     <div class="gauges" id="gauges" hidden>
       <div class="gauge" data-gauge="revenue">
         <div class="gauge-head"><span>Bank revenue</span><span class="gauge-value">50</span></div>
@@ -68,6 +68,7 @@
   <!-- Screen 2: the case -->
   <main class="screen screen-case" id="screen-case" hidden>
     <div class="case-head">
+      <button class="back-link" id="back-to-cases" type="button">← All cases</button>
       <div>
         <p class="eyebrow" id="case-eyebrow"></p>
         <h1 id="case-title"></h1>
@@ -149,6 +150,7 @@
             <button class="btn btn-primary btn-lg" id="submit-proposal" type="submit" disabled>Send to committee</button>
             <span class="muted small" id="submit-note">Choose a decision first.</span>
           </div>
+          <button class="skip-link" id="skip-link" type="button">or skip everything and see the results →</button>
         </form>
       </section>
     </div>
@@ -170,8 +172,8 @@
   <!-- Shown once the committee has finished -->
   <div class="results-bar" id="results-bar" role="status" hidden>
     <div class="results-bar-text">
-      <strong>The committee has finished.</strong>
-      <span>Your results are ready.</span>
+      <strong id="results-bar-title">The committee has finished.</strong>
+      <span id="results-bar-sub">Your results are ready.</span>
     </div>
     <button class="btn btn-lg results-btn" id="results-btn" type="button">See the results &rarr;</button>
   </div>
@@ -208,8 +210,8 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="js/model.js?v=2026-10-20n"></script>
-  <script src="js/ui.js?v=2026-10-20n"></script>
-  <script src="js/game.js?v=2026-10-20n"></script>
+  <script src="js/model.js?v=2026-10-21a"></script>
+  <script src="js/ui.js?v=2026-10-21a"></script>
+  <script src="js/game.js?v=2026-10-21a"></script>
 </body>
 </html>
