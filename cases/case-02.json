@@ -1179,9 +1179,9 @@
         "tenor": {
           "min": 10,
           "max": 12,
-          "okMin": 13,
+          "okMin": 8,
           "okMax": 18,
-          "okNote": "Passes policy only with a smaller loan: the bank lends into the merchant years and supports less debt (USD 45.9m at most over 18 years)."
+          "okNote": "Passes policy, but not the strongest structure: above 12 years the bank lends into the merchant years and supports less debt (USD 45.9m at most over 18 years); below 10 years it supports less debt too."
         }
       }
     }

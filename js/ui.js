@@ -1015,6 +1015,20 @@
     row('Loan amount', 'USD ' + money(proposal.loan) + 'm', loanText, loanOk,
       proposal.loan > loanRange.max ? 'Above what the bank case supports for this tenor.' : 'Well below what the bank could lend for this tenor.');
 
+    // When the bank can only hold part of the loan (case 02), show the split.
+    var hold = data.rules.outcomeChecks.filter(function (c) { return c.type === 'maxLoan' && c.unlessAny; })[0];
+    if (hold) {
+      var syndicates = proposal.decision === 'conditions' && hold.unlessAny.some(function (id) { return proposal.conditions[id]; });
+      var held = syndicates ? Math.min(proposal.loan, hold.max) : proposal.loan;
+      var needed = Math.max(0, proposal.loan - hold.max);
+      row('Held by the bank', 'USD ' + money(held) + 'm', 'USD ' + money(hold.max) + 'm at most', held <= hold.max + 1e-9,
+        'Above the USD ' + money(hold.max) + 'm the bank can hold: the rest must be syndicated.');
+      row('Syndicated to another bank', syndicates && needed > 0 ? 'USD ' + money(needed) + 'm' : 'None',
+        needed > 0 ? 'USD ' + money(needed) + 'm (the part above USD ' + money(hold.max) + 'm)' : 'None needed',
+        needed > 0 ? syndicates : true,
+        'Without syndication, the bank would hold more than its limit.');
+    }
+
     section('Conditions');
     var bestSet = {};
     best.conditions.forEach(function (id) { bestSet[id] = true; });

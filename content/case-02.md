@@ -197,7 +197,7 @@ The tenor and the amount are set in the control center. Cutting the tenor below 
 
 **Best answer (shown on the result screen).** Control center on the bank case (merchant price 6.0 cents, operating costs USD 3.0m from year 6), tenor 12 years, loan USD 58.2m (the largest within policy: DSCR 1.30x, gearing 63%), USD 45m held and USD 13.2m syndicated, with the DSRA, the lock-up and full KYC. USD 45m over 18 years also passes (19/20), but supports less debt.
 
-On the result screen the player's control center is compared with ranges, not single values: merchant price 5.5 to 6.2, operating costs from year 6 USD 2.8m to 3.2m, tenor 10 to 12 years (13 to 18 shown as acceptable), and a loan between 85% and 100% of what policy allows for the tenor chosen (USD 49.5m to 58.2m over 12 years, USD 39.0m to 45.9m over 18 years). Syndication is expected only when the loan is above USD 45m.
+On the result screen the player's control center is compared with ranges, not single values: merchant price 5.5 to 6.2, operating costs from year 6 USD 2.8m to 3.2m, tenor 10 to 12 years (above 12 or below 10 shown as acceptable, 19/20 at best), and a loan between 85% and 100% of what policy allows for the tenor chosen (USD 49.5m to 58.2m over 12 years, USD 39.0m to 45.9m over 18 years). Two more lines show the split: held by the bank (USD 45m at most) and syndicated to another bank (the part above USD 45m, or none). Syndication is expected only when the loan is above USD 45m; lending USD 45m alone when USD 58m could be arranged with syndication counts as too conservative.
 
 ## Committee questions
 
