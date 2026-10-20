@@ -965,7 +965,7 @@
     return { text: text, ok: false, note: range.offNote };
   }
 
-  function compareTable(data, proposal, best, evaluation, loanRange, bestRange) {
+  function compareTable(data, proposal, best, evaluation, loanRange, bestRange, policy) {
     var table = el('table', 'compare');
     var head = el('tr');
     ['', 'You', 'Best answer', ''].forEach(function (h) { head.appendChild(el('th', null, h)); });
@@ -1036,20 +1036,6 @@
         proposal.loan > loanRange.max ? 'Above what the bank case supports for this tenor.' : 'Well below what the bank could lend for this tenor.');
     }
 
-    // When the bank can only hold part of the loan (case 02), show the split.
-    var hold = data.rules.outcomeChecks.filter(function (c) { return c.type === 'maxLoan' && c.unlessAny; })[0];
-    if (hold) {
-      var syndicates = proposal.decision === 'conditions' && hold.unlessAny.some(function (id) { return proposal.conditions[id]; });
-      var held = syndicates ? Math.min(proposal.loan, hold.max) : proposal.loan;
-      var needed = Math.max(0, proposal.loan - hold.max);
-      row('Held by the bank', 'USD ' + money(held) + 'm', 'USD ' + money(hold.max) + 'm at most', held <= hold.max + 1e-9,
-        'Above the USD ' + money(hold.max) + 'm the bank can hold: the rest must be syndicated.');
-      row('Syndicated to another bank', syndicates && needed > 0 ? 'USD ' + money(needed) + 'm' : 'None',
-        needed > 0 ? 'USD ' + money(needed) + 'm (the part above USD ' + money(hold.max) + 'm)' : 'None needed',
-        needed > 0 ? syndicates : true,
-        'Without syndication, the bank would hold more than its limit.');
-    }
-
     section('Conditions');
     var bestSet = {};
     best.conditions.forEach(function (id) { bestSet[id] = true; });
@@ -1065,6 +1051,32 @@
       var item = evaluation.conditions.items.filter(function (i) { return i.id === c.id; })[0];
       row(c.label, yours ? 'Ticked' : '—', wanted ? 'Ticked' : '—', yours === wanted, item ? item.reason : c.reason);
     });
+
+    // Bank policy: not scored, but any ✗ means the deal is rejected.
+    if (policy && policy.length && proposal.decision !== 'decline') {
+      section('Bank policy · not scored: any ✗ means the deal is rejected');
+      policy.forEach(function (item) {
+        if (item.id === 'dscr') {
+          row('Minimum DSCR on the bank case',
+            item.covered ? 'Covered by the sponsor guarantee' : fmt(item.dscr, 2) + 'x (year ' + item.year + ')',
+            fmt(item.minDSCR, 2) + 'x' + (data.model.fixed.merchantMinDSCR !== undefined && item.minDSCR === data.model.fixed.merchantMinDSCR ? ' on merchant years' : ''),
+            item.ok, 'Too much debt for the bank case: Risk rejects it.');
+        } else if (item.id === 'gearing') {
+          row('Gearing', fmt(item.gearing * 100, 1) + '%', fmt(item.max * 100, 0) + '% at most', item.ok,
+            'Above the maximum gearing: Risk rejects it.');
+        } else if (item.id === 'tenor') {
+          row('Tenor', item.tenor + ' years', item.max + ' years at most (2 years of merchant revenues)', item.ok,
+            'Too many merchant years: Risk rejects it.');
+        } else if (item.id === 'limit') {
+          row('Held by the bank (group limit)', 'USD ' + money(item.held) + 'm', 'USD ' + money(item.max) + 'm at most', item.ok,
+            'Above the group limit without syndication: Portfolio Management rejects it.');
+        } else if (item.id === 'condition') {
+          var c = data.proposal.conditions.filter(function (x) { return x.id === item.condition; })[0];
+          row(c ? c.label : item.condition, item.ok ? 'Required' : 'Not required', 'Required', item.ok,
+            'Missing: Compliance blocks the signing.');
+        }
+      });
+    }
 
     if (proposal.decision === 'conditions') {
       section('Weight on the sponsor');
@@ -1118,7 +1130,7 @@
     // 2. Your answer next to the best answer
     var compare = el('section', 'card');
     compare.appendChild(el('h2', null, 'Your answer vs the best answer'));
-    compare.appendChild(compareTable(data, opts.proposal, best, ev, opts.loanRange, opts.bestLoanRange));
+    compare.appendChild(compareTable(data, opts.proposal, best, ev, opts.loanRange, opts.bestLoanRange, opts.policy));
     if (best.note) compare.appendChild(el('p', 'best-note', best.note));
     if (opts.proposal.justification) {
       compare.appendChild(el('div', 'answer-label', 'Your justification'));
