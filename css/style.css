@@ -74,18 +74,10 @@ p { margin: 0; }
   border-bottom: 1px solid var(--border);
 }
 
-.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
-.brand-mark {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  background: var(--accent);
-  color: #fff;
-  font-size: 12px;
-  letter-spacing: 0.02em;
-}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-mark { color: var(--accent); flex: none; }
+/* Title font for the name only; the rest of the game stays in Inter. */
+.brand-name { font-family: "DM Serif Display", Georgia, serif; font-weight: 400; font-size: 22px; letter-spacing: 0; line-height: 1; }
 
 .gauges { display: flex; gap: 24px; flex: 1; justify-content: flex-end; max-width: 720px; }
 .gauge { flex: 1; min-width: 0; }
