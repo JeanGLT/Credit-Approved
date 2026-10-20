@@ -211,8 +211,13 @@ test('Best answer + comfort letter → still right, but the letter costs a point
   assert.strictEqual(out2('conditions', 58, 12, ['syndicate', 'kycfull', 'dsra', 'comfort']), 'right');
   assert.strictEqual(ev2('conditions', 58, 12, ['syndicate', 'kycfull', 'dsra', 'comfort']).conditions.points, 2);
 });
-test('Lost to competitor comes before Compliance', () =>
-  assert.strictEqual(out2('conditions', 58, 12, ['syndicate', 'dsra', 'lockup', 'ppaext']), 'lost'));
+test('Best answer + lock-up + comfort letter (weight 8) → lost to competitor', () =>
+  assert.strictEqual(out2('conditions', 58, 12, ['syndicate', 'kycfull', 'dsra', 'lockup', 'comfort']), 'lost'));
+test('Dividends from year 1 → −1 and credibility −1', () => {
+  const ev = ev2('conditions', 58, 12, ['syndicate', 'kycfull', 'dividends']);
+  assert.strictEqual(ev.conditions.items.find((i) => i.id === 'dividends').points, -1);
+  assert.strictEqual(ev.gauges.deltas.credibility, 1);
+});
 test('Approve as requested → rejected by Risk; decline → decline', () => {
   assert.strictEqual(out2('approve', 69.75, 18, [], SPONSOR2), 'risk');
   assert.strictEqual(out2('decline', 69.75, 18, []), 'decline');

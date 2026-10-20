@@ -177,7 +177,7 @@ If the player only finds trap 1 (operating costs left at USD 1.8m), the maximum 
 
 Conditions that earn extra credit: the 6-month DSRA funded at close (about USD 3.8m at USD 58m over 12 years) and a dividend lock-up below 1.20x DSCR.
 
-Weak answers: an 18-year loan sized on the sponsor's prices (Risk rejects it), holding more than USD 45m without syndication, a loan far below what policy allows (the sponsor walks away), a comfort letter or a PPA extension instead of real structure, or KYC on the listed parent only.
+Weak answers: an 18-year loan sized on the sponsor's prices (Risk rejects it), holding more than USD 45m without syndication, a loan far below what policy allows (the sponsor walks away), a comfort letter instead of real structure, dividends allowed whatever the DSCR, or KYC on the listed parent only.
 
 **Conditions offered to the player** (each is either good or bad)
 
@@ -188,12 +188,12 @@ Weak answers: an 18-year loan sized on the sponsor's prices (Risk rejects it), h
 | Syndicate the amount above USD 45m to another bank | Good if needed | +1 if the loan is above USD 45m, −1 if not | — | 1 | The only way to lend more than the bank can hold. |
 | Full KYC on all direct and indirect shareholders above 10% before signing | Good | +1 | — | 1 | Covers Silverbay (25%, indirect). Required before signing. |
 | Standard KYC on Northpoint Energy, the listed parent | Bad | −1 | — | 0 | Not enough: it does not cover the 25% shareholder. |
-| PPA extended to 18 years before signing | Bad | −1 | Credibility −1 | 3 | Only the offtaker can grant it, and not by Friday. |
-| Comfort letter from Northpoint on re-contracting the PPA after year 12 | Bad | −1 | Credibility −1 | 0 | Not binding: it secures no revenue after year 12. |
+| Allow dividend payments from year 1, whatever the DSCR | Bad | −1 | Credibility −1 | 0 | The opposite of a lock-up: cash leaves the project even when the DSCR falls. |
+| Comfort letter from Northpoint on re-contracting the PPA after year 12 | Bad | −1 | Credibility −1 | 1 | Not binding: it secures no revenue after year 12. |
 
 The tenor and the amount are set in the control center. Cutting the tenor below 18 years weighs 1 on the sponsor, cutting the amount below USD 69.75m weighs 2. Conditions are capped at 3 points.
 
-**Competition.** Above a total weight of 7, Northpoint takes its pipeline to another bank: outcome "Lost to competitor". The best answer weighs exactly 7 (shorter tenor 1, smaller loan 2, syndication 1, full KYC 1, DSRA 1, lock-up 1). Adding the PPA extension on top loses the deal.
+**Competition.** Above a total weight of 7, Northpoint takes its pipeline to another bank: outcome "Lost to competitor". The best answer weighs exactly 7 (shorter tenor 1, smaller loan 2, syndication 1, full KYC 1, DSRA 1, lock-up 1). Adding the comfort letter on top (weight 8) loses the deal.
 
 **Best answer (shown on the result screen).** Control center on the bank case (merchant price 6.0 cents, operating costs USD 3.0m from year 6), tenor 12 years, loan USD 58.2m (the largest within policy: DSCR 1.30x, gearing 63%), USD 45m held and USD 13.2m syndicated, with the DSRA, the lock-up and full KYC. USD 45m over 18 years also passes, but supports less debt.
 
