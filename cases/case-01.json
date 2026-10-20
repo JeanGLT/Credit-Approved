@@ -4,7 +4,7 @@
   "country": "Vietnam",
   "tagline": "A 50 MWp solar plant in Vietnam. The sponsor wants a term sheet by Friday.",
   "level": "Beginner",
-  "readingTime": "About 5 minutes",
+  "readingTime": "About 5 minutes of reading",
   "tutorialHint": "Always check the sponsor's numbers against the independent engineer.",
   "documents": [
     {
@@ -401,8 +401,7 @@
               "lender's engineer",
               "lenders engineer",
               "technical advisor",
-              "meridian",
-              "engineer"
+              "meridian"
             ]
           }
         ],

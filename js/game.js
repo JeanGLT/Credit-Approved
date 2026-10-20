@@ -174,47 +174,6 @@
     return { min: min, max: max };
   }
 
-  /*
-   * The bank's policy, criterion by criterion, for the result screen. Not
-   * scored: any criterion that fails means the deal is rejected (by Risk,
-   * Portfolio Management or Compliance, through the outcome checks).
-   */
-  function policyReport(caseData, proposal) {
-    var fixed = caseData.model.fixed;
-    var tenor = proposalTenor(caseData, proposal);
-    var items = [];
-    caseData.rules.outcomeChecks.forEach(function (check) {
-      if (check.type === 'policy') {
-        var inputs = Object.assign({}, fixed, check.bankCase, {
-          tenor: tenor, loan: proposal.loan,
-          rate: proposal.rate !== undefined ? proposal.rate : fixed.rate
-        });
-        var result = ModelLib.computeCase(inputs);
-        // The year with the least headroom against its own minimum.
-        var worst = result.years.reduce(function (w, y) {
-          return y.dscr / y.minDSCR < w.dscr / w.minDSCR ? y : w;
-        }, result.years[0]);
-        var covered = anyTicked(proposal, check.unlessAny);
-        items.push({ id: 'dscr', dscr: worst.dscr, year: worst.year, minDSCR: worst.minDSCR, covered: covered,
-          ok: covered || proposal.loan <= result.maxDebt + 1e-6 });
-        items.push({ id: 'gearing', gearing: proposal.loan / fixed.totalCost, max: fixed.maxGearing,
-          ok: proposal.loan / fixed.totalCost <= fixed.maxGearing + 1e-9 });
-        if (check.maxTenor !== undefined) {
-          items.push({ id: 'tenor', tenor: tenor, max: check.maxTenor, ok: tenor <= check.maxTenor });
-        }
-      }
-      if (check.type === 'maxLoan') {
-        var syndicated = anyTicked(proposal, check.unlessAny);
-        var held = syndicated ? Math.min(proposal.loan, check.max) : proposal.loan;
-        items.push({ id: 'limit', held: held, max: check.max, ok: held <= check.max + 1e-9 });
-      }
-      if (check.type === 'requireCondition') {
-        items.push({ id: 'condition', condition: check.condition, ok: ticked(proposal, check.condition) });
-      }
-    });
-    return items;
-  }
-
   // Gauge moves: the outcome, plus the conditions' own effects if the deal closes.
   function gaugeDeltas(caseData, key, items) {
     var outcome = caseData.outcomes[key];
@@ -414,7 +373,6 @@
     outcomeKey: outcomeKey,
     policyMaxDebt: policyMaxDebt,
     bestLoanRange: bestLoanRange,
-    policyReport: policyReport,
     evaluateProposal: evaluateProposal,
     applyGauges: applyGauges,
     extractNumbers: extractNumbers,
@@ -674,7 +632,6 @@
       score: score,
       loanRange: bestLoanRange(state.caseData, state.submitted),
       bestLoanRange: bestAnswerLoanRange(state.caseData),
-      policy: policyReport(state.caseData, state.submitted),
       gaugesBefore: before,
       gaugesAfter: state.gauges,
       answers: state.answers,

@@ -965,7 +965,7 @@
     return { text: text, ok: false, note: range.offNote };
   }
 
-  function compareTable(data, proposal, best, evaluation, loanRange, bestRange, policy) {
+  function compareTable(data, proposal, best, evaluation, loanRange, bestRange) {
     var table = el('table', 'compare');
     var head = el('tr');
     ['', 'You', 'Best answer', ''].forEach(function (h) { head.appendChild(el('th', null, h)); });
@@ -1052,32 +1052,6 @@
       row(c.label, yours ? 'Ticked' : '—', wanted ? 'Ticked' : '—', yours === wanted, item ? item.reason : c.reason);
     });
 
-    // Bank policy: not scored, but any ✗ means the deal is rejected.
-    if (policy && policy.length && proposal.decision !== 'decline') {
-      section('Bank policy · not scored: any ✗ means the deal is rejected');
-      policy.forEach(function (item) {
-        if (item.id === 'dscr') {
-          row('Minimum DSCR on the bank case',
-            item.covered ? 'Covered by the sponsor guarantee' : fmt(item.dscr, 2) + 'x (year ' + item.year + ')',
-            fmt(item.minDSCR, 2) + 'x' + (data.model.fixed.merchantMinDSCR !== undefined && item.minDSCR === data.model.fixed.merchantMinDSCR ? ' on merchant years' : ''),
-            item.ok, 'Too much debt for the bank case: Risk rejects it.');
-        } else if (item.id === 'gearing') {
-          row('Gearing', fmt(item.gearing * 100, 1) + '%', fmt(item.max * 100, 0) + '% at most', item.ok,
-            'Above the maximum gearing: Risk rejects it.');
-        } else if (item.id === 'tenor') {
-          row('Tenor', item.tenor + ' years', item.max + ' years at most (2 years of merchant revenues)', item.ok,
-            'Too many merchant years: Risk rejects it.');
-        } else if (item.id === 'limit') {
-          row('Held by the bank (group limit)', 'USD ' + money(item.held) + 'm', 'USD ' + money(item.max) + 'm at most', item.ok,
-            'Above the group limit without syndication: Portfolio Management rejects it.');
-        } else if (item.id === 'condition') {
-          var c = data.proposal.conditions.filter(function (x) { return x.id === item.condition; })[0];
-          row(c ? c.label : item.condition, item.ok ? 'Required' : 'Not required', 'Required', item.ok,
-            'Missing: Compliance blocks the signing.');
-        }
-      });
-    }
-
     if (proposal.decision === 'conditions') {
       section('Weight on the sponsor');
       var b = evaluation.burden;
@@ -1130,7 +1104,7 @@
     // 2. Your answer next to the best answer
     var compare = el('section', 'card');
     compare.appendChild(el('h2', null, 'Your answer vs the best answer'));
-    compare.appendChild(compareTable(data, opts.proposal, best, ev, opts.loanRange, opts.bestLoanRange, opts.policy));
+    compare.appendChild(compareTable(data, opts.proposal, best, ev, opts.loanRange, opts.bestLoanRange));
     if (best.note) compare.appendChild(el('p', 'best-note', best.note));
     if (opts.proposal.justification) {
       compare.appendChild(el('div', 'answer-label', 'Your justification'));
