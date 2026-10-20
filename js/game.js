@@ -456,10 +456,11 @@
     return hasTenorInput() ? state.caseData.model.sponsorCase.tenor : state.caseData.model.fixed.tenor;
   }
 
-  // After sending, the control center keeps the proposal that was sent.
+  // After sending, the proposal panel keeps what was sent, while the control
+  // center stays free for testing other numbers (the score does not change).
   function proposalView() {
     if (state.submitted) {
-      return { decision: state.submitted.decision, loan: state.submitted.loan, conditions: state.submitted.conditions };
+      return { decision: state.submitted.decision, loan: state.loan, conditions: state.submitted.conditions };
     }
     return {
       decision: state.decision,
@@ -500,38 +501,40 @@
     var inputs = modelInputs(state.assumptions, view.loan, rate);
     var current = Model.computeCase(inputs);
     var sponsor = Model.computeCase(modelInputs(sponsorAssumptions(), data.model.sponsorCase.loan, fixed.rate));
+    // The proposal as sent, drawn as a ghost line once the player explores.
+    var sent = state.submitted
+      ? Model.computeCase(modelInputs(state.submitted.assumptions, state.submitted.loan, state.submitted.rate))
+      : null;
     var policy = Model.policyStatus(current, fixed.minDSCR - fixed.warnDSCR);
 
     var params = Object.assign({}, fixed, { loan: view.loan, rate: rate, tenor: inputs.tenor });
 
     UI.setInputValues(data.model.inputs, state.assumptions, sponsorAssumptions());
     UI.renderMetrics(current, sponsor, params, policy, { loan: data.model.sponsorCase.loan });
-    UI.updateCharts(current, sponsor);
+    UI.updateCharts(current, sponsor, sent);
     UI.setProposalState({
       decision: view.decision,
       loan: view.loan,
       loanConfig: data.proposal.loan,
       conditions: state.submitted ? state.submitted.conditions : state.conditions,
       editable: !state.submitted && state.decision === 'conditions',
-      loanEditable: !state.submitted && state.decision !== 'approve',
+      loanEditable: !!state.submitted || state.decision !== 'approve',
+      sentLoan: state.submitted ? state.submitted.loan : null,
       loanWasReset: state.loanWasReset,
       requestedLoan: data.proposal.requestedLoan,
       requestedTenor: hasTenorInput() ? requestedTenorValue() : undefined,
-      tenorLocked: !!state.submitted || state.decision === 'approve',
+      tenorLocked: !state.submitted && state.decision === 'approve',
       locked: !!state.submitted,
       finished: !!state.committeeFinished
     });
   }
 
   function setAssumption(key, value) {
-    // The control center is locked once the proposal is sent: redraw the values it holds.
-    if (state.submitted) { refresh(); return; }
     state.assumptions[key] = value;
     refresh();
   }
 
   function resetToSponsor() {
-    if (state.submitted) return;
     state.assumptions = sponsorAssumptions();
     refresh();
   }
@@ -647,12 +650,16 @@
     UI.showScreen('result');
   }
 
-  // From the result, look at the case again (it stays locked), then come back.
+  // From the result, look at the case again, starting from the proposal as
+  // sent (the player can still test numbers), then come back.
   function reviewCase() {
+    state.assumptions = Object.assign({}, state.submitted.assumptions);
+    state.loan = state.submitted.loan;
+    refresh();
     UI.showScreen('case');
     UI.showResultsBar(function () { UI.showScreen('result'); }, {
       title: 'You are reviewing your case.',
-      text: 'Everything is shown as you sent it.',
+      text: 'It opens on your proposal. You can still test other numbers.',
       button: 'Back to the results'
     });
   }

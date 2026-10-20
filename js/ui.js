@@ -437,6 +437,23 @@
     };
   }
 
+  // The proposal as sent, once the player explores other numbers.
+  function proposalLine(data) {
+    return {
+      type: 'line',
+      label: 'Your proposal',
+      data: data,
+      borderColor: '#93b0f3',
+      backgroundColor: 'transparent',
+      borderDash: [6, 4],
+      borderWidth: 2,
+      pointRadius: 0,
+      fill: false,
+      hidden: true,
+      order: 1
+    };
+  }
+
   function baseOptions(yOpts, unit) {
     return {
       responsive: true,
@@ -448,7 +465,8 @@
           position: 'bottom',
           labels: {
             boxWidth: 18, boxHeight: 2, font: { size: 11 }, color: cssVar('--muted'),
-            sort: function (a, b) { return a.datasetIndex - b.datasetIndex; }
+            sort: function (a, b) { return a.datasetIndex - b.datasetIndex; },
+            filter: function (item, data) { return !data.datasets[item.datasetIndex].hidden; }
           }
         },
         tooltip: {
@@ -484,7 +502,8 @@
         datasets: [
           { type: 'bar', label: 'Your CFADS', data: empty, backgroundColor: accent, borderRadius: 4, barPercentage: 0.7, order: 3 },
           { type: 'line', label: 'Your debt service', data: empty, borderColor: cssVar('--text'), borderWidth: 2.5, pointRadius: 0, stepped: 'middle', order: 1 },
-          sponsorLine('Sponsor CFADS', empty)
+          sponsorLine('Sponsor CFADS', empty),
+          proposalLine(empty)
         ]
       },
       options: baseOptions({ min: 0 }, 'm')
@@ -497,7 +516,8 @@
         datasets: [
           { label: 'Your DSCR', data: empty, borderColor: accent, borderWidth: 2.5, pointRadius: 0, order: 1 },
           { label: 'Bank minimum', data: empty, borderColor: cssVar('--bad'), borderWidth: 1.5, pointRadius: 0, stepped: 'middle', order: 2 },
-          sponsorLine('Sponsor DSCR', empty)
+          sponsorLine('Sponsor DSCR', empty),
+          proposalLine(empty)
         ]
       },
       options: baseOptions({ suggestedMin: 0.8, suggestedMax: 2.0 }, 'x')
@@ -511,17 +531,19 @@
           {
             label: 'Your case', data: empty, borderColor: accent, borderWidth: 2.5, pointRadius: 0, order: 1
           },
-          sponsorLine('Sponsor case', empty)
+          sponsorLine('Sponsor case', empty),
+          proposalLine(empty)
         ]
       },
       options: baseOptions({ min: 0 }, 'm')
     });
   }
 
-  function updateCharts(current, sponsor) {
+  // sent (optional): the proposal as sent, drawn as a dashed ghost line.
+  function updateCharts(current, sponsor, sent) {
     if (!charts.dscr) return;
-    // The tenor can change: show the longest of the two cases, blank after the end.
-    var length = Math.max(current.years.length, sponsor.years.length);
+    // The tenor can change: show the longest case, blank after its end.
+    var length = Math.max(current.years.length, sponsor.years.length, sent ? sent.years.length : 0);
     var labels = [];
     for (var y = 1; y <= length; y++) labels.push('Y' + y);
     function pick(result, field) {
@@ -535,6 +557,8 @@
     cf[0].data = pick(current, 'cfads');
     cf[1].data = pick(current, 'debtService');
     cf[2].data = pick(sponsor, 'cfads');
+    cf[3].hidden = !sent;
+    cf[3].data = sent ? pick(sent, 'cfads') : [];
     // Keep the scale steady around the sponsor case so changes are easy to see.
     charts.cashflow.options.scales.y.suggestedMax = Math.ceil(sponsor.cfads * 1.25);
     charts.cashflow.update();
@@ -549,12 +573,16 @@
     var lo = Math.min.apply(null, minimums), hi = Math.max.apply(null, minimums);
     ds[1].label = lo === hi ? 'Bank minimum ' + fmt(lo, 2) + 'x' : 'Bank minimum ' + fmt(lo, 2) + 'x / ' + fmt(hi, 2) + 'x';
     ds[2].data = pick(sponsor, 'dscr');
+    ds[3].hidden = !sent;
+    ds[3].data = sent ? pick(sent, 'dscr') : [];
     charts.dscr.update();
 
     var bl = charts.balance.data.datasets;
     charts.balance.data.labels = labels;
     bl[0].data = pick(current, 'balance');
     bl[1].data = pick(sponsor, 'balance');
+    bl[2].hidden = !sent;
+    bl[2].data = sent ? pick(sent, 'balance') : [];
     charts.balance.options.scales.y.suggestedMax = Math.ceil(Math.max(sponsor.years[0].balance + sponsor.debtService, current.years[0].balance + current.debtService) * 1.1);
     charts.balance.update();
   }
@@ -634,7 +662,7 @@
       $('num-tenor').closest('.input-row').classList.toggle('is-disabled', s.tenorLocked && !s.locked);
     }
     var loanNote = s.locked
-      ? 'Sent to the committee.'
+      ? 'Sent to the committee: USD ' + money(s.sentLoan) + 'm. You can test other amounts; your proposal does not change.'
       : s.decision === 'approve'
         ? 'Locked at the ' + requested + ' requested by the sponsor. Choose "Approve with conditions" to change it.'
         : s.decision === 'conditions'
@@ -662,16 +690,15 @@
       box.closest('.condition-option').classList.toggle('is-disabled', !s.editable && !s.locked);
     });
 
-    // Once the proposal is sent, every control center input is locked.
+    // After sending, the control center stays usable for testing other numbers;
+    // the proposal panel stays locked and the score does not change.
     document.querySelectorAll('#inputs input').forEach(function (input) {
-      if (s.locked) input.disabled = true;
-      else if (input.id !== 'num-tenor' && input.id !== 'range-tenor') input.disabled = false;
+      if (input.id !== 'num-tenor' && input.id !== 'range-tenor') input.disabled = false;
     });
-    $('reset-btn').disabled = s.locked;
     $('control-note').textContent = s.locked
-      ? 'Locked: your proposal is with the committee. You can still read every figure while you answer.'
+      ? 'Your proposal is with the committee. You can still test other numbers: this does not change your score. Your proposal stays on the charts as a dashed line.'
       : 'Opens on the sponsor\'s assumptions. Change them and watch the numbers move.';
-    document.querySelector('.control').classList.toggle('is-locked', s.locked);
+    document.querySelector('.control').classList.toggle('is-exploring', s.locked);
 
     $('justification').readOnly = s.locked;
     $('skip-link').hidden = s.locked;
@@ -681,9 +708,9 @@
     $('submit-note').textContent = s.finished
       ? 'The committee has finished. See the results at the bottom of the screen.'
       : s.locked
-      ? 'Sent. The control center is locked; the committee will message you in the chat (bottom right).'
+      ? 'Sent. The committee will message you in the chat (bottom right). You can keep testing numbers in the control center.'
       : s.decision
-        ? 'Once sent, your proposal and the control center are locked, and your score is based on them as they stand. The committee will then question you in the chat.'
+        ? 'Once sent, your proposal is locked and your score is based on it, with the control center values at that moment. The committee will then question you in the chat.'
         : 'Choose a decision first.';
   }
 

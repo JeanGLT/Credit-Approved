@@ -452,11 +452,9 @@ input[type="range"]::-moz-range-thumb {
 }
 input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
 
-/* Locked control center (after the proposal is sent) */
-.control.is-locked .inputs, .control.is-locked .loan-block { opacity: 0.6; }
-.control.is-locked input[type="range"] { cursor: not-allowed; }
+/* Control center after the proposal is sent: still usable, clearly flagged */
 #control-note { transition: color 0.2s; }
-.control.is-locked #control-note { color: var(--warn); font-weight: 500; }
+.control.is-exploring #control-note { color: var(--accent); font-weight: 500; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* Loan amount: same look as the other inputs, right under them */
