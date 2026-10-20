@@ -965,7 +965,7 @@
     return { text: text, ok: false, note: range.offNote };
   }
 
-  function compareTable(data, proposal, best, evaluation, loanRange) {
+  function compareTable(data, proposal, best, evaluation, loanRange, bestRange) {
     var table = el('table', 'compare');
     var head = el('tr');
     ['', 'You', 'Best answer', ''].forEach(function (h) { head.appendChild(el('th', null, h)); });
@@ -981,7 +981,10 @@
       if (note && ok !== true) th.appendChild(el('div', 'compare-note', note));
       tr.appendChild(th);
       tr.appendChild(el('td', null, yours));
-      tr.appendChild(el('td', null, bestValue));
+      var bestCell = el('td');
+      if (typeof bestValue === 'string') bestCell.textContent = bestValue;
+      else bestCell.appendChild(bestValue);
+      tr.appendChild(bestCell);
       var td = el('td', 'compare-mark');
       td.appendChild(mark(ok));
       tr.appendChild(td);
@@ -1010,13 +1013,26 @@
     });
     // Loan: from the "too conservative" floor to the largest loan within policy,
     // for the tenor the player chose.
+    // Best column: the best answer's own range first, then (if different) the
+    // range that was possible with the player's tenor. The mark follows the
+    // player's tenor, since that is what the policy allows for it.
+    function rangeText(r) {
+      return 'USD ' + money(Math.round(r.min * 10) / 10) + 'm – ' + money(Math.round(r.max * 10) / 10) + 'm';
+    }
+    var bestTenor = best.assumptions.tenor !== undefined ? best.assumptions.tenor : data.model.fixed.tenor;
+    var cell = el('div');
+    cell.appendChild(el('div', null, rangeText(bestRange) + (data.model.inputs.tenor ? ' over ' + bestTenor + ' years' : '')));
+    var same = !loanRange.tenorRefused && Math.abs(loanRange.min - bestRange.min) < 0.05 && Math.abs(loanRange.max - bestRange.max) < 0.05;
+    if (!same) {
+      var label = proposal.tenor !== bestTenor ? 'With your ' + proposal.tenor + '-year tenor: ' : 'With your conditions: ';
+      cell.appendChild(el('div', 'compare-sub', label + (loanRange.tenorRefused ? 'not possible' : rangeText(loanRange))));
+    }
     if (loanRange.tenorRefused) {
-      row('Loan amount', 'USD ' + money(proposal.loan) + 'm', 'Not possible over this tenor', false,
+      row('Loan amount', 'USD ' + money(proposal.loan) + 'm', cell, false,
         'The bank does not lend over this tenor, whatever the amount.');
     } else {
-      var loanText = 'USD ' + money(Math.round(loanRange.min * 10) / 10) + 'm – ' + money(Math.round(loanRange.max * 10) / 10) + 'm';
       var loanOk = proposal.loan >= loanRange.min - 0.05 && proposal.loan <= loanRange.max + 0.05;
-      row('Loan amount', 'USD ' + money(proposal.loan) + 'm', loanText, loanOk,
+      row('Loan amount', 'USD ' + money(proposal.loan) + 'm', cell, loanOk,
         proposal.loan > loanRange.max ? 'Above what the bank case supports for this tenor.' : 'Well below what the bank could lend for this tenor.');
     }
 
@@ -1102,7 +1118,7 @@
     // 2. Your answer next to the best answer
     var compare = el('section', 'card');
     compare.appendChild(el('h2', null, 'Your answer vs the best answer'));
-    compare.appendChild(compareTable(data, opts.proposal, best, ev, opts.loanRange));
+    compare.appendChild(compareTable(data, opts.proposal, best, ev, opts.loanRange, opts.bestLoanRange));
     if (best.note) compare.appendChild(el('p', 'best-note', best.note));
     if (opts.proposal.justification) {
       compare.appendChild(el('div', 'answer-label', 'Your justification'));

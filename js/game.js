@@ -606,6 +606,18 @@
 
   // ---------- Result ----------
 
+  // Loan range of the best answer itself (its tenor and conditions), to show
+  // next to the range that was possible with the player's own structure.
+  function bestAnswerLoanRange(caseData) {
+    var best = caseData.answerKey.best;
+    var conditions = {};
+    best.conditions.forEach(function (id) { conditions[id] = true; });
+    return bestLoanRange(caseData, {
+      decision: best.decision, loan: best.loan, rate: caseData.model.fixed.rate,
+      conditions: conditions, assumptions: Object.assign({}, best.assumptions)
+    });
+  }
+
   function showResult() {
     var evaluation = state.submitted.evaluation;
     var score = finalScore(state.caseData, evaluation, state.answers);
@@ -619,6 +631,7 @@
       evaluation: evaluation,
       score: score,
       loanRange: bestLoanRange(state.caseData, state.submitted),
+      bestLoanRange: bestAnswerLoanRange(state.caseData),
       gaugesBefore: before,
       gaugesAfter: state.gauges,
       answers: state.answers,
