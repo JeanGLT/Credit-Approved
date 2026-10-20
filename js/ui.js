@@ -1206,13 +1206,8 @@
     root.appendChild(committee);
 
     // 5. Lesson
-    var lesson = el('section', 'card lesson-card');
-    lesson.appendChild(el('p', null, data.debrief.summary));
-    var l = el('p', 'lesson');
-    l.appendChild(el('strong', null, 'Lesson: '));
-    l.appendChild(document.createTextNode(data.debrief.lesson));
-    lesson.appendChild(l);
-    root.appendChild(lesson);
+    var lesson = lessonCard(data);
+    if (lesson) root.appendChild(lesson);
 
     // 6. Full answer key, folded
     var key = data.answerKey;
@@ -1247,6 +1242,20 @@
     root.appendChild(keyNode);
 
     root.appendChild(resultNav(opts, false));
+  }
+
+  // Summary and lesson of the debrief, when the case has them.
+  function lessonCard(data) {
+    if (!data.debrief.summary && !data.debrief.lesson) return null;
+    var card = el('section', 'card lesson-card');
+    if (data.debrief.summary) card.appendChild(el('p', null, data.debrief.summary));
+    if (data.debrief.lesson) {
+      var l = el('p', 'lesson');
+      l.appendChild(el('strong', null, 'Lesson: '));
+      l.appendChild(document.createTextNode(data.debrief.lesson));
+      card.appendChild(l);
+    }
+    return card;
   }
 
   // Buttons shown above and below the result: back to the case (when there
@@ -1340,13 +1349,8 @@
     });
     root.appendChild(committee);
 
-    var lesson = el('section', 'card lesson-card');
-    lesson.appendChild(el('p', null, data.debrief.summary));
-    var l = el('p', 'lesson');
-    l.appendChild(el('strong', null, 'Lesson: '));
-    l.appendChild(document.createTextNode(data.debrief.lesson));
-    lesson.appendChild(l);
-    root.appendChild(lesson);
+    var lesson = lessonCard(data);
+    if (lesson) root.appendChild(lesson);
 
     root.appendChild(resultNav(opts, false));
   }

@@ -199,7 +199,4 @@ Fixed when the player sends the proposal, from the control center values at that
 >
 > 1. The sponsor's yield of 1,750 kWh/kWp is 22% above the independent engineer's P90 of 1,430. Banks size loans on the independent P90, not on the sponsor's figures.
 > 2. The sponsor assumed no curtailment. The engineer expects 8% to 12% until a grid line that isn't funded yet, and the PPA doesn't pay for lost output.
->
-> With both fixed, a USD 28.5m loan only reaches a 1.20x DSCR. The fix: cut the loan to about USD 26m, or ask the sponsor to cover curtailment losses until the grid upgrade.
->
-> **Lesson:** when the numbers don't work, fix the structure before reaching for a refusal.
+
