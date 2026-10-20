@@ -110,7 +110,7 @@
   }
 
   function renderCaseHeader(caseData) {
-    $('case-eyebrow').textContent = caseData.level + ' · ' + caseData.country + ' · ' + caseData.readingTime;
+    $('case-eyebrow').textContent = caseData.level;
     $('case-title').textContent = caseData.title;
     $('case-tagline').textContent = caseData.tagline;
   }
