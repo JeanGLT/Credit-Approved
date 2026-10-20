@@ -659,18 +659,28 @@
         {
           "id": "yield",
           "label": "Trap 1 spotted: inflated energy yield",
-          "input": "yield",
-          "test": "max",
-          "value": 1450,
-          "points": 3
+          "points": 3,
+          "any": [
+            {
+              "input": "yield",
+              "test": "range",
+              "min": 1400,
+              "max": 1450
+            }
+          ]
         },
         {
           "id": "curtailment",
           "label": "Trap 2 spotted: curtailment ignored",
-          "input": "curtailment",
-          "test": "min",
-          "value": 8,
-          "points": 3
+          "points": 3,
+          "any": [
+            {
+              "input": "curtailment",
+              "test": "range",
+              "min": 8,
+              "max": 12
+            }
+          ]
         }
       ],
       "decision": {
@@ -685,7 +695,12 @@
         "max": 4,
         "cleanBonus": 1
       },
-      "committeePerQuestion": 2
+      "committeePerQuestion": 2,
+      "decisionNeedsTraps": [
+        "yield",
+        "curtailment"
+      ],
+      "decisionWithoutTraps": 2
     }
   },
   "outcomes": {

@@ -927,6 +927,7 @@
       var input = data.model.inputs[t.input];
       var d = decimalsOf(input.step);
       var name = input.label.charAt(0).toLowerCase() + input.label.slice(1);
+      if (withTarget && t.test === 'range') return name + ' between ' + fmt(t.min, d) + ' and ' + fmt(t.max, d) + ' ' + input.unit;
       if (withTarget) return name + ' ' + (t.test === 'max' ? '≤' : '≥') + ' ' + fmt(t.target, d) + ' ' + input.unit;
       return 'You used ' + fmt(t.value, d) + ' ' + input.unit + ' (' + name + ')';
     }
@@ -1079,6 +1080,11 @@
     text.appendChild(el('p', 'eyebrow', 'Outcome · ' + data.title));
     text.appendChild(el('h1', null, ev.outcome.label));
     text.appendChild(el('p', 'lead', ev.outcome.story));
+    if (ev.decision.unbacked) {
+      text.appendChild(el('p', 'hero-note',
+        'Right decision, but not backed by your analysis: the traps that size the debt were not fixed in your control center, so the decision earns ' +
+        ev.decision.points + ' / ' + ev.decision.max + '.'));
+    }
     top.appendChild(text);
     var big = el('div', 'hero-score');
     big.appendChild(el('span', 'score-total', String(score.total)));

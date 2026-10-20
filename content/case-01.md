@@ -188,8 +188,8 @@ Fixed when the player sends the proposal, from the control center values at that
 
 | Part | Points | Rule |
 | --- | --- | --- |
-| Analysis | 6 | Trap 1 spotted (yield ≤ 1,450 kWh/kWp in the control center): 3. Trap 2 spotted (curtailment ≥ 8%): 3. |
-| Decision | 4 | Right conditions 4; lost to competitor, too conservative and decline 1; rejected by Risk 0. |
+| Analysis | 6 | Trap 1 spotted (yield between 1,400 and 1,450 kWh/kWp in the control center): 3. Trap 2 spotted (curtailment between 8% and 12%): 3. Values outside these ranges, even more prudent ones, do not count. |
+| Decision | 4 | Right conditions 4, or 2 if both traps were not fixed in the control center ("right decision, but not backed by your analysis"); lost to competitor, too conservative and decline 1; rejected by Risk 0. |
 | Conditions | 4 | +1 per good condition, −1 per useless one, +1 for a clean structure (at least one good condition, nothing useless). Kept between 0 and 4. |
 | Committee | 6 | 0 to 2 per answer, three answers. |
 

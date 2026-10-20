@@ -51,9 +51,10 @@ Requires [Node.js](https://nodejs.org) (nothing else to install):
 ```
 node tests/model.test.js
 node tests/game.test.js
+node tests/audit.test.js
 ```
 
-`model.test.js` checks the financial formulas against reference figures. `game.test.js` checks the outcome, conditions, competition, score and gauge rules, and the analysis of committee answers.
+`model.test.js` checks the financial formulas against reference figures. `game.test.js` checks the outcome, conditions, competition, score and gauge rules, and the analysis of committee answers. `audit.test.js` tries tens of thousands of proposals on every case and checks that the outcome, the score, the result table and the answer key never contradict each other: run it after creating or editing a case.
 
 ## Project structure
 
@@ -93,7 +94,7 @@ Main sections of the file:
 | `committeeScale` | What 0, 1 and 2 points mean, shown in the result |
 | `rules.outcomeChecks` | Checks tried in order for any approval (as requested or with conditions), in the order of a real deal; the first that fails decides the outcome, and if none fails the outcome is `right`. Types: `policy` (Risk: gearing within `maxGearing` and loan within the bank's policy on the official `bankCase`, for the tenor proposed, unless a condition in `unlessAny` is ticked), `maxLoan` (`max`, unless a condition in `unlessAny` is ticked), `burden` (too heavy for the sponsor), `conservative` (loan below `minShare` of what policy allows on the `bankCase`), `requireCondition` (a condition must be ticked) |
 | `rules.competition` | `maxBurden` before the sponsor walks away, and the weight of a `loanCutBurden` and `tenorCutBurden` |
-| `rules.score` | Traps: each has `points` and a list `any` of tests, spotted if one passes: `{ input, test: "max" or "min", value }`, `{ condition }` or `{ loanAtMost }`. Then points per decision outcome, conditions `max` and `cleanBonus`, points per committee answer |
+| `rules.score` | Traps: each has `points` and a list `any` of tests, spotted if one passes: `{ input, test: "range", min, max }`, `{ input, test: "max" or "min", value }`, `{ condition }` or `{ loanAtMost }`. Then points per decision outcome, `decisionNeedsTraps` and `decisionWithoutTraps` (a right decision earns fewer points when those traps were missed), conditions `max` and `cleanBonus`, points per committee answer |
 | `outcomes` | One entry per outcome used (`right`, `weak`, `approve`, `decline`, `lost`, and any outcome named in `outcomeChecks`): `label`, `story`, `gauges` moves (one point = 10 on a 0 to 100 gauge), and `closes: true` when the deal goes ahead (the conditions' own gauge effects then apply) |
 | `debrief`, `answerKey` | Shown only on the result screen. `answerKey.best` is the best answer the player is compared with (`decision`, control center `assumptions`, `loan`, `conditions`, `note`). `answerKey.tables` holds the answer key's tables (`note`, `head`, `rows`, optional `footer`). `debrief.spotted` explains each trap, in the same order as `rules.score.traps` |
 

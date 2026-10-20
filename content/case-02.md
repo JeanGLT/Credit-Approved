@@ -246,8 +246,8 @@ Fixed when the player sends the proposal, from the control center values at that
 
 | Part | Points | Rule |
 | --- | --- | --- |
-| Analysis | 5 | Trap 1 spotted (merchant price ≤ 6.2 cents or tenor ≤ 12 years in the control center): 2. Trap 2 spotted (operating costs after the warranty ≥ USD 2.8m): 1. Trap 3 spotted (loan ≤ USD 45m or syndication ticked): 1. Trap 4 spotted (full KYC ticked): 1. |
-| Decision | 4 | Right conditions 4; sent back, lost, too conservative and decline 1; rejected by Risk and blocked by Compliance 0. Every structure that meets the bank's criteria can score 20/20. |
+| Analysis | 5 | Trap 1 spotted (merchant price between 5.5 and 6.2 cents in the control center): 2. Trap 2 spotted (operating costs from year 6 between USD 2.8m and 3.2m): 1. Trap 3 spotted (loan ≤ USD 45m or syndication ticked): 1. Trap 4 spotted (full KYC ticked): 1. Values outside the ranges, even more prudent ones, do not count. |
+| Decision | 4 | Right conditions 4, or 2 if traps 1 and 2 were not both fixed in the control center ("right decision, but not backed by your analysis"); sent back, lost, too conservative and decline 1; rejected by Risk and blocked by Compliance 0. Every structure that meets the bank's criteria can score 20/20. |
 | Conditions | 3 | +1 per good condition, −1 per bad one. Kept between 0 and 3. |
 | Committee | 8 | 0 to 2 per answer, four answers. |
 

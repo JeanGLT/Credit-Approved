@@ -864,6 +864,7 @@ textarea[readonly] { background: var(--bg); color: #374151; }
 .result-hero[data-outcome="lost"] { border-top-color: var(--bad); }
 .hero-top { display: flex; justify-content: space-between; gap: 32px; align-items: flex-start; }
 .hero-top h1 { margin-bottom: 8px; }
+.hero-note { margin-top: 10px; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--warn-soft); color: #7c2d12; font-size: 14px; }
 .hero-score { display: flex; align-items: baseline; gap: 6px; white-space: nowrap; }
 .score-total { font-size: 56px; font-weight: 700; letter-spacing: -0.03em; color: var(--accent); line-height: 1; }
 .score-max { font-size: 20px; color: var(--muted); font-weight: 500; }

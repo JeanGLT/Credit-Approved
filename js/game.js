@@ -204,6 +204,7 @@
 
   /*
    * A trap is spotted when any of its tests passes:
+   *   { input, test: "range", min, max }     a control center value in a range
    *   { input, test: "max" | "min", value }  a control center value
    *   { condition }                          a condition ticked
    *   { loanAtMost }                         the loan amount
@@ -214,6 +215,10 @@
       return { kind: 'loan', target: t.loanAtMost, value: proposal.loan, hit: proposal.loan <= t.loanAtMost + 1e-9 };
     }
     var value = t.input === 'tenor' ? proposalTenor(caseData, proposal) : proposal.assumptions[t.input];
+    if (t.test === 'range') {
+      return { kind: 'input', input: t.input, test: 'range', min: t.min, max: t.max, value: value,
+        hit: value >= t.min - 1e-9 && value <= t.max + 1e-9 };
+    }
     var hit = t.test === 'max' ? value <= t.value + 1e-9 : value >= t.value - 1e-9;
     return { kind: 'input', input: t.input, test: t.test, target: t.value, value: value, hit: hit };
   }
@@ -239,12 +244,23 @@
     var key = outcomeKey(caseData, proposal);
     var items = conditionItems(caseData, proposal);
     var decisionMax = Math.max.apply(null, Object.keys(rules.decision).map(function (k) { return rules.decision[k]; }));
+    var traps = rules.traps.map(function (trap) { return evaluateTrap(caseData, proposal, trap); });
+
+    // A right decision that the player's own analysis does not support
+    // (the traps that size the debt were missed) earns fewer points.
+    var decision = { points: rules.decision[key], max: decisionMax, unbacked: false };
+    if (key === 'right' && rules.decisionNeedsTraps) {
+      var backed = rules.decisionNeedsTraps.every(function (id) {
+        return traps.some(function (t) { return t.id === id && t.hit; });
+      });
+      if (!backed) decision = { points: rules.decisionWithoutTraps, max: decisionMax, unbacked: true };
+    }
 
     return {
       outcomeKey: key,
       outcome: caseData.outcomes[key],
-      traps: rules.traps.map(function (trap) { return evaluateTrap(caseData, proposal, trap); }),
-      decision: { points: rules.decision[key], max: decisionMax },
+      traps: traps,
+      decision: decision,
       conditions: scoreConditions(caseData, items),
       burden: burden(caseData, proposal, items),
       gauges: gaugeDeltas(caseData, key, items),

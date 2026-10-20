@@ -142,6 +142,15 @@ test('Sponsor case, approve as requested, empty answers → 0 / 20', () =>
   assert.strictEqual(total(proposal('approve', 28.5, [], SPONSOR), ['', '', '']).total, 0));
 test('Both traps, decline, good answers → 6 + 1 + 0 + 6 = 13', () =>
   assert.strictEqual(total(proposal('decline', 28.5, [], BANK), Q.map((q) => q.goodAnswer)).total, 13));
+test('Trap ranges (case 01): yield 1300 and curtailment 15% (too prudent) do not count', () => {
+  const ev = Rules.evaluateProposal(caseData, proposal('decline', 28.5, [], { yield: 1300, curtailment: 15 }));
+  assert.deepStrictEqual(ev.traps.map((t) => t.hit), [false, false]);
+});
+test('Case 01: 26m with the sponsor\'s numbers → right, but decision 2 / 4', () => {
+  const ev = Rules.evaluateProposal(caseData, proposal('conditions', 26.0, ['dsra', 'sweep', 'lockup'], SPONSOR));
+  assert.strictEqual(ev.outcomeKey, 'right');
+  assert.strictEqual(ev.decision.points, 2);
+});
 test('Trap thresholds: 1450 and 8% count, 1460 and 7.5% do not', () => {
   const edge = Rules.evaluateProposal(caseData, proposal('decline', 28.5, [], { yield: 1450, curtailment: 8 }));
   assert.deepStrictEqual(edge.traps.map((t) => t.hit), [true, true]);
@@ -228,9 +237,19 @@ test('All four traps found → 5 / 5', () => {
   const ev = ev2('conditions', 58, 12, ['syndicate', 'kycfull', 'dsra']);
   assert.deepStrictEqual(ev.traps.map((t) => t.points), [2, 1, 1, 1]);
 });
-test('Trap 1 also counts with a 12-year tenor and the sponsor\'s merchant price', () => {
+test('Trap 1 needs a prudent merchant price: a 12-year tenor with the sponsor\'s 7.6 does not count', () => {
   const ev = ev2('conditions', 58, 12, [], Object.assign({}, BANK2, { merchantPrice: 7.6 }));
-  assert.strictEqual(ev.traps[0].hit, true);
+  assert.strictEqual(ev.traps[0].hit, false);
+});
+test('Trap ranges: merchant 5.0 or opex 3.5 (too prudent) do not count', () => {
+  const ev = ev2('conditions', 58, 12, [], Object.assign({}, BANK2, { merchantPrice: 5.0, opexAfter: 3.5 }));
+  assert.deepStrictEqual([ev.traps[0].hit, ev.traps[1].hit], [false, false]);
+});
+test('Right outcome with the sponsor\'s numbers (traps missed) → decision 2 / 4, flagged as not backed', () => {
+  const ev = ev2('conditions', 40, 14, ['kycfull', 'dsra', 'lockup'], SPONSOR2);
+  assert.strictEqual(ev.outcomeKey, 'right');
+  assert.strictEqual(ev.decision.points, 2);
+  assert.strictEqual(ev.decision.unbacked, true);
 });
 test('Sponsor case, approve as requested → no trap found', () => {
   const ev = ev2('approve', 69.75, 18, [], SPONSOR2);
