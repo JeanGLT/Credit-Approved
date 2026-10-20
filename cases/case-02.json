@@ -81,8 +81,7 @@
         {
           "type": "list",
           "items": [
-            "Minimum DSCR: 1.30x on contracted revenues, 1.50x on merchant revenues, on the bank's case",
-            "Tenor: the bank does not take merchant risk. The debt should be repaid within the PPA term; at most 2 years beyond it can be accepted, sized at 1.50x on those years",
+            "Minimum DSCR on the bank's case: 1.30x on contracted revenues, 1.50x on merchant revenues (2 years of merchant revenues at most)",
             "Maximum gearing of 75%",
             "Debt service reserve account (DSRA) covering 6 months of debt service",
             "KYC: every direct and indirect shareholder above 10% must be identified, up to its ultimate beneficial owner, before signing"
