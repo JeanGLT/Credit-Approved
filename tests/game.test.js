@@ -46,14 +46,17 @@ function answerPoints(i, text) {
 console.log('\nOutcomes');
 
 test('Decline → decline', () => assert.strictEqual(outcome('decline', 28.5, []), 'decline'));
-test('Approve as requested → approve', () => assert.strictEqual(outcome('approve', 28.5, []), 'approve'));
+test('Approve as requested (DSCR 1.20x on the bank case) → rejected by Risk', () => assert.strictEqual(outcome('approve', 28.5, []), 'risk'));
 test('26.0m + DSRA + sweep + lock-up (weight 5) → right', () =>
   assert.strictEqual(outcome('conditions', 26.0, ['dsra', 'sweep', 'lockup']), 'right'));
 test('Loan exactly 26.3 → right', () => assert.strictEqual(outcome('conditions', 26.3, []), 'right'));
 test('28.5m + guarantee + DSRA + sweep + lock-up (weight 5) → right', () =>
   assert.strictEqual(outcome('conditions', 28.5, ['guarantee', 'dsra', 'sweep', 'lockup']), 'right'));
-test('28.5m + higher margin → weak', () => assert.strictEqual(outcome('conditions', 28.5, ['margin']), 'weak'));
-test('26.4m → weak', () => assert.strictEqual(outcome('conditions', 26.4, []), 'weak'));
+test('28.5m + DSRA, no guarantee → rejected by Risk', () => assert.strictEqual(outcome('conditions', 28.5, ['dsra']), 'risk'));
+test('26.4m → rejected by Risk', () => assert.strictEqual(outcome('conditions', 26.4, []), 'risk'));
+test('30.4m (80% gearing) even with the guarantee → rejected by Risk', () => assert.strictEqual(outcome('conditions', 30.4, ['guarantee']), 'risk'));
+test('20.0m (76% of the 26.3m allowed) → too conservative', () => assert.strictEqual(outcome('conditions', 20.0, ['dsra']), 'conservative'));
+test('22.5m (86% of the 26.3m allowed) → right', () => assert.strictEqual(outcome('conditions', 22.5, ['dsra']), 'right'));
 test('26.0m + guarantee + DSRA + sweep + lock-up (weight 7) → lost to competitor', () =>
   assert.strictEqual(outcome('conditions', 26.0, ['guarantee', 'dsra', 'sweep', 'lockup']), 'lost'));
 test('28.5m + completion guarantee + yield study + DSRA (weight 5) → not lost', () =>
@@ -68,13 +71,13 @@ function condPoints(loan, ids) {
 
 test('DSRA + sweep + lock-up, nothing useless → 3 + clean bonus = 4', () =>
   assert.strictEqual(condPoints(26.0, ['dsra', 'sweep', 'lockup']), 4));
-test('Guarantee at 28.5m is needed: 0 and does not spoil the clean bonus → 4', () =>
+test('Guarantee at 28.5m is needed: +1, capped at 4', () =>
   assert.strictEqual(condPoints(28.5, ['guarantee', 'dsra', 'sweep', 'lockup']), 4));
 test('Guarantee at 26.0m is redundant: −1, no clean bonus → 2', () =>
   assert.strictEqual(condPoints(26.0, ['guarantee', 'dsra', 'sweep', 'lockup']), 2));
-test('DSRA + higher margin → 1 − 1 = 0', () => assert.strictEqual(condPoints(26.0, ['dsra', 'margin']), 0));
+test('DSRA + matching 80% gearing → 1 − 1 = 0', () => assert.strictEqual(condPoints(26.0, ['dsra', 'gearing80']), 0));
 test('Only useless conditions → floored at 0', () =>
-  assert.strictEqual(condPoints(26.0, ['margin', 'completion', 'yieldstudy']), 0));
+  assert.strictEqual(condPoints(26.0, ['gearing80', 'completion', 'yieldstudy']), 0));
 test('No conditions counted with "Decline"', () => {
   const r = Rules.evaluateProposal(caseData, proposal('decline', 28.5, ['dsra', 'sweep', 'lockup'], BANK));
   assert.strictEqual(r.conditions.points, 0);
@@ -156,12 +159,12 @@ function gaugesAfter(p) {
 
 test('Right conditions → 70 / 60 / 70', () =>
   assert.deepStrictEqual(gaugesAfter(proposal('conditions', 26.0, ['dsra'], BANK)), { revenue: 70, risk: 60, credibility: 70 }));
-test('Weak with higher margin → revenue +2 +1 = 80', () =>
-  assert.strictEqual(gaugesAfter(proposal('conditions', 28.5, ['margin'], BANK)).revenue, 80));
+test('Rejected by Risk → 50 / 50 / 30, condition effects ignored', () =>
+  assert.deepStrictEqual(gaugesAfter(proposal('conditions', 28.5, ['dsra', 'gearing80'], BANK)), { revenue: 50, risk: 50, credibility: 30 }));
 test('Right with a useless yield study → credibility +2 −1 = 60', () =>
   assert.strictEqual(gaugesAfter(proposal('conditions', 26.0, ['yieldstudy'], BANK)).credibility, 60));
 test('Lost to competitor → 50 / 50 / 30, condition effects ignored', () =>
-  assert.deepStrictEqual(gaugesAfter(proposal('conditions', 26.0, ['guarantee', 'dsra', 'sweep', 'margin'], BANK)),
+  assert.deepStrictEqual(gaugesAfter(proposal('conditions', 26.0, ['guarantee', 'dsra', 'sweep'], BANK)),
     { revenue: 50, risk: 50, credibility: 30 }));
 test('Gauges stay between 0 and 100', () =>
   assert.deepStrictEqual(Rules.applyGauges({ revenue: 90, risk: 5, credibility: 50 }, { revenue: 3, risk: -3, credibility: 0 }),
@@ -179,6 +182,7 @@ function p2(decision, loan, tenor, ids, assumptions) {
   return { decision, loan, rate: 0.075, conditions, assumptions: Object.assign({}, assumptions || BANK2, { tenor }) };
 }
 function out2(...args) { return Rules.outcomeKey(case2, p2(...args)); }
+function ev2(...args) { return Rules.evaluateProposal(case2, p2(...args)); }
 
 console.log('\nCase 02: outcomes');
 test('Policy max debt on the bank case: 58.20 over 12 years, 45.88 over 18', () => {
@@ -193,26 +197,31 @@ test('58m / 12y + full KYC, no syndication → sent back by Portfolio Management
   assert.strictEqual(out2('conditions', 58, 12, ['kycfull']), 'limit'));
 test('58m / 12y + syndication + KYC on the parent only → blocked by Compliance', () =>
   assert.strictEqual(out2('conditions', 58, 12, ['syndicate', 'kycparent']), 'compliance'));
-test('58m / 18y + syndication + full KYC → weak (policy max 45.9 over 18 years)', () =>
-  assert.strictEqual(out2('conditions', 58, 18, ['syndicate', 'kycfull']), 'weak'));
-test('65m / 12y (only trap 1 found) + syndication + full KYC → weak', () =>
-  assert.strictEqual(out2('conditions', 65, 12, ['syndicate', 'kycfull']), 'weak'));
+test('58m / 18y + syndication + full KYC → rejected by Risk (policy max 45.9 over 18 years)', () =>
+  assert.strictEqual(out2('conditions', 58, 18, ['syndicate', 'kycfull']), 'risk'));
+test('65m / 12y (only trap 1 found) + syndication + full KYC → rejected by Risk', () =>
+  assert.strictEqual(out2('conditions', 65, 12, ['syndicate', 'kycfull']), 'risk'));
+test('45m / 12y + full KYC → too conservative (58.2m allowed over 12 years)', () =>
+  assert.strictEqual(out2('conditions', 45, 12, ['kycfull']), 'conservative'));
+test('Risk comes first: 69.75m / 18y with every condition → rejected by Risk', () =>
+  assert.strictEqual(out2('conditions', 69.75, 18, ['syndicate', 'kycfull', 'dsra']), 'risk'));
 test('Best answer + lock-up (weight 7) → still right', () =>
   assert.strictEqual(out2('conditions', 58, 12, ['syndicate', 'kycfull', 'dsra', 'lockup']), 'right'));
-test('Best answer + lock-up + legal opinion (weight 8) → lost to competitor', () =>
-  assert.strictEqual(out2('conditions', 58, 12, ['syndicate', 'kycfull', 'dsra', 'lockup', 'legalopinion']), 'lost'));
+test('Best answer + comfort letter → still right, but the letter costs a point', () => {
+  assert.strictEqual(out2('conditions', 58, 12, ['syndicate', 'kycfull', 'dsra', 'comfort']), 'right');
+  assert.strictEqual(ev2('conditions', 58, 12, ['syndicate', 'kycfull', 'dsra', 'comfort']).conditions.points, 2);
+});
 test('Lost to competitor comes before Compliance', () =>
   assert.strictEqual(out2('conditions', 58, 12, ['syndicate', 'dsra', 'lockup', 'ppaext']), 'lost'));
-test('Approve as requested → approve; decline → decline', () => {
-  assert.strictEqual(out2('approve', 69.75, 18, [], SPONSOR2), 'approve');
+test('Approve as requested → rejected by Risk; decline → decline', () => {
+  assert.strictEqual(out2('approve', 69.75, 18, [], SPONSOR2), 'risk');
   assert.strictEqual(out2('decline', 69.75, 18, []), 'decline');
 });
 
 console.log('\nCase 02: traps, conditions and score');
-function ev2(...args) { return Rules.evaluateProposal(case2, p2(...args)); }
-test('All four traps found → 6 / 6', () => {
+test('All four traps found → 5 / 5', () => {
   const ev = ev2('conditions', 58, 12, ['syndicate', 'kycfull', 'dsra']);
-  assert.deepStrictEqual(ev.traps.map((t) => t.points), [2, 2, 1, 1]);
+  assert.deepStrictEqual(ev.traps.map((t) => t.points), [2, 1, 1, 1]);
 });
 test('Trap 1 also counts with a 12-year tenor and the sponsor\'s merchant price', () => {
   const ev = ev2('conditions', 58, 12, [], Object.assign({}, BANK2, { merchantPrice: 7.6 }));
@@ -228,8 +237,12 @@ test('Syndication is redundant at USD 45m → −1', () => {
   const item = ev2('conditions', 45, 18, ['syndicate', 'kycfull']).conditions.items.find((i) => i.id === 'syndicate');
   assert.strictEqual(item.points, -1);
 });
-test('Conditions: DSRA + lock-up → 2 / 2 (no clean bonus in this case)', () =>
-  assert.strictEqual(ev2('conditions', 58, 12, ['syndicate', 'kycfull', 'dsra', 'lockup']).conditions.points, 2));
+test('Conditions: syndication + full KYC + DSRA + lock-up → 4, capped at 3', () =>
+  assert.strictEqual(ev2('conditions', 58, 12, ['syndicate', 'kycfull', 'dsra', 'lockup']).conditions.points, 3));
+test('Syndication above the limit → +1', () => {
+  const item = ev2('conditions', 58, 12, ['syndicate', 'kycfull']).conditions.items.find((i) => i.id === 'syndicate');
+  assert.strictEqual(item.points, 1);
+});
 test('Tenor cut weighs 1 on the sponsor, loan cut 2', () => {
   const b = ev2('conditions', 58, 12, ['syndicate', 'kycfull', 'dsra']).burden;
   assert.strictEqual(b.total, 6);

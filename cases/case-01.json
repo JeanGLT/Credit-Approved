@@ -6,7 +6,6 @@
   "level": "Beginner",
   "readingTime": "About 5 minutes",
   "tutorialHint": "Always check the sponsor's numbers against the independent engineer.",
-
   "documents": [
     {
       "id": "deal-summary",
@@ -16,23 +15,65 @@
       "blocks": [
         {
           "type": "table",
-          "head": ["Item", "Detail"],
+          "head": [
+            "Item",
+            "Detail"
+          ],
           "rows": [
-            ["Project", "Bright River Solar, 50 MWp ground-mounted solar plant"],
-            ["Location", "Ninh Thuan Province, Vietnam"],
-            ["Sponsor", "Lotus Peak Renewables Pte. Ltd. (Singapore). Operates two solar plants in Thailand, 30 MWp in total"],
-            ["Timeline", "Construction starts Q1 2027, commercial operation Q1 2028"],
-            ["Total project cost", "USD 38.0m"],
-            ["Loan requested", "USD 28.5m senior term loan (75% gearing)"],
-            ["Tenor", "15 years after commercial operation, annuity repayment"],
-            ["All-in interest rate", "7.0%"],
-            ["Offtaker", "EVN (Vietnam Electricity), state-owned utility"],
-            ["Power purchase agreement", "20 years, USD 7.0 cents/kWh, paid in VND at the daily exchange rate"],
-            ["Construction", "Fixed-price, date-certain EPC contract with a tier-1 contractor, delay damages included"],
-            ["Sponsor's minimum DSCR", "1.72x"]
+            [
+              "Project",
+              "Bright River Solar, 50 MWp ground-mounted solar plant"
+            ],
+            [
+              "Location",
+              "Ninh Thuan Province, Vietnam"
+            ],
+            [
+              "Sponsor",
+              "Lotus Peak Renewables Pte. Ltd. (Singapore). Operates two solar plants in Thailand, 30 MWp in total"
+            ],
+            [
+              "Timeline",
+              "Construction starts Q1 2027, commercial operation Q1 2028"
+            ],
+            [
+              "Total project cost",
+              "USD 38.0m"
+            ],
+            [
+              "Loan requested",
+              "USD 28.5m senior term loan (75% gearing)"
+            ],
+            [
+              "Tenor",
+              "15 years after commercial operation, annuity repayment"
+            ],
+            [
+              "All-in interest rate",
+              "7.0%"
+            ],
+            [
+              "Offtaker",
+              "EVN (Vietnam Electricity), state-owned utility"
+            ],
+            [
+              "Power purchase agreement",
+              "20 years, USD 7.0 cents/kWh, paid in VND at the daily exchange rate"
+            ],
+            [
+              "Construction",
+              "Fixed-price, date-certain EPC contract with a tier-1 contractor, delay damages included"
+            ],
+            [
+              "Sponsor's minimum DSCR",
+              "1.72x"
+            ]
           ]
         },
-        { "type": "heading", "text": "Bank lending criteria" },
+        {
+          "type": "heading",
+          "text": "Bank lending criteria"
+        },
         {
           "type": "list",
           "items": [
@@ -51,23 +92,65 @@
       "blocks": [
         {
           "type": "table",
-          "head": ["Assumption", "Value"],
+          "head": [
+            "Assumption",
+            "Value"
+          ],
           "rows": [
-            ["Installed capacity", "50 MWp"],
-            ["Specific yield", "1,750 kWh/kWp per year"],
-            ["Annual production", "87.5 GWh"],
-            ["Grid availability", "100%, no curtailment assumed"],
-            ["Tariff", "USD 7.0 cents/kWh"],
-            ["Annual revenue", "USD 6.1m"],
-            ["Operating costs", "USD 0.75m per year"],
-            ["Cash flow available for debt service", "USD 5.4m"],
-            ["Annual debt service", "USD 3.1m"],
-            ["Minimum DSCR", "1.72x"]
+            [
+              "Installed capacity",
+              "50 MWp"
+            ],
+            [
+              "Specific yield",
+              "1,750 kWh/kWp per year"
+            ],
+            [
+              "Annual production",
+              "87.5 GWh"
+            ],
+            [
+              "Grid availability",
+              "100%, no curtailment assumed"
+            ],
+            [
+              "Tariff",
+              "USD 7.0 cents/kWh"
+            ],
+            [
+              "Annual revenue",
+              "USD 6.1m"
+            ],
+            [
+              "Operating costs",
+              "USD 0.75m per year"
+            ],
+            [
+              "Cash flow available for debt service",
+              "USD 5.4m"
+            ],
+            [
+              "Annual debt service",
+              "USD 3.1m"
+            ],
+            [
+              "Minimum DSCR",
+              "1.72x"
+            ]
           ]
         },
-        { "type": "paragraph", "text": "Tax is ignored: the project benefits from a corporate tax holiday during its first years." },
-        { "type": "heading", "text": "Sponsor's comment" },
-        { "type": "quote", "text": "Ninh Thuan has the best sun in Vietnam. Our yield is based on our own satellite data and on the performance of our Thai plants. Grid connection is secured: the PPA is signed and the substation is only 4 km away." }
+        {
+          "type": "paragraph",
+          "text": "Tax is ignored: the project benefits from a corporate tax holiday during its first years."
+        },
+        {
+          "type": "heading",
+          "text": "Sponsor's comment"
+        },
+        {
+          "type": "quote",
+          "text": "Ninh Thuan has the best sun in Vietnam. Our yield is based on our own satellite data and on the performance of our Thai plants. Grid connection is secured: the PPA is signed and the substation is only 4 km away."
+        }
       ]
     },
     {
@@ -76,19 +159,46 @@
       "title": "Independent Engineer Report · pages 4 and 11",
       "source": "Meridian Technical Advisors",
       "blocks": [
-        { "type": "heading", "text": "Energy yield (page 4)" },
+        {
+          "type": "heading",
+          "text": "Energy yield (page 4)"
+        },
         {
           "type": "table",
-          "head": ["Case", "Specific yield", "Annual production"],
+          "head": [
+            "Case",
+            "Specific yield",
+            "Annual production"
+          ],
           "rows": [
-            ["P50", "1,520 kWh/kWp", "76.0 GWh"],
-            ["P90 (1 year)", "1,430 kWh/kWp", "71.5 GWh"]
+            [
+              "P50",
+              "1,520 kWh/kWp",
+              "76.0 GWh"
+            ],
+            [
+              "P90 (1 year)",
+              "1,430 kWh/kWp",
+              "71.5 GWh"
+            ]
           ]
         },
-        { "type": "quote", "text": "We could not reconcile the sponsor's yield of 1,750 kWh/kWp with long-term irradiance data for the site. The Thai plants it refers to sit in a different climate zone and are not a valid comparison." },
-        { "type": "heading", "text": "Grid connection (page 11)" },
-        { "type": "quote", "text": "The 110 kV substation also serves four other solar plants totalling 350 MWp. Until the planned 220 kV line is in service (expected 2029, not yet funded), we expect EVN to curtail the plant's output by 8% to 12% per year. The standard EVN PPA does not compensate the plant for curtailed energy." },
-        { "type": "heading", "text": "Other findings" },
+        {
+          "type": "quote",
+          "text": "We could not reconcile the sponsor's yield of 1,750 kWh/kWp with long-term irradiance data for the site. The Thai plants it refers to sit in a different climate zone and are not a valid comparison."
+        },
+        {
+          "type": "heading",
+          "text": "Grid connection (page 11)"
+        },
+        {
+          "type": "quote",
+          "text": "The 110 kV substation also serves four other solar plants totalling 350 MWp. Until the planned 220 kV line is in service (expected 2029, not yet funded), we expect EVN to curtail the plant's output by 8% to 12% per year. The standard EVN PPA does not compensate the plant for curtailed energy."
+        },
+        {
+          "type": "heading",
+          "text": "Other findings"
+        },
         {
           "type": "list",
           "items": [
@@ -107,7 +217,6 @@
       "blocks": []
     }
   ],
-
   "messages": {
     "onStart": [
       {
@@ -123,15 +232,14 @@
       "text": "Thank you. The committee will deliberate. You'll hear from us shortly."
     }
   },
-
   "model": {
     "fixed": {
       "capacity": 50,
       "totalCost": 38.0,
       "tenor": 15,
       "rate": 0.07,
-      "minDSCR": 1.30,
-      "warnDSCR": 1.20,
+      "minDSCR": 1.3,
+      "warnDSCR": 1.2,
       "maxGearing": 0.75
     },
     "sponsorCase": {
@@ -142,65 +250,132 @@
       "loan": 28.5
     },
     "inputs": {
-      "yield":       { "label": "Specific yield",  "unit": "kWh/kWp",   "min": 1200, "max": 2000, "step": 10 },
-      "curtailment": { "label": "Curtailment",     "unit": "%",         "min": 0,    "max": 20,   "step": 0.5, "percent": true },
-      "tariff":      { "label": "Tariff",          "unit": "USc/kWh",   "min": 5.0,  "max": 9.0,  "step": 0.1 },
-      "opex":        { "label": "Operating costs", "unit": "USD m / yr", "min": 0.50, "max": 1.20, "step": 0.05 }
+      "yield": {
+        "label": "Specific yield",
+        "unit": "kWh/kWp",
+        "min": 1200,
+        "max": 2000,
+        "step": 10
+      },
+      "curtailment": {
+        "label": "Curtailment",
+        "unit": "%",
+        "min": 0,
+        "max": 20,
+        "step": 0.5,
+        "percent": true
+      },
+      "tariff": {
+        "label": "Tariff",
+        "unit": "USc/kWh",
+        "min": 5.0,
+        "max": 9.0,
+        "step": 0.1
+      },
+      "opex": {
+        "label": "Operating costs",
+        "unit": "USD m / yr",
+        "min": 0.5,
+        "max": 1.2,
+        "step": 0.05
+      }
     }
   },
-
   "proposal": {
     "requestedLoan": 28.5,
-    "loan": { "min": 10, "max": 32, "step": 0.1 },
+    "loan": {
+      "min": 10,
+      "max": 32,
+      "step": 0.1
+    },
     "decisions": [
-      { "id": "approve", "label": "Approve as requested", "hint": "Lend the amount requested, on the sponsor's terms." },
-      { "id": "conditions", "label": "Approve with conditions", "hint": "Change the amount and add conditions to protect the bank." },
-      { "id": "decline", "label": "Decline", "hint": "The bank does not lend." }
+      {
+        "id": "approve",
+        "label": "Approve as requested",
+        "hint": "Lend the amount requested, on the sponsor's terms."
+      },
+      {
+        "id": "conditions",
+        "label": "Approve with conditions",
+        "hint": "Change the amount and add conditions to protect the bank."
+      },
+      {
+        "id": "decline",
+        "label": "Decline",
+        "hint": "The bank does not lend."
+      }
     ],
     "conditions": [
       {
-        "id": "dsra", "label": "DSRA of 6 months funded at close",
-        "role": "good", "points": 1, "burden": 1,
+        "id": "dsra",
+        "label": "DSRA of 6 months funded at close",
+        "role": "good",
+        "points": 1,
+        "burden": 1,
         "reason": "Six months of debt service set aside in cash: a buffer for a bad year."
       },
       {
-        "id": "sweep", "label": "Cash sweep while curtailment > 5%",
-        "role": "good", "points": 1, "burden": 1,
+        "id": "sweep",
+        "label": "Cash sweep while curtailment > 5%",
+        "role": "good",
+        "points": 1,
+        "burden": 1,
         "reason": "Excess cash repays the loan faster while the grid is constrained."
       },
       {
-        "id": "lockup", "label": "Dividend lock-up below 1.15x DSCR",
-        "role": "good", "points": 1, "burden": 1,
+        "id": "lockup",
+        "label": "Dividend lock-up below 1.15x DSCR",
+        "role": "good",
+        "points": 1,
+        "burden": 1,
         "reason": "Cash stays in the project instead of going to the sponsor when the DSCR falls."
       },
       {
-        "id": "guarantee", "label": "Sponsor guarantee covering curtailment losses until the grid upgrade",
-        "role": "sizing", "points": 0, "burden": 2,
-        "redundantIfLoanAtMost": 26.3, "redundantPoints": -1,
+        "id": "guarantee",
+        "label": "Sponsor guarantee covering curtailment losses until the grid upgrade",
+        "role": "good",
+        "points": 1,
+        "burden": 2,
+        "redundantIfLoanAtMost": 26.3,
+        "redundantPoints": -1,
         "reason": "The only way to keep USD 28.5m: the sponsor covers the lost revenue until the 220 kV line.",
         "redundantReason": "Not needed once the loan is cut to the right size. It only adds weight for the sponsor."
       },
       {
-        "id": "margin", "label": "Higher margin (+50 bp)",
-        "role": "useless", "points": -1, "burden": 1, "rateIncrease": 0.005,
-        "gauges": { "revenue": 1 },
-        "reason": "More revenue for the bank, but a higher rate raises debt service and makes the DSCR worse."
+        "id": "gearing80",
+        "label": "Match the competitor's 80% gearing if Lotus Peak insists",
+        "role": "useless",
+        "points": -1,
+        "burden": 0,
+        "gauges": {
+          "credibility": -1
+        },
+        "reason": "Above the bank's 75% maximum gearing: Risk would never sign off on it."
       },
       {
-        "id": "completion", "label": "Completion guarantee from the sponsor until commercial operation",
-        "role": "useless", "points": -1, "burden": 2,
-        "gauges": { "credibility": -1 },
+        "id": "completion",
+        "label": "Completion guarantee from the sponsor until commercial operation",
+        "role": "useless",
+        "points": -1,
+        "burden": 2,
+        "gauges": {
+          "credibility": -1
+        },
         "reason": "The fixed-price, date-certain EPC contract with delay damages already covers construction risk."
       },
       {
-        "id": "yieldstudy", "label": "Second independent yield study before signing",
-        "role": "useless", "points": -1, "burden": 2,
-        "gauges": { "credibility": -1 },
+        "id": "yieldstudy",
+        "label": "Second independent yield study before signing",
+        "role": "useless",
+        "points": -1,
+        "burden": 2,
+        "gauges": {
+          "credibility": -1
+        },
         "reason": "The independent engineer has already done it, and it would push signing past Friday."
       }
     ]
   },
-
   "committee": [
     {
       "askedBy": "Margaret Chen",
@@ -212,11 +387,32 @@
         "ideas": [
           {
             "label": "Uses the independent engineer's P90",
-            "any": ["p90", "p 90", "p-90", "independent engineer", "independent expert", "independent view", "independent report", "independent", "ie", "lender's engineer", "lenders engineer", "technical advisor", "meridian", "engineer"]
+            "any": [
+              "p90",
+              "p 90",
+              "p-90",
+              "independent engineer",
+              "independent expert",
+              "independent view",
+              "independent report",
+              "independent",
+              "ie",
+              "lender's engineer",
+              "lenders engineer",
+              "technical advisor",
+              "meridian",
+              "engineer"
+            ]
           }
         ],
         "numbers": [
-          { "label": "1,430 kWh/kWp (or 71.5 GWh)", "values": [1430, 71.5] }
+          {
+            "label": "1,430 kWh/kWp (or 71.5 GWh)",
+            "values": [
+              1430,
+              71.5
+            ]
+          }
         ]
       }
     },
@@ -230,26 +426,104 @@
         "ideas": [
           {
             "label": "Curtailment haircut in the bank case",
-            "any": ["haircut", "curtailment", "curtail", "curtailed", "bank case", "downside case", "stress", "stressed", "grid loss", "grid losses"]
+            "any": [
+              "haircut",
+              "curtailment",
+              "curtail",
+              "curtailed",
+              "bank case",
+              "downside case",
+              "stress",
+              "stressed",
+              "grid loss",
+              "grid losses"
+            ]
           },
           {
             "label": "Debt sized on that case",
-            "any": ["sized", "sizing", "size", "resize", "re-size", "reduce the loan", "reduced the loan", "cut the loan", "lower the loan", "smaller loan", "less debt", "lower debt", "reduce debt", "dscr", "cover ratio", "coverage"]
+            "any": [
+              "sized",
+              "sizing",
+              "size",
+              "resize",
+              "re-size",
+              "reduce the loan",
+              "reduced the loan",
+              "cut the loan",
+              "lower the loan",
+              "smaller loan",
+              "less debt",
+              "lower debt",
+              "reduce debt",
+              "dscr",
+              "cover ratio",
+              "coverage"
+            ]
           },
           {
             "label": "Sponsor support or cash sweep until the grid upgrade",
-            "any": ["cash sweep", "sweep", "sponsor support", "sponsor guarantee", "guarantee", "top-up", "top up", "topup", "cash injection", "equity cure", "lock-up", "lockup", "lock up", "dividend lock", "dividend block", "distribution lock", "distribution block"]
+            "any": [
+              "cash sweep",
+              "sweep",
+              "sponsor support",
+              "sponsor guarantee",
+              "guarantee",
+              "top-up",
+              "top up",
+              "topup",
+              "cash injection",
+              "equity cure",
+              "lock-up",
+              "lockup",
+              "lock up",
+              "dividend lock",
+              "dividend block",
+              "distribution lock",
+              "distribution block"
+            ]
           },
           {
             "label": "DSRA as a buffer",
-            "any": ["dsra", "debt service reserve", "reserve account", "debt reserve", "reserve", "liquidity buffer", "buffer"]
+            "any": [
+              "dsra",
+              "debt service reserve",
+              "reserve account",
+              "debt reserve",
+              "reserve",
+              "liquidity buffer",
+              "buffer"
+            ]
           }
         ],
         "numbers": [
-          { "label": "10% curtailment (or 8-12%)", "values": [10, 8, 12], "unit": "%" },
-          { "label": "1.30x DSCR", "values": [1.3] },
-          { "label": "USD 26m loan", "values": [26, 26.3] },
-          { "label": "6 months of DSRA", "values": [6] }
+          {
+            "label": "10% curtailment (or 8-12%)",
+            "values": [
+              10,
+              8,
+              12
+            ],
+            "unit": "%"
+          },
+          {
+            "label": "1.30x DSCR",
+            "values": [
+              1.3
+            ]
+          },
+          {
+            "label": "USD 26m loan",
+            "values": [
+              26,
+              26.3
+            ]
+          },
+          {
+            "label": "6 months of DSRA",
+            "values": [
+              6
+            ]
+          }
         ]
       }
     },
@@ -263,17 +537,78 @@
         "ideas": [
           {
             "label": "The requested amount breaks policy",
-            "any": ["below", "under", "policy", "minimum", "min", "floor", "breach", "breaches", "too low", "too high", "too much", "not enough", "insufficient", "does not meet", "doesn't meet", "fails", "below 1.3", "covenant", "credit criteria", "lending criteria", "risk appetite"]
+            "any": [
+              "below",
+              "under",
+              "policy",
+              "minimum",
+              "min",
+              "floor",
+              "breach",
+              "breaches",
+              "too low",
+              "too high",
+              "too much",
+              "not enough",
+              "insufficient",
+              "does not meet",
+              "doesn't meet",
+              "fails",
+              "below 1.3",
+              "covenant",
+              "credit criteria",
+              "lending criteria",
+              "risk appetite"
+            ]
           },
           {
             "label": "Proposes a way to close",
-            "any": ["offer", "propose", "proposal", "counter", "counter-offer", "alternative", "instead", "reduce", "reduced", "cut", "lower", "smaller", "guarantee", "sponsor support", "top-up", "top up", "with conditions", "restructure", "structure", "can do", "we can", "happy to"]
+            "any": [
+              "offer",
+              "propose",
+              "proposal",
+              "counter",
+              "counter-offer",
+              "alternative",
+              "instead",
+              "reduce",
+              "reduced",
+              "cut",
+              "lower",
+              "smaller",
+              "guarantee",
+              "sponsor support",
+              "top-up",
+              "top up",
+              "with conditions",
+              "restructure",
+              "structure",
+              "can do",
+              "we can",
+              "happy to"
+            ]
           }
         ],
         "numbers": [
-          { "label": "1.20x DSCR at USD 28.5m", "values": [1.2] },
-          { "label": "USD 26m (or 26.3m) instead", "values": [26, 26.3] },
-          { "label": "1.30x minimum", "values": [1.3] }
+          {
+            "label": "1.20x DSCR at USD 28.5m",
+            "values": [
+              1.2
+            ]
+          },
+          {
+            "label": "USD 26m (or 26.3m) instead",
+            "values": [
+              26,
+              26.3
+            ]
+          },
+          {
+            "label": "1.30x minimum",
+            "values": [
+              1.3
+            ]
+          }
         ]
       }
     }
@@ -283,11 +618,36 @@
     "1": "Right idea without the numbers",
     "2": "Right idea backed by the numbers"
   },
-
   "rules": {
     "outcomeChecks": [
-      { "type": "burden", "outcome": "lost" },
-      { "type": "maxLoan", "max": 26.3, "unlessAny": ["guarantee"], "outcome": "weak" }
+      {
+        "type": "policy",
+        "outcome": "risk",
+        "bankCase": {
+          "yield": 1430,
+          "curtailment": 0.1,
+          "tariff": 7.0,
+          "opex": 0.75
+        },
+        "unlessAny": [
+          "guarantee"
+        ]
+      },
+      {
+        "type": "burden",
+        "outcome": "lost"
+      },
+      {
+        "type": "conservative",
+        "outcome": "conservative",
+        "minShare": 0.85,
+        "bankCase": {
+          "yield": 1430,
+          "curtailment": 0.1,
+          "tariff": 7.0,
+          "opex": 0.75
+        }
+      }
     ],
     "competition": {
       "maxBurden": 5,
@@ -296,14 +656,29 @@
     },
     "score": {
       "traps": [
-        { "id": "yield", "label": "Trap 1 spotted: inflated energy yield", "input": "yield", "test": "max", "value": 1450, "points": 3 },
-        { "id": "curtailment", "label": "Trap 2 spotted: curtailment ignored", "input": "curtailment", "test": "min", "value": 8, "points": 3 }
+        {
+          "id": "yield",
+          "label": "Trap 1 spotted: inflated energy yield",
+          "input": "yield",
+          "test": "max",
+          "value": 1450,
+          "points": 3
+        },
+        {
+          "id": "curtailment",
+          "label": "Trap 2 spotted: curtailment ignored",
+          "input": "curtailment",
+          "test": "min",
+          "value": 8,
+          "points": 3
+        }
       ],
       "decision": {
         "right": 4,
-        "weak": 1,
-        "decline": 1,
+        "risk": 0,
         "lost": 1,
+        "conservative": 1,
+        "decline": 1,
         "approve": 0
       },
       "conditions": {
@@ -313,38 +688,64 @@
       "committeePerQuestion": 2
     }
   },
-
   "outcomes": {
     "right": {
       "label": "Approve with the right conditions",
       "closes": true,
       "story": "Deal closes at USD 26m. Curtailment hits 11%, DSCR holds at about 1.30x. Kevin grumbles, the client signs.",
-      "gauges": { "revenue": 2, "risk": 1, "credibility": 2 }
+      "gauges": {
+        "revenue": 2,
+        "risk": 1,
+        "credibility": 2
+      }
     },
     "approve": {
       "label": "Approve as requested",
-      "story": "DSCR falls to 1.18x. Dividends are locked up and the loan goes on the watchlist.",
-      "gauges": { "revenue": 2, "risk": 3, "credibility": -2 }
-    },
-    "weak": {
-      "label": "Approve with weak conditions",
-      "closes": true,
-      "story": "Same watchlist outcome: the conditions don't fix the sizing. DSCR falls to 1.18x and the loan goes on the watchlist.",
-      "gauges": { "revenue": 2, "risk": 3, "credibility": -1 }
+      "story": "The request passes every check as it stands.",
+      "gauges": {
+        "revenue": 2,
+        "risk": 3,
+        "credibility": -2
+      }
     },
     "lost": {
       "label": "Lost to competitor",
       "story": "Your term sheet is too heavy for Lotus Peak. They sign with the competitor bank at 80% gearing. Kevin tells your boss you had a workable deal and over-structured it.",
-      "gauges": { "revenue": 0, "risk": 0, "credibility": -2 }
+      "gauges": {
+        "revenue": 0,
+        "risk": 0,
+        "credibility": -2
+      }
     },
     "decline": {
       "label": "Decline",
       "story": "A competitor bank closes the deal. Kevin complains to your boss.",
-      "gauges": { "revenue": 0, "risk": 0, "credibility": -1 }
+      "gauges": {
+        "revenue": 0,
+        "risk": 0,
+        "credibility": -1
+      }
+    },
+    "risk": {
+      "label": "Rejected by Risk",
+      "story": "Margaret Chen sends the proposal back: on the bank's own case it breaks the credit policy (DSCR below 1.30x or gearing above 75%). No term sheet goes out by Friday.",
+      "gauges": {
+        "revenue": 0,
+        "risk": 0,
+        "credibility": -2
+      }
+    },
+    "conservative": {
+      "label": "Too conservative",
+      "story": "Your offer is far below what the bank could lend within policy. Lotus Peak takes the competitor's 80% offer, and Kevin asks why the bank left money on the table.",
+      "gauges": {
+        "revenue": 0,
+        "risk": 0,
+        "credibility": -1
+      }
     }
   },
   "outcomeContext": "The consequence appears two or three cases later, when 2028 curtailment comes in at 11%.",
-
   "debrief": {
     "spotted": [
       "The sponsor's yield of 1,750 kWh/kWp is 22% above the independent engineer's P90 of 1,430. Banks size loans on the independent P90, not on the sponsor's figures.",
@@ -353,20 +754,49 @@
     "summary": "With both fixed, a USD 28.5m loan only reaches a 1.20x DSCR. The fix: cut the loan to about USD 26m, or ask the sponsor to cover curtailment losses until the grid upgrade.",
     "lesson": "When the numbers don't work, fix the structure before reaching for a refusal."
   },
-
   "answerKey": {
     "summary": "Once both traps are fixed, the requested USD 28.5m loan only reaches a 1.20x DSCR, below the bank's 1.30x minimum. The deal works at about USD 26m.",
     "traps": [
-      { "title": "Trap 1 — Inflated energy yield", "text": "The sponsor uses 1,750 kWh/kWp, 22% above the independent engineer's P90 of 1,430 kWh/kWp. Lenders size debt on the independent P90, never on the sponsor's case." },
-      { "title": "Trap 2 — Curtailment ignored", "text": "The sponsor assumes 100% grid availability. The engineer expects 8% to 12% curtailment until a 220 kV line that is not yet funded, and the PPA does not pay for curtailed energy. The bank case uses 10%." }
+      {
+        "title": "Trap 1 — Inflated energy yield",
+        "text": "The sponsor uses 1,750 kWh/kWp, 22% above the independent engineer's P90 of 1,430 kWh/kWp. Lenders size debt on the independent P90, never on the sponsor's case."
+      },
+      {
+        "title": "Trap 2 — Curtailment ignored",
+        "text": "The sponsor assumes 100% grid availability. The engineer expects 8% to 12% curtailment until a 220 kV line that is not yet funded, and the PPA does not pay for curtailed energy. The bank case uses 10%."
+      }
     ],
     "cases": {
       "note": "Bank case at USD 28.5m (annual debt service USD 3.13m: 7.0%, 15-year annuity)",
-      "head": ["Case", "Production", "Revenue", "Cash flow for debt service", "DSCR"],
+      "head": [
+        "Case",
+        "Production",
+        "Revenue",
+        "Cash flow for debt service",
+        "DSCR"
+      ],
       "rows": [
-        ["Sponsor case", "87.5 GWh", "USD 6.13m", "USD 5.38m", "1.72x"],
-        ["Engineer P90", "71.5 GWh", "USD 5.01m", "USD 4.26m", "1.36x"],
-        ["Engineer P90 with 10% curtailment (bank case)", "64.4 GWh", "USD 4.50m", "USD 3.75m", "1.20x"]
+        [
+          "Sponsor case",
+          "87.5 GWh",
+          "USD 6.13m",
+          "USD 5.38m",
+          "1.72x"
+        ],
+        [
+          "Engineer P90",
+          "71.5 GWh",
+          "USD 5.01m",
+          "USD 4.26m",
+          "1.36x"
+        ],
+        [
+          "Engineer P90 with 10% curtailment (bank case)",
+          "64.4 GWh",
+          "USD 4.50m",
+          "USD 3.75m",
+          "1.20x"
+        ]
       ],
       "footer": "Maximum debt at 1.30x on the bank case: USD 26.3m."
     },
@@ -379,6 +809,22 @@
       ]
     },
     "extraCredit": "Conditions that earn extra credit: the 6-month DSRA funded at financial close (about USD 1.4m at USD 26m), a cash sweep while curtailment stays above 5%, a dividend lock-up below 1.15x DSCR.",
-    "weakAnswers": "Weak answers: a higher margin alone (it does not fix the cash flow), or matching the competitor's 80% gearing."
+    "weakAnswers": "Weak answers: matching the competitor's 80% gearing, a loan above USD 26.3m without the sponsor guarantee (Risk rejects it), or a loan far below it (the sponsor walks away).",
+    "best": {
+      "decision": "conditions",
+      "assumptions": {
+        "yield": 1430,
+        "curtailment": 10,
+        "tariff": 7.0,
+        "opex": 0.75
+      },
+      "loan": 26.3,
+      "conditions": [
+        "dsra",
+        "sweep",
+        "lockup"
+      ],
+      "note": "The bank's best answer: the bank case in the control center (engineer's P90, 10% curtailment), the largest loan within policy (USD 26.3m, DSCR 1.30x, gearing 69%), and the three protective conditions. Keeping USD 28.5m with the sponsor guarantee is also a right answer."
+    }
   }
 }

@@ -104,41 +104,51 @@
       rate: proposal.rate !== undefined ? proposal.rate : caseData.model.fixed.rate,
       loan: proposal.loan
     });
-    if (inputs.curtailment !== undefined && inputs.curtailmentPercent) inputs.curtailment /= 100;
     return ModelLib.computeCase(inputs).maxDebt;
+  }
+
+  function anyTicked(proposal, ids) {
+    return (ids || []).some(function (id) { return ticked(proposal, id); });
   }
 
   // Does one outcome check fail for this proposal? (A failing check decides the outcome.)
   function checkFails(caseData, proposal, check, items) {
     switch (check.type) {
+      case 'policy': {
+        // Risk: gearing above the bank's maximum, or debt too large for the bank's
+        // minimum DSCR on the official bank case (unless a condition covers it).
+        var gearing = proposal.loan / caseData.model.fixed.totalCost;
+        if (gearing > caseData.model.fixed.maxGearing + 1e-9) return true;
+        if (anyTicked(proposal, check.unlessAny)) return false;
+        return proposal.loan > policyMaxDebt(caseData, proposal, check.bankCase) + 1e-6;
+      }
+      case 'conservative':
+        // The bank could lend much more within policy: the sponsor takes the competitor's offer.
+        return proposal.loan < check.minShare * policyMaxDebt(caseData, proposal, check.bankCase) - 1e-6;
       case 'burden':
         return burden(caseData, proposal, items).total > caseData.rules.competition.maxBurden;
       case 'requireCondition':
         return !ticked(proposal, check.condition);
-      case 'maxLoan': {
-        var unless = (check.unlessAny || []).some(function (id) { return ticked(proposal, id); });
-        return proposal.loan > check.max + 1e-9 && !unless;
-      }
-      case 'policySizing':
-        return proposal.loan > policyMaxDebt(caseData, proposal, check.bankCase) + 1e-6;
+      case 'maxLoan':
+        return proposal.loan > check.max + 1e-9 && !anyTicked(proposal, check.unlessAny);
       default:
         throw new Error('Unknown outcome check: ' + check.type);
     }
   }
 
   /*
-   * decline / approve (as requested) / one outcome per check in the case file,
-   * tried in order (e.g. lost to competitor, blocked by compliance, weak) / right
+   * decline, or the first check that fails, in the order of a real deal
+   * (Risk, Portfolio Management, the sponsor, Compliance), or right
+   * ("approve" when the request itself passes every check).
    */
   function outcomeKey(caseData, proposal) {
     if (proposal.decision === 'decline') return 'decline';
-    if (proposal.decision === 'approve') return 'approve';
     var items = conditionItems(caseData, proposal);
     var checks = caseData.rules.outcomeChecks;
     for (var i = 0; i < checks.length; i++) {
       if (checkFails(caseData, proposal, checks[i], items)) return checks[i].outcome;
     }
-    return 'right';
+    return proposal.decision === 'approve' ? 'approve' : 'right';
   }
 
   // Gauge moves: the outcome, plus the conditions' own effects if the deal closes.
@@ -366,7 +376,8 @@
   }
 
   function fetchJson(url) {
-    return fetch(url).then(function (res) {
+    // 'no-cache': always check for a newer version, so an updated case is never mixed with old code.
+    return fetch(url, { cache: 'no-cache' }).then(function (res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return res.json();
     });

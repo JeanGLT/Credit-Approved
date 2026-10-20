@@ -13,10 +13,10 @@ The second case a player sees. It builds on case 01 (check the sponsor's numbers
 | Level | Intermediate |
 | Reading time | About 10 minutes (about 30 minutes for the whole case) |
 | Player sees | Deal summary, sponsor business plan extract, independent engineer extract, market study extract, "Others" tab (portfolio note and shareholding chart), one chat message from the front office |
-| Choices | Approve · Decline · Approve with conditions (10 conditions to pick from) |
+| Choices | Approve · Decline · Approve with conditions (7 conditions to pick from) |
 | Correct answer | Approve with conditions: tenor cut to the PPA, debt sized on the bank case, the bank's share capped at its limit, full KYC |
 | Characters | Kevin Lau (front office), Margaret Chen (Head of Risk), Priya Nair (Credit Portfolio Management, new) |
-| Score | Out of 20: analysis 6, decision 4, conditions 2, committee 8 (four questions) |
+| Score | Out of 20: analysis 5, decision 4, conditions 3, committee 8 (four questions) |
 
 What is new compared with case 01: assumptions that change over time (tariff after the PPA, operating costs after the warranty), the debt tenor as a control center input, a stricter DSCR on merchant revenues, and two traps that are fixed with conditions rather than numbers.
 
@@ -113,20 +113,26 @@ Average price received by a wind plant on the wholesale spot market, in USD cent
 
 **Credit Portfolio Management — single-group exposure**
 
-| Group | Outstanding | Group limit | Available |
-| --- | --- | --- | --- |
-| Luzon Power Distribution Corp. and subsidiaries | USD 155m | USD 200m | USD 45m |
+Shown as a bar: USD 155m used, USD 45m available, group limit USD 200m (Luzon Power Distribution Corp. and subsidiaries).
 
-> Exposure to a project company counts against the limit of its offtaker's group when the offtaker provides more than 75% of revenues.
+> The bank cannot hold more than USD 45m of new exposure to this group. Any amount above USD 45m must be syndicated to another bank.
+
+Exposure to a project company counts against the limit of its offtaker's group when the offtaker provides more than 75% of revenues.
 
 **Shareholding of the borrower (provided by the sponsor)**
 
-| Level | Company | Stake |
-| --- | --- | --- |
-| Borrower | Amihan Wind Power Inc. | 100% owned by Amihan Renewables Holdings Inc. |
-| Holding | Amihan Renewables Holdings Inc. | 75% Northpoint Energy Group (listed) · 25% Silverbay Holdings Ltd (British Virgin Islands) |
+Shown as an organisation chart:
 
-> Sponsor's note next to Silverbay: "Confidential family investment vehicle, long-standing partner of the group."
+```
+Northpoint Energy Group (listed, PSE)      Silverbay Holdings Ltd (British Virgin Islands)
+              75%                                    25%
+                  └──────────────┬──────────────┘
+                 Amihan Renewables Holdings Inc. (holding)
+                                100%
+                 Amihan Wind Power Inc. (borrower)
+```
+
+Sponsor's note next to Silverbay: "Confidential family investment vehicle, long-standing partner of the group."
 
 ## Message from the front office
 
@@ -172,25 +178,25 @@ If the player only finds trap 1 (operating costs left at USD 1.8m), the maximum 
 
 Conditions that earn extra credit: the 6-month DSRA funded at close (about USD 3.8m at USD 58m over 12 years) and a dividend lock-up below 1.20x DSCR.
 
-Weak answers: an 18-year loan sized on the sponsor's prices, a PPA extension the sponsor cannot deliver, a higher margin, or declining because of the KYC request (the right move is to require it, not to walk away).
+Weak answers: an 18-year loan sized on the sponsor's prices (Risk rejects it), holding more than USD 45m without syndication, a loan far below what policy allows (the sponsor walks away), a comfort letter or a PPA extension instead of real structure, or KYC on the listed parent only.
 
-**Conditions offered to the player**
+**Conditions offered to the player** (each is either good or bad)
 
 | Condition | Role | Points | Gauge effect (if the deal closes) | Weight on the sponsor | Why |
 | --- | --- | --- | --- | --- | --- |
 | DSRA of 6 months funded at close | Good | +1 | — | 1 | Six months of debt service set aside in cash. |
 | Dividend lock-up below 1.20x DSCR | Good | +1 | — | 1 | Cash stays in the project if the DSCR falls. |
-| Syndicate the amount above USD 45m to another bank | Fixes the exposure | 0 if the loan is above USD 45m, −1 if not | — | 1 | The only way to lend more than the group limit allows. Redundant if the loan is already USD 45m or less. |
-| Full KYC on all direct and indirect shareholders above 10% before signing | Fixes the compliance gap | 0 | — | 1 | Covers Silverbay (25%, indirect). Required before signing. |
-| Standard KYC on Northpoint Energy, the listed parent | Insufficient | 0 | — | 0 | Looks enough, but does not cover the 25% shareholder. |
-| Legal opinion on the enforceability of the PPA | Neutral | 0 | — | 1 | Already part of the standard documentation for this deal. |
-| Copy of the environmental compliance certificate before first drawdown | Neutral | 0 | — | 1 | Already a standard condition. |
-| PPA extended to 18 years before signing | Useless | −1 | Credibility −1 | 3 | Only the offtaker can grant it, and not by Friday. |
-| Higher margin (+50 bp) | Useless | −1 | Bank revenue +1 | 1 | More revenue, but a higher rate makes every DSCR worse. |
+| Syndicate the amount above USD 45m to another bank | Good if needed | +1 if the loan is above USD 45m, −1 if not | — | 1 | The only way to lend more than the bank can hold. |
+| Full KYC on all direct and indirect shareholders above 10% before signing | Good | +1 | — | 1 | Covers Silverbay (25%, indirect). Required before signing. |
+| Standard KYC on Northpoint Energy, the listed parent | Bad | −1 | — | 0 | Not enough: it does not cover the 25% shareholder. |
+| PPA extended to 18 years before signing | Bad | −1 | Credibility −1 | 3 | Only the offtaker can grant it, and not by Friday. |
+| Comfort letter from Northpoint on re-contracting the PPA after year 12 | Bad | −1 | Credibility −1 | 0 | Not binding: it secures no revenue after year 12. |
 
-The tenor and the amount are set in the control center. Cutting the tenor below 18 years weighs 1 on the sponsor, cutting the amount below USD 69.75m weighs 2.
+The tenor and the amount are set in the control center. Cutting the tenor below 18 years weighs 1 on the sponsor, cutting the amount below USD 69.75m weighs 2. Conditions are capped at 3 points.
 
-**Competition.** Above a total weight of 7, Northpoint takes its pipeline to another bank: outcome "Lost to competitor". The best answer weighs 6 (shorter tenor 1, smaller loan 2, syndication 1, full KYC 1, DSRA 1); adding the lock-up brings it to 7, still fine. Adding the neutral conditions on top loses the deal.
+**Competition.** Above a total weight of 7, Northpoint takes its pipeline to another bank: outcome "Lost to competitor". The best answer weighs exactly 7 (shorter tenor 1, smaller loan 2, syndication 1, full KYC 1, DSRA 1, lock-up 1). Adding the PPA extension on top loses the deal.
+
+**Best answer (shown on the result screen).** Control center on the bank case (merchant price 6.0 cents, operating costs USD 3.0m from year 6), tenor 12 years, loan USD 58.2m (the largest within policy: DSCR 1.30x, gearing 63%), USD 45m held and USD 13.2m syndicated, with the DSRA, the lock-up and full KYC. USD 45m over 18 years also passes, but supports less debt.
 
 ## Committee questions
 
@@ -198,10 +204,10 @@ Four questions after the decision, asked one at a time in the chat, each person 
 
 | # | Asked by | Question | A good answer contains |
 | --- | --- | --- | --- |
-| 1 | Margaret Chen, Head of Risk | What happens to the cash flows after year 12, and how did you size the tenor? | The PPA ends in year 12; after that the plant sells at merchant prices, 6.0 cents in the market study's low case, not 7.6. Over 18 years the DSCR would fall to 0.99x against a 1.50x requirement. A 12-year tenor removes the merchant tail and supports USD 58m. |
+| 1 | Margaret Chen, Head of Risk | The PPA ends after year 12. What price did you assume for years 13 to 18, and how did it shape the tenor you propose? | The market study's low case, 6.0 cents, not the sponsor's 7.6. At that price an 18-year loan falls to a 0.99x DSCR from year 13, against 1.50x required on merchant revenues. So the tenor stops at 12 years, the end of the PPA, which also supports more debt: USD 58m. |
 | 2 | Margaret Chen, Head of Risk | Are the operating costs in the business plan realistic for the whole life of the loan? | No: USD 1.8m only covers the 5-year warranty period. The engineer expects USD 3.0m from year 6, which brings the cash flow down to USD 9.78m and the maximum debt to USD 58m. |
 | 3 | Priya Nair, Credit Portfolio Management | Can we hold this loan on our balance sheet? | Not all of it: the loan counts against the offtaker's group, with USD 155m used out of a USD 200m limit, so USD 45m available. Hold USD 45m and syndicate the rest, or lend less. |
-| 4 | Kevin Lau, Energy Coverage | Northpoint is unhappy with our document requests. Can we keep it simple to close by Friday? | No on KYC: a 25% shareholder in the British Virgin Islands has no identified beneficial owner, and full KYC above 10% is required before signing. It does not block the approval; offer to help them provide it quickly. Firm but constructive. |
+| 4 | Kevin Lau, Energy Coverage | Northpoint won't say who is behind Silverbay, their 25% partner. They say Northpoint is listed, so KYC on Northpoint should be enough. Can we accept that and close on Friday? | No. Silverbay holds 25% indirectly and its beneficial owner is unknown; KYC on the listed parent does not cover it. Full KYC on all shareholders above 10% is required before signing. It does not stop the approval: offer to help them provide it quickly so we can still close. |
 
 Scoring: 0 = misses the point, 1 = right idea without the numbers, 2 = right idea backed by the numbers.
 
@@ -222,15 +228,15 @@ The consequence appears a few cases later. Gauge moves run from −3 to +3; each
 
 | Outcome | When | What happens later | Bank revenue | Portfolio risk | Credibility |
 | --- | --- | --- | --- | --- | --- |
-| Approve with the right conditions | All four tests pass | The deal closes. In 2034 the O&M contract is renewed at USD 3.1m; the DSCR holds above 1.30x. Northpoint brings its next wind project to the bank. | +2 | +1 | +2 |
-| Approve with weak conditions | Sizing outside policy on the bank case | Year 6 brings the cost step-up, and the merchant tail looms. The loan goes on the watchlist. | +2 | +3 | −1 |
-| Sent back by Portfolio Management | Sizing fine, but the bank holds more than USD 45m | Priya Nair refuses to sign off: the group limit would be breached. The deal goes back to the drawing board and misses Friday. | 0 | +1 | −1 |
-| Blocked by Compliance | Approved without full KYC | Two days before signing, Compliance freezes the deal: Silverbay's owner was never identified. The sponsor is furious and the case reaches the Head of Credit. | 0 | +1 | −2 |
-| Lost to competitor | Total weight above 7 | Northpoint finds the term sheet too heavy and signs with another bank. Kevin reminds everyone about the pipeline. | 0 | 0 | −2 |
-| Approve as requested | — | Portfolio Management and Compliance both stop the deal at final sign-off: the limit is breached and a 25% shareholder was never identified. | 0 | +1 | −3 |
+| Approve with the right conditions | All checks pass | The deal closes. In 2034 the O&M contract is renewed at USD 3.1m; the DSCR holds above 1.30x. Northpoint brings its next wind project to the bank. | +2 | +1 | +2 |
+| Rejected by Risk | On the bank case, the DSCR is below 1.30x on contracted years or 1.50x on merchant years, or gearing is above 75% (this includes "Approve as requested") | Margaret Chen sends the proposal back: it breaks the credit policy. | 0 | 0 | −2 |
+| Sent back by Portfolio Management | The bank holds more than USD 45m (no syndication) | Priya Nair refuses to sign off: the group limit would be breached. The deal misses Friday. | 0 | +1 | −1 |
+| Lost to competitor | Total weight above 7 | Northpoint finds the term sheet too heavy and signs with another bank. | 0 | 0 | −2 |
+| Too conservative | Loan below 85% of what policy allows for the tenor proposed (e.g. below USD 49.5m over 12 years) | Northpoint takes the whole pipeline to a bank that offered more. Kevin asks why we left money on the table. | 0 | 0 | −1 |
+| Blocked by Compliance | Full KYC not required | Two days before signing, Compliance freezes the deal: Silverbay's owner was never identified. | 0 | +1 | −2 |
 | Decline | — | A competitor finances the project. Northpoint takes its pipeline elsewhere. | 0 | 0 | −1 |
 
-When several problems apply, the first one in this order decides the outcome: lost to competitor, blocked by Compliance, sent back by Portfolio Management, weak conditions.
+The checks follow the order of a real deal: Risk (policy), Portfolio Management (limit), the sponsor (too heavy, or too conservative), Compliance (KYC before signing). The first one that fails decides the outcome.
 
 ## Score (out of 20)
 
@@ -238,9 +244,9 @@ Fixed when the player sends the proposal, from the control center values at that
 
 | Part | Points | Rule |
 | --- | --- | --- |
-| Analysis | 6 | Trap 1 spotted (merchant price ≤ 6.2 cents or tenor ≤ 12 years in the control center): 2. Trap 2 spotted (operating costs after the warranty ≥ USD 2.8m): 2. Trap 3 spotted (loan ≤ USD 45m or syndication ticked): 1. Trap 4 spotted (full KYC ticked): 1. |
-| Decision | 4 | Right conditions 4; weak conditions, sent back, lost and decline 1; blocked by Compliance and approve as requested 0. |
-| Conditions | 2 | +1 per good condition (DSRA, lock-up), −1 per useless or redundant one. Kept between 0 and 2. |
+| Analysis | 5 | Trap 1 spotted (merchant price ≤ 6.2 cents or tenor ≤ 12 years in the control center): 2. Trap 2 spotted (operating costs after the warranty ≥ USD 2.8m): 1. Trap 3 spotted (loan ≤ USD 45m or syndication ticked): 1. Trap 4 spotted (full KYC ticked): 1. |
+| Decision | 4 | Right conditions 4; sent back, lost, too conservative and decline 1; rejected by Risk and blocked by Compliance 0. |
+| Conditions | 3 | +1 per good condition, −1 per bad one. Kept between 0 and 3. |
 | Committee | 8 | 0 to 2 per answer, four answers. |
 
 ## Control center for this case

@@ -123,7 +123,7 @@ Maximum debt at 1.30x on the bank case: USD 26.3m.
 
 Conditions that earn extra credit: the 6-month DSRA funded at financial close (about USD 1.4m at USD 26m), a cash sweep while curtailment stays above 5%, a dividend lock-up below 1.15x DSCR.
 
-Weak answers: a higher margin alone (it does not fix the cash flow), or matching the competitor's 80% gearing.
+Weak answers: matching the competitor's 80% gearing, a loan above USD 26.3m without the sponsor guarantee (Risk rejects it), or a loan far below it (the sponsor walks away).
 
 **Conditions offered to the player**
 
@@ -132,8 +132,8 @@ Weak answers: a higher margin alone (it does not fix the cash flow), or matching
 | DSRA of 6 months funded at close | Good | +1 | — | 1 | Six months of debt service set aside in cash: a buffer for a bad year. |
 | Cash sweep while curtailment > 5% | Good | +1 | — | 1 | Excess cash repays the loan faster while the grid is constrained. |
 | Dividend lock-up below 1.15x DSCR | Good | +1 | — | 1 | Cash stays in the project instead of going to the sponsor when the DSCR falls. |
-| Sponsor guarantee covering curtailment losses until the grid upgrade | Fixes the sizing | 0 if the loan is above USD 26.3m, −1 if not | — | 2 | The only way to keep USD 28.5m. Redundant once the loan is cut to the right size. |
-| Higher margin (+50 bp) | Useless | −1 | Bank revenue +1 | 1 | More revenue, but a higher rate raises debt service and makes the DSCR worse. |
+| Sponsor guarantee covering curtailment losses until the grid upgrade | Good if needed | +1 if the loan is above USD 26.3m, −1 if not | — | 2 | The only way to keep USD 28.5m. Redundant once the loan is cut to the right size. |
+| Match the competitor's 80% gearing if Lotus Peak insists | Bad | −1 | Credibility −1 | 0 | Above the bank's 75% maximum gearing: Risk would never sign off on it. |
 | Completion guarantee from the sponsor until commercial operation | Useless | −1 | Credibility −1 | 2 | The fixed-price, date-certain EPC contract with delay damages already covers construction risk. |
 | Second independent yield study before signing | Useless | −1 | Credibility −1 | 2 | The independent engineer has already done it, and it would push signing past Friday. |
 
@@ -167,15 +167,17 @@ After the third answer, Margaret Chen closes the session: "Thank you. The commit
 
 The consequence appears two or three cases later, when 2028 curtailment comes in at 11%. Gauge moves run from −3 to +3. For portfolio risk, higher is worse.
 
-| Decision | What happens later | Bank revenue | Portfolio risk | Credibility |
-| --- | --- | --- | --- | --- |
-| Approve with the right conditions | Deal closes at USD 26m. Curtailment hits 11%, DSCR holds at about 1.30x. Kevin grumbles, the client signs. | +2 | +1 | +2 |
-| Approve as requested | DSCR falls to 1.18x. Dividends are locked up and the loan goes on the watchlist. | +2 | +3 | −2 |
-| Approve with weak conditions | Same watchlist outcome: the conditions don't fix the sizing. DSCR falls to 1.18x and the loan goes on the watchlist. | +2 | +3 | −1 |
-| Lost to competitor | The term sheet is too heavy for Lotus Peak. They sign with the competitor bank at 80% gearing. Kevin tells your boss you had a workable deal and over-structured it. | 0 | 0 | −2 |
-| Decline | A competitor bank closes the deal. Kevin complains to your boss. | 0 | 0 | −1 |
+| Outcome | When | What happens later | Bank revenue | Portfolio risk | Credibility |
+| --- | --- | --- | --- | --- | --- |
+| Approve with the right conditions | All checks pass | Deal closes at USD 26m. Curtailment hits 11%, DSCR holds at about 1.30x. Kevin grumbles, the client signs. | +2 | +1 | +2 |
+| Rejected by Risk | On the bank case, the loan is above USD 26.3m without the sponsor guarantee, or gearing is above 75% (this includes "Approve as requested") | Margaret Chen sends the proposal back: it breaks the credit policy. No term sheet goes out by Friday. | 0 | 0 | −2 |
+| Lost to competitor | Total weight above 5 | The term sheet is too heavy for Lotus Peak. They sign with the competitor bank at 80% gearing. | 0 | 0 | −2 |
+| Too conservative | Loan below 85% of what policy allows (about USD 22.4m) | Lotus Peak takes the competitor's 80% offer, and Kevin asks why the bank left money on the table. | 0 | 0 | −1 |
+| Decline | — | A competitor bank closes the deal. Kevin complains to your boss. | 0 | 0 | −1 |
 
-When the deal closes (right or weak conditions), the conditions' own gauge effects are added: for example "Higher margin" adds +1 to bank revenue. Each gauge point is worth 10 on a 0 to 100 scale; all three gauges start at 50.
+The checks follow the order of a real deal: Risk first (policy), then the sponsor (too heavy, or too conservative). The first one that fails decides the outcome. When the deal closes, the conditions' own gauge effects are added. Each gauge point is worth 10 on a 0 to 100 scale; all three gauges start at 50.
+
+**Best answer (shown on the result screen).** Control center on the bank case (yield 1,430 kWh/kWp, curtailment 10%, tariff 7.0, operating costs 0.75), loan USD 26.3m (the largest within policy: DSCR 1.30x, gearing 69%), with the DSRA, the cash sweep and the dividend lock-up. Keeping USD 28.5m with the sponsor guarantee is also a right answer.
 
 ## Score (out of 20)
 
@@ -184,7 +186,7 @@ Fixed when the player sends the proposal, from the control center values at that
 | Part | Points | Rule |
 | --- | --- | --- |
 | Analysis | 6 | Trap 1 spotted (yield ≤ 1,450 kWh/kWp in the control center): 3. Trap 2 spotted (curtailment ≥ 8%): 3. |
-| Decision | 4 | Right conditions 4, weak conditions 1, decline 1, lost to competitor 1, approve as requested 0. |
+| Decision | 4 | Right conditions 4; lost to competitor, too conservative and decline 1; rejected by Risk 0. |
 | Conditions | 4 | +1 per good condition, −1 per useless one, +1 for a clean structure (at least one good condition, nothing useless). Kept between 0 and 4. |
 | Committee | 6 | 0 to 2 per answer, three answers. |
 

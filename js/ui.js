@@ -146,6 +146,47 @@
         table.appendChild(tbody);
         return table;
       }
+      case 'callout':
+        return el('p', 'doc-callout', block.text);
+      case 'exposure': {
+        // Group limit as a bar: used, available, limit.
+        var available = block.limit - block.outstanding;
+        var box = el('div', 'exposure');
+        box.appendChild(el('div', 'exposure-group', block.group));
+        var bar = el('div', 'exposure-bar');
+        var used = el('div', 'exposure-used');
+        used.style.width = (block.outstanding / block.limit) * 100 + '%';
+        used.appendChild(el('span', null, 'Used USD ' + block.outstanding + 'm'));
+        bar.appendChild(used);
+        var free = el('div', 'exposure-free');
+        free.appendChild(el('span', null, 'Available USD ' + available + 'm'));
+        bar.appendChild(free);
+        box.appendChild(bar);
+        var scale = el('div', 'exposure-scale');
+        scale.appendChild(el('span', null, '0'));
+        scale.appendChild(el('span', null, 'Group limit USD ' + block.limit + 'm'));
+        box.appendChild(scale);
+        return box;
+      }
+      case 'orgchart': {
+        // Shareholders on top, borrower at the bottom; stakes on the links.
+        var chart = el('div', 'orgchart');
+        block.levels.forEach(function (level, i) {
+          var row = el('div', 'org-row');
+          level.forEach(function (node) {
+            var item = el('div', 'org-node-wrap');
+            var card = el('div', 'org-node' + (node.borrower ? ' is-borrower' : ''));
+            card.appendChild(el('div', 'org-name', node.name));
+            if (node.note) card.appendChild(el('div', 'org-note', node.note));
+            item.appendChild(card);
+            if (node.stake) item.appendChild(el('div', 'org-stake', node.stake));
+            row.appendChild(item);
+          });
+          chart.appendChild(row);
+          if (i < block.levels.length - 1) chart.appendChild(el('div', 'org-link'));
+        });
+        return chart;
+      }
       case 'message': {
         var wrap = el('div', 'message');
         var initials = block.from.split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2);
@@ -430,6 +471,19 @@
     var accent = cssVar('--accent');
     var empty = labels.map(function () { return 0; });
 
+    charts.cashflow = new Chart($('chart-cashflow'), {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          { type: 'bar', label: 'Your CFADS', data: empty, backgroundColor: accent, borderRadius: 4, barPercentage: 0.7, order: 3 },
+          { type: 'line', label: 'Your debt service', data: empty, borderColor: cssVar('--text'), borderWidth: 2.5, pointRadius: 0, stepped: 'middle', order: 1 },
+          sponsorLine('Sponsor CFADS', empty)
+        ]
+      },
+      options: baseOptions({ min: 0 }, 'm')
+    });
+
     charts.dscr = new Chart($('chart-dscr'), {
       type: 'line',
       data: {
@@ -469,6 +523,15 @@
       while (values.length < length) values.push(null);
       return values;
     }
+
+    var cf = charts.cashflow.data.datasets;
+    charts.cashflow.data.labels = labels;
+    cf[0].data = pick(current, 'cfads');
+    cf[1].data = pick(current, 'debtService');
+    cf[2].data = pick(sponsor, 'cfads');
+    // Keep the scale steady around the sponsor case so changes are easy to see.
+    charts.cashflow.options.scales.y.suggestedMax = Math.ceil(sponsor.cfads * 1.25);
+    charts.cashflow.update();
 
     var ds = charts.dscr.data.datasets;
     charts.dscr.data.labels = labels;
@@ -624,33 +687,7 @@
     return match ? match.label : id;
   }
 
-  function conditionLabels(caseData, conditions) {
-    return caseData.proposal.conditions
-      .filter(function (c) { return conditions[c.id]; })
-      .map(function (c) { return c.label; });
-  }
 
-  function recapNode(caseData, proposal) {
-    var wrap = el('div', 'recap-body');
-    var rows = [['Decision', decisionLabel(caseData, proposal.decision)]];
-    if (proposal.decision !== 'decline') {
-      rows.push(['Loan', 'USD ' + money(proposal.loan) + 'm over ' + proposal.tenor + ' years at ' + fmt(proposal.rate * 100, 1) + '%']);
-    }
-    if (proposal.decision === 'conditions') {
-      var labels = conditionLabels(caseData, proposal.conditions);
-      rows.push(['Conditions', labels.length ? labels.join(' · ') : 'None ticked']);
-    }
-    var dl = el('dl', 'recap-list');
-    rows.forEach(function (r) {
-      dl.appendChild(el('dt', null, r[0]));
-      dl.appendChild(el('dd', null, r[1]));
-    });
-    wrap.appendChild(dl);
-    if (proposal.justification) {
-      wrap.appendChild(el('blockquote', 'doc-quote', proposal.justification));
-    }
-    return wrap;
-  }
 
   // ---------- Messages (chat in the bottom-right corner) ----------
 
@@ -880,45 +917,9 @@
 
   function signed(n) { return (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n); }
 
-  function scoreRow(label, detail, points, max) {
-    var row = el('div', 'score-row' + (points === max ? ' full' : points === 0 ? ' zero' : ''));
-    var text = el('div');
-    text.appendChild(el('div', 'score-label', label));
-    if (detail) text.appendChild(el('div', 'muted small', detail));
-    row.appendChild(text);
-    row.appendChild(el('div', 'score-points', points + ' / ' + max));
-    return row;
-  }
 
-  function scoreSection(title, points, max) {
-    var head = el('div', 'score-section');
-    head.appendChild(el('span', null, title));
-    head.appendChild(el('span', 'score-section-points', points + ' / ' + max));
-    return head;
-  }
 
-  // One line per ticked condition: +1 / −1 / 0 and why.
-  function conditionLine(item) {
-    var tone = item.points > 0 ? 'good' : item.points < 0 ? 'bad' : 'neutral';
-    var row = el('div', 'cond-line');
-    row.appendChild(el('span', 'delta delta-' + tone, signed(item.points)));
-    var text = el('div');
-    text.appendChild(el('div', 'score-label', item.label));
-    text.appendChild(el('div', 'muted small', item.reason));
-    row.appendChild(text);
-    return row;
-  }
 
-  function checkList(items) {
-    var ul = el('ul', 'check-list');
-    items.forEach(function (i) {
-      var li = el('li', i.hit ? 'hit' : 'miss');
-      li.appendChild(el('span', 'check-mark', i.hit ? '✓' : '✗'));
-      li.appendChild(el('span', null, i.label));
-      ul.appendChild(li);
-    });
-    return ul;
-  }
 
   // What the player did for a trap, and (if missed) what would have counted.
   function trapDetail(data, trap) {
@@ -944,165 +945,214 @@
     return (used.length ? used.join(' · ') + ' · ' : '') + 'needed: ' + needed.join(', or ');
   }
 
+  // ---------- Result: your answer next to the best answer ----------
+
+  function inputValue(cfg, value) {
+    return fmt(value, decimalsOf(cfg.step)) + ' ' + cfg.unit;
+  }
+
+  // Close enough to the best value: within one slider step or 2%.
+  function closeTo(value, best, step) {
+    return Math.abs(value - best) <= Math.max(step, Math.abs(best) * 0.02) + 1e-9;
+  }
+
+  function mark(ok) {
+    return el('span', 'mark ' + (ok ? 'mark-ok' : 'mark-no'), ok ? '✓' : '✗');
+  }
+
+  function compareTable(data, proposal, best, evaluation) {
+    var table = el('table', 'compare');
+    var head = el('tr');
+    ['', 'You', 'Best answer', ''].forEach(function (h) { head.appendChild(el('th', null, h)); });
+    var thead = el('thead');
+    thead.appendChild(head);
+    table.appendChild(thead);
+    var body = el('tbody');
+
+    function row(label, yours, bestValue, ok, note) {
+      var tr = el('tr', ok ? null : 'is-off');
+      var th = el('td', 'compare-label');
+      th.appendChild(el('div', null, label));
+      if (note && !ok) th.appendChild(el('div', 'compare-note', note));
+      tr.appendChild(th);
+      tr.appendChild(el('td', null, yours));
+      tr.appendChild(el('td', null, bestValue));
+      var td = el('td', 'compare-mark');
+      td.appendChild(mark(ok));
+      tr.appendChild(td);
+      body.appendChild(tr);
+    }
+    function section(title) {
+      var tr = el('tr', 'compare-section');
+      var td = el('td', null, title);
+      td.colSpan = 4;
+      tr.appendChild(td);
+      body.appendChild(tr);
+    }
+
+    section('Decision');
+    row('Decision', decisionLabel(data, proposal.decision), decisionLabel(data, best.decision), proposal.decision === best.decision);
+
+    section('Control center');
+    Object.keys(data.model.inputs).forEach(function (key) {
+      var cfg = data.model.inputs[key];
+      var yours = proposal.assumptions[key];
+      var target = best.assumptions[key];
+      if (target === undefined) return;
+      row(cfg.label, inputValue(cfg, yours), inputValue(cfg, target), closeTo(yours, target, cfg.step));
+    });
+    var loanOk = proposal.loan <= best.loan + 0.05 && proposal.loan >= best.loan * 0.85;
+    row('Loan amount', 'USD ' + money(proposal.loan) + 'm', 'USD ' + money(best.loan) + 'm', loanOk,
+      proposal.loan > best.loan ? 'Above what the bank case supports.' : 'Well below what the bank could lend.');
+
+    section('Conditions');
+    var bestSet = {};
+    best.conditions.forEach(function (id) { bestSet[id] = true; });
+    var yourSet = proposal.decision === 'conditions' ? proposal.conditions : {};
+    data.proposal.conditions.forEach(function (c) {
+      var yours = !!yourSet[c.id];
+      var wanted = !!bestSet[c.id];
+      if (!yours && !wanted) return;
+      var item = evaluation.conditions.items.filter(function (i) { return i.id === c.id; })[0];
+      row(c.label, yours ? 'Ticked' : '—', wanted ? 'Ticked' : '—', yours === wanted, item ? item.reason : c.reason);
+    });
+
+    if (proposal.decision === 'conditions') {
+      section('Weight on the sponsor');
+      var b = evaluation.burden;
+      row('Total weight (maximum ' + b.max + ')', String(b.total), '—', b.total <= b.max,
+        'Too heavy: the sponsor takes the competitor\'s offer.');
+    }
+
+    table.appendChild(body);
+    return table;
+  }
+
   function renderResult(opts) {
     var data = opts.caseData;
     var ev = opts.evaluation;
     var score = opts.score;
+    var best = data.answerKey.best;
     var root = $('result');
     root.textContent = '';
 
-    // Outcome
+    // 1. Outcome, score and gauges
     var hero = el('section', 'card result-hero');
     hero.dataset.outcome = ev.outcomeKey;
-    hero.appendChild(el('p', 'eyebrow', 'Outcome · ' + data.title));
-    hero.appendChild(el('h1', null, ev.outcome.label));
-    hero.appendChild(el('p', 'lead', ev.outcome.story));
-    hero.appendChild(el('p', 'muted small', data.outcomeContext));
-    root.appendChild(hero);
-
-    var grid = el('div', 'result-grid');
-
-    // Score
-    var card = el('section', 'card');
-    card.appendChild(el('h2', null, 'Your score'));
-    var big = el('div', 'score-big');
+    var top = el('div', 'hero-top');
+    var text = el('div');
+    text.appendChild(el('p', 'eyebrow', 'Outcome · ' + data.title));
+    text.appendChild(el('h1', null, ev.outcome.label));
+    text.appendChild(el('p', 'lead', ev.outcome.story));
+    top.appendChild(text);
+    var big = el('div', 'hero-score');
     big.appendChild(el('span', 'score-total', String(score.total)));
     big.appendChild(el('span', 'score-max', '/ ' + score.max));
-    card.appendChild(big);
+    top.appendChild(big);
+    hero.appendChild(top);
 
-    var trapPoints = ev.traps.reduce(function (s, t) { return s + t.points; }, 0);
-    var trapMax = ev.traps.reduce(function (s, t) { return s + t.max; }, 0);
-    card.appendChild(scoreSection('Analysis', trapPoints, trapMax));
-    ev.traps.forEach(function (t) {
-      card.appendChild(scoreRow(t.label, trapDetail(data, t), t.points, t.max));
-    });
-
-    card.appendChild(scoreSection('Decision', ev.decision.points, ev.decision.max));
-    card.appendChild(scoreRow(ev.outcome.label, null, ev.decision.points, ev.decision.max));
-
-    card.appendChild(scoreSection('Conditions', ev.conditions.points, ev.conditions.max));
-    if (!ev.conditions.items.length) {
-      card.appendChild(el('p', 'muted small cond-empty', opts.proposal.decision === 'conditions'
-        ? 'No conditions ticked.'
-        : 'Conditions only count with "Approve with conditions".'));
-    }
-    ev.conditions.items.forEach(function (item) { card.appendChild(conditionLine(item)); });
-    if (ev.conditions.clean) {
-      card.appendChild(conditionLine({
-        label: 'Clean structure',
-        reason: 'Protective conditions only, nothing useless.',
-        points: data.rules.score.conditions.cleanBonus
-      }));
-    }
-
-    card.appendChild(scoreSection('Committee', score.committeePoints, score.committeeMax));
-    data.committee.forEach(function (q, i) {
-      var c = score.committee[i];
-      card.appendChild(scoreRow(q.askedBy + ': ' + q.question, data.committeeScale[String(c.points)], c.points, c.max));
-    });
-    grid.appendChild(card);
-
-    // Gauges and weight on the sponsor
-    var side = el('div', 'result-side');
-    var gauges = el('section', 'card');
-    gauges.appendChild(el('h2', null, 'Impact on your gauges'));
+    var gauges = el('div', 'hero-gauges');
     GAUGES.forEach(function (g) {
       var before = opts.gaugesBefore[g.key];
       var after = opts.gaugesAfter[g.key];
       var delta = after - before;
       var tone = delta === 0 ? 'neutral' : (delta > 0) === g.higherIsBetter ? 'good' : 'bad';
-      var row = el('div', 'gauge-row');
-      var head = el('div', 'gauge-row-head');
-      var name = el('span', 'gauge-row-name', g.label);
-      if (!g.higherIsBetter) name.appendChild(el('small', null, ' higher is worse'));
-      head.appendChild(name);
-      head.appendChild(el('span', 'delta delta-' + tone, signed(delta)));
-      row.appendChild(head);
-      var track = el('div', 'gauge-track');
-      var fill = el('div', 'gauge-fill');
-      fill.style.width = before + '%';
-      track.appendChild(fill);
-      row.appendChild(track);
-      row.appendChild(el('div', 'muted small', before + ' → ' + after + ' / 100'));
-      ev.gauges.sources.filter(function (s) { return s.gauge === g.key; }).forEach(function (s) {
-        row.appendChild(el('div', 'muted small', 'Includes ' + signed(s.delta * 10) + ' from: ' + s.label));
-      });
-      gauges.appendChild(row);
-      setTimeout(function () { fill.style.width = after + '%'; }, 350);
+      var chip = el('div', 'gauge-chip');
+      chip.appendChild(el('span', 'gauge-chip-name', g.label));
+      chip.appendChild(el('span', 'delta delta-' + tone, signed(delta)));
+      chip.appendChild(el('span', 'muted small', before + ' → ' + after));
+      gauges.appendChild(chip);
     });
-    side.appendChild(gauges);
+    hero.appendChild(gauges);
+    root.appendChild(hero);
 
-    if (opts.proposal.decision === 'conditions') {
-      var weight = el('section', 'card');
-      weight.appendChild(el('h2', null, 'Weight on the sponsor'));
-      var over = ev.burden.total > ev.burden.max;
-      var big2 = el('div', 'score-big');
-      big2.appendChild(el('span', 'score-total' + (over ? ' is-bad' : ''), String(ev.burden.total)));
-      big2.appendChild(el('span', 'score-max', '/ ' + ev.burden.max + ' max'));
-      weight.appendChild(big2);
-      weight.appendChild(el('p', 'muted small', ev.burden.explain));
-      var list = el('ul', 'weight-list');
-      ev.burden.lines.forEach(function (l) {
-        var li = el('li');
-        li.appendChild(el('span', null, l.label));
-        li.appendChild(el('strong', null, '+' + l.burden));
-        list.appendChild(li);
-      });
-      weight.appendChild(list);
-      side.appendChild(weight);
+    // 2. Your answer next to the best answer
+    var compare = el('section', 'card');
+    compare.appendChild(el('h2', null, 'Your answer vs the best answer'));
+    compare.appendChild(compareTable(data, opts.proposal, best, ev));
+    if (best.note) compare.appendChild(el('p', 'best-note', best.note));
+    if (opts.proposal.justification) {
+      compare.appendChild(el('div', 'answer-label', 'Your justification'));
+      compare.appendChild(el('blockquote', 'doc-quote', opts.proposal.justification));
     }
-    grid.appendChild(side);
-    root.appendChild(grid);
+    root.appendChild(compare);
 
-    // Proposal recap
-    var recap = el('section', 'card');
-    recap.appendChild(el('h2', null, 'Your proposal'));
-    recap.appendChild(recapNode(data, opts.proposal));
-    root.appendChild(recap);
+    // 3. Score: traps, decision, conditions, committee
+    var card = el('section', 'card');
+    card.appendChild(el('h2', null, 'Your score'));
+    var trapPoints = ev.traps.reduce(function (s, t) { return s + t.points; }, 0);
+    var trapMax = ev.traps.reduce(function (s, t) { return s + t.max; }, 0);
+    var parts = el('div', 'score-parts');
+    [['Traps spotted', trapPoints, trapMax], ['Decision', ev.decision.points, ev.decision.max],
+      ['Conditions', ev.conditions.points, ev.conditions.max], ['Committee', score.committeePoints, score.committeeMax]
+    ].forEach(function (p) {
+      var part = el('div', 'score-part');
+      part.appendChild(el('div', 'score-part-label', p[0]));
+      var val = el('div', 'score-part-value', String(p[1]));
+      val.appendChild(el('span', null, ' / ' + p[2]));
+      part.appendChild(val);
+      parts.appendChild(part);
+    });
+    card.appendChild(parts);
 
-    // Debrief
-    var debrief = el('section', 'card debrief');
-    debrief.appendChild(el('h2', null, 'Debrief'));
-    debrief.appendChild(el('h3', null, 'What you should have spotted'));
-    var ol = el('ol');
-    data.debrief.spotted.forEach(function (item) { ol.appendChild(el('li', null, item)); });
-    debrief.appendChild(ol);
-    debrief.appendChild(el('p', null, data.debrief.summary));
-    var lesson = el('p', 'lesson');
-    lesson.appendChild(el('strong', null, 'Lesson: '));
-    lesson.appendChild(document.createTextNode(data.debrief.lesson));
-    debrief.appendChild(lesson);
-    root.appendChild(debrief);
+    ev.traps.forEach(function (t, i) {
+      var trap = el('div', 'trap-line' + (t.hit ? ' is-hit' : ''));
+      trap.appendChild(mark(t.hit));
+      var body = el('div');
+      var head = el('div', 'trap-head');
+      head.appendChild(el('span', 'score-label', t.label.replace(/ spotted/, '')));
+      head.appendChild(el('span', 'score-points', t.points + ' / ' + t.max));
+      body.appendChild(head);
+      if (data.debrief.spotted[i]) body.appendChild(el('p', 'trap-text', data.debrief.spotted[i]));
+      if (!t.hit) body.appendChild(el('p', 'muted small', trapDetail(data, t)));
+      trap.appendChild(body);
+      card.appendChild(trap);
+    });
+    root.appendChild(card);
 
-    // Committee answers: what was found in each answer, next to the good answer
-    var answers = el('details', 'card more');
-    answers.appendChild(el('summary', null, 'Your committee answers'));
+    // 4. Committee: your answer next to what was expected
+    var committee = el('section', 'card');
+    committee.appendChild(el('h2', null, 'Committee'));
     data.committee.forEach(function (q, i) {
       var c = score.committee[i];
-      var block = el('div', 'answer-block');
-      var head = el('div', 'answer-head');
-      head.appendChild(el('p', 'answer-q', q.askedBy + ': ' + q.question));
-      head.appendChild(el('span', 'score-points', c.points + ' / ' + c.max));
+      var block = el('div', 'qa');
+      var head = el('div', 'qa-head');
+      var who = el('div');
+      who.appendChild(el('div', 'qa-who', q.askedBy + ' · ' + q.role));
+      who.appendChild(el('div', 'qa-question', q.question));
+      head.appendChild(who);
+      head.appendChild(el('span', 'qa-points points-' + c.points, c.points + ' / ' + c.max));
       block.appendChild(head);
-      block.appendChild(el('div', 'answer-label', 'Your answer'));
-      block.appendChild(el('p', 'answer-text', opts.answers[i] || '—'));
-      var cols = el('div', 'answer-cols');
-      var ideas = el('div');
-      ideas.appendChild(el('div', 'answer-label', 'Ideas (' + c.ideasNeeded + ' needed)'));
-      ideas.appendChild(checkList(c.ideas));
-      cols.appendChild(ideas);
-      var nums = el('div');
-      nums.appendChild(el('div', 'answer-label', 'Numbers (one needed for 2 points)'));
-      nums.appendChild(checkList(c.numbers));
-      cols.appendChild(nums);
+      var cols = el('div', 'qa-cols');
+      var yours = el('div', 'qa-col');
+      yours.appendChild(el('div', 'answer-label', 'Your answer'));
+      yours.appendChild(el('p', 'answer-text', opts.answers[i] || '—'));
+      cols.appendChild(yours);
+      var expected = el('div', 'qa-col qa-expected');
+      expected.appendChild(el('div', 'answer-label', 'What was expected'));
+      expected.appendChild(el('p', null, q.goodAnswer));
+      cols.appendChild(expected);
       block.appendChild(cols);
-      block.appendChild(el('div', 'answer-label', 'A good answer contains'));
-      block.appendChild(el('p', null, q.goodAnswer));
-      answers.appendChild(block);
+      var missing = c.ideas.filter(function (x) { return !x.hit; }).map(function (x) { return x.label; });
+      var noNumber = !c.numbers.some(function (n) { return n.hit; });
+      var hints = [];
+      if (c.points < 2 && missing.length) hints.push('Missing idea: ' + missing.join('; '));
+      if (c.points < 2 && noNumber) hints.push('No supporting number found');
+      if (hints.length) block.appendChild(el('p', 'qa-hint', hints.join(' · ')));
+      committee.appendChild(block);
     });
-    root.appendChild(answers);
+    root.appendChild(committee);
 
-    // Full answer key, including how every condition counts
+    // 5. Lesson
+    var lesson = el('section', 'card lesson-card');
+    lesson.appendChild(el('p', null, data.debrief.summary));
+    var l = el('p', 'lesson');
+    l.appendChild(el('strong', null, 'Lesson: '));
+    l.appendChild(document.createTextNode(data.debrief.lesson));
+    lesson.appendChild(l);
+    root.appendChild(lesson);
+
+    // 6. Full answer key, folded
     var key = data.answerKey;
     var keyNode = el('details', 'card more');
     keyNode.appendChild(el('summary', null, 'Full answer key'));
@@ -1120,16 +1170,13 @@
     keyNode.appendChild(el('p', null, key.rightDecision.intro));
     keyNode.appendChild(renderBlock({ type: 'list', items: key.rightDecision.options }));
     keyNode.appendChild(el('h4', null, 'How each condition counts'));
-    var roles = {
-      good: 'Good', useless: 'Useless', sizing: 'Fixes the sizing', exposure: 'Fixes the exposure',
-      compliance: 'Fixes the compliance gap', insufficient: 'Insufficient', neutral: 'Neutral'
-    };
     keyNode.appendChild(renderBlock({
       type: 'table',
-      head: ['Condition', 'Role', 'Why'],
+      head: ['Condition', 'Points', 'Why'],
       rows: data.proposal.conditions.map(function (c) {
+        var pts = c.redundantPoints !== undefined ? '+1 (−1 if not needed)' : (c.points > 0 ? '+' : '') + c.points;
         var why = c.reason + (c.redundantReason ? ' ' + c.redundantReason : '');
-        return [c.label, roles[c.role] || c.role, why];
+        return [c.label, pts, why];
       })
     }));
     keyNode.appendChild(el('p', null, data.rules.competition.explain));

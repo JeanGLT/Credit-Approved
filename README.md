@@ -25,9 +25,9 @@ Designed for a computer screen (laptop or desktop), for classes, interview pract
 
 | Part | Case 01 | Case 02 | What counts |
 | --- | --- | --- | --- |
-| Analysis | 6 | 6 | The traps you spotted: control center values, or conditions ticked, when you sent the proposal |
+| Analysis | 6 | 5 | The traps you spotted: control center values, or conditions ticked, when you sent the proposal |
 | Decision | 4 | 4 | The outcome your proposal leads to |
-| Conditions | 4 | 2 | +1 per good condition, −1 per useless one (case 01 also gives +1 for a clean structure) |
+| Conditions | 4 | 3 | +1 per good condition, −1 per bad one (case 01 also gives +1 for a clean structure) |
 | Committee | 6 | 8 | 0 to 2 per answer: the expected ideas, backed by numbers |
 
 Committee answers are analysed with keywords and numbers, without AI in this version. Numbers are read in any format (`1,430`, `1.430`, `1 430`; `26m`, `26 million`, `26,000,000`; `1.20x`, `1,20x`).
@@ -80,7 +80,7 @@ Main sections of the file:
 | Key | What it holds |
 | --- | --- |
 | `id`, `title`, `country`, `tagline`, `level`, `readingTime` | Case header shown above the documents |
-| `documents` | The tabs. Each has a `tab` name, a `title`, a `source` and a list of `blocks`. Block types: `table` (`head`, `rows`), `heading`, `paragraph`, `quote`, `list` (`items`), `message` (`from`, `text`). A tab with no blocks shows its `empty` text |
+| `documents` | The tabs. Each has a `tab` name, a `title`, a `source` and a list of `blocks`. Block types: `table` (`head`, `rows`), `heading`, `paragraph`, `quote`, `callout` (highlighted text), `list` (`items`), `message` (`from`, `text`), `exposure` (a limit bar: `group`, `outstanding`, `limit`, `unit`), `orgchart` (`levels`: rows of boxes with `name`, `note`, `stake`, `borrower`). A tab with no blocks shows its `empty` text |
 | `messages.onStart` | Chat messages that arrive while the player reads the case (`from`, `role`, `text`, `delay` in milliseconds) |
 | `messages.committeeClosing` | The message that ends the committee session |
 | `model.fixed` | Fixed parameters: `capacity` (and `capacityUnit`), `totalCost` (USD m), `tenor` (years, unless it is a slider), `rate` (0.07 = 7%), `minDSCR`, `warnDSCR` (amber threshold), `maxGearing`. Optional, for assumptions that change over time: `ppaYears` (after which `merchantPrice` replaces `tariff`), `merchantMinDSCR` (the bank's minimum on those years), `warrantyYears` (after which `opexAfter` replaces `opex`). `neutralMetrics: true` shows the key metrics without help: only the player's value and the sponsor case, no colours, thresholds or max debt |
@@ -88,14 +88,14 @@ Main sections of the file:
 | `model.inputs` | The control center sliders: `label`, `unit`, `min`, `max`, `step`. The key is the model input it sets (`yield`, `curtailment`, `tariff`, `merchantPrice`, `opex`, `opexAfter`, `tenor`). Add `"percent": true` when the value is typed in % (curtailment 10 = 10%) |
 | `proposal.requestedLoan`, `proposal.loan` | Amount requested and the loan slider range |
 | `proposal.decisions` | The three decisions and their hints |
-| `proposal.conditions` | Each condition: `label`, `role` (`good`, `useless` or `sizing`), `points`, `burden` (weight on the sponsor), optional `gauges` effect, `reason` shown in the debrief. Optional: `rateIncrease` (0.005 = +50 bp), `redundantIfLoanAtMost` with `redundantPoints` and `redundantReason` |
+| `proposal.conditions` | Each condition is good (`points` +1) or bad (−1): `label`, `role`, `points`, `burden` (weight on the sponsor), optional `gauges` effect, `reason` shown in the result. Optional: `rateIncrease` (0.005 = +50 bp), `redundantIfLoanAtMost` with `redundantPoints` and `redundantReason` for a condition that is only good when the loan is large enough |
 | `committee` | The questions, in order. Each person (`askedBy`) gets their own conversation. `analysis` lists the expected `ideas` (each with `any`: every accepted wording), how many are needed (`minIdeas`), and the accepted `numbers` (`values`, optional `unit: "%"` and `tol`) |
 | `committeeScale` | What 0, 1 and 2 points mean, shown in the result |
-| `rules.outcomeChecks` | For "approve with conditions", checks tried in order; the first that fails decides the outcome, and if none fails the outcome is `right`. Types: `burden` (too heavy for the sponsor), `requireCondition` (a condition must be ticked), `maxLoan` (`max`, unless a condition in `unlessAny` is ticked), `policySizing` (the loan must fit the bank's policy on the official `bankCase`, for the tenor proposed) |
+| `rules.outcomeChecks` | Checks tried in order for any approval (as requested or with conditions), in the order of a real deal; the first that fails decides the outcome, and if none fails the outcome is `right`. Types: `policy` (Risk: gearing within `maxGearing` and loan within the bank's policy on the official `bankCase`, for the tenor proposed, unless a condition in `unlessAny` is ticked), `maxLoan` (`max`, unless a condition in `unlessAny` is ticked), `burden` (too heavy for the sponsor), `conservative` (loan below `minShare` of what policy allows on the `bankCase`), `requireCondition` (a condition must be ticked) |
 | `rules.competition` | `maxBurden` before the sponsor walks away, and the weight of a `loanCutBurden` and `tenorCutBurden` |
 | `rules.score` | Traps: each has `points` and a list `any` of tests, spotted if one passes: `{ input, test: "max" or "min", value }`, `{ condition }` or `{ loanAtMost }`. Then points per decision outcome, conditions `max` and `cleanBonus`, points per committee answer |
 | `outcomes` | One entry per outcome used (`right`, `weak`, `approve`, `decline`, `lost`, and any outcome named in `outcomeChecks`): `label`, `story`, `gauges` moves (one point = 10 on a 0 to 100 gauge), and `closes: true` when the deal goes ahead (the conditions' own gauge effects then apply) |
-| `debrief`, `answerKey` | Shown only on the result screen. `answerKey.tables` holds the answer key's tables (`note`, `head`, `rows`, optional `footer`) |
+| `debrief`, `answerKey` | Shown only on the result screen. `answerKey.best` is the best answer the player is compared with (`decision`, control center `assumptions`, `loan`, `conditions`, `note`). `answerKey.tables` holds the answer key's tables (`note`, `head`, `rows`, optional `footer`). `debrief.spotted` explains each trap, in the same order as `rules.score.traps` |
 
 Everything in `rules`, `outcomes`, `debrief` and `answerKey` is only displayed at the end of the game. The file itself is public once the site is online, so a curious player could read it: keep that in mind for graded sessions.
 
