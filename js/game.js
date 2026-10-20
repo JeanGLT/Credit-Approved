@@ -115,10 +115,12 @@
   function checkFails(caseData, proposal, check, items) {
     switch (check.type) {
       case 'policy': {
-        // Risk: gearing above the bank's maximum, or debt too large for the bank's
-        // minimum DSCR on the official bank case (unless a condition covers it).
+        // Risk: gearing above the bank's maximum, a tenor beyond what the bank
+        // accepts, or debt too large for the bank's minimum DSCR on the official
+        // bank case (unless a condition covers it).
         var gearing = proposal.loan / caseData.model.fixed.totalCost;
         if (gearing > caseData.model.fixed.maxGearing + 1e-9) return true;
+        if (check.maxTenor !== undefined && proposalTenor(caseData, proposal) > check.maxTenor) return true;
         if (anyTicked(proposal, check.unlessAny)) return false;
         return proposal.loan > policyMaxDebt(caseData, proposal, check.bankCase) + 1e-6;
       }
@@ -131,11 +133,6 @@
         return !ticked(proposal, check.condition);
       case 'maxLoan':
         return proposal.loan > check.max + 1e-9 && !anyTicked(proposal, check.unlessAny);
-      case 'tenorRange': {
-        // Passes policy, but outside the ideal tenor: a sound deal, not the strongest one.
-        var tenor = proposalTenor(caseData, proposal);
-        return tenor < check.min || tenor > check.max;
-      }
       default:
         throw new Error('Unknown outcome check: ' + check.type);
     }
@@ -168,6 +165,9 @@
     var floor = checks.filter(function (c) { return c.type === 'conservative'; })[0];
     var fixed = caseData.model.fixed;
     var cap = fixed.maxGearing * fixed.totalCost;
+    if (policy.maxTenor !== undefined && proposalTenor(caseData, proposal) > policy.maxTenor) {
+      return { min: 0, max: 0, tenorRefused: true }; // no amount is acceptable over this tenor
+    }
     var max = Math.min(policyMaxDebt(caseData, proposal, policy.bankCase), cap);
     var min = floor ? floor.minShare * max : 0;
     if (anyTicked(proposal, policy.unlessAny)) max = Math.min(Math.max(max, caseData.proposal.requestedLoan), cap);

@@ -82,6 +82,7 @@
           "type": "list",
           "items": [
             "Minimum DSCR: 1.30x on contracted revenues, 1.50x on merchant revenues, on the bank's case",
+            "Tenor: the bank does not take merchant risk. The debt should be repaid within the PPA term; at most 2 years beyond it can be accepted, sized at 1.50x on those years",
             "Maximum gearing of 75%",
             "Debt service reserve account (DSRA) covering 6 months of debt service",
             "KYC: every direct and indirect shareholder above 10% must be identified, up to its ultimate beneficial owner, before signing"
@@ -840,7 +841,8 @@
           "merchantPrice": 6.0,
           "opex": 1.8,
           "opexAfter": 3.0
-        }
+        },
+        "maxTenor": 14
       },
       {
         "type": "maxLoan",
@@ -870,12 +872,6 @@
         "type": "requireCondition",
         "condition": "kycfull",
         "outcome": "compliance"
-      },
-      {
-        "type": "tenorRange",
-        "min": 10,
-        "max": 12,
-        "outcome": "acceptable"
       }
     ],
     "competition": {
@@ -947,8 +943,7 @@
         "conservative": 1,
         "compliance": 0,
         "decline": 1,
-        "approve": 0,
-        "acceptable": 3
+        "approve": 0
       },
       "conditions": {
         "max": 3,
@@ -1015,7 +1010,7 @@
     },
     "risk": {
       "label": "Rejected by Risk",
-      "story": "Margaret Chen sends the proposal back: on the bank's own case it breaks the credit policy (DSCR below 1.30x on contracted years or 1.50x on merchant years, or gearing above 75%).",
+      "story": "Margaret Chen sends the proposal back: on the bank's own case it breaks the credit policy (DSCR below 1.30x on contracted years or 1.50x on merchant years, gearing above 75%, or more than 2 years of tenor beyond the PPA).",
       "gauges": {
         "revenue": 0,
         "risk": 0,
@@ -1030,16 +1025,6 @@
         "risk": 0,
         "credibility": -1
       }
-    },
-    "acceptable": {
-      "label": "Approve with acceptable conditions",
-      "closes": true,
-      "story": "The deal closes and passes policy, but it is not the strongest structure: outside a 10 to 12-year tenor, the bank either lends into the merchant years or supports less debt than a 12-year loan would.",
-      "gauges": {
-        "revenue": 1,
-        "risk": 2,
-        "credibility": 1
-      }
     }
   },
   "outcomeContext": "The consequence appears a few cases later, when the O&M contract comes up for renewal.",
@@ -1050,7 +1035,7 @@
       "The loan counts against the sponsor's group limit (Northpoint owns 75% of the borrower): only USD 45m is available, whatever the DSCR.",
       "A 25% shareholder in the British Virgin Islands has no identified owner. KYC on the listed parent does not cover it."
     ],
-    "summary": "The fix: a 12-year tenor (which supports more debt, USD 58m, than 18 years), the bank's share capped at USD 45m with the rest syndicated, and full KYC before signing.",
+    "summary": "The fix: a 12-year tenor (which supports the most debt, USD 58m), the bank's share capped at USD 45m with the rest syndicated, and full KYC before signing.",
     "lesson": "A good project is not automatically a good loan. Look at the whole life of the debt, and at the whole bank."
   },
   "answerKey": {
@@ -1058,7 +1043,7 @@
     "traps": [
       {
         "title": "Trap 1 — PPA shorter than the debt",
-        "text": "The PPA runs 12 years, the loan 18. The sponsor assumes the same 7.6 cents after year 12. The market study's low case, recommended for lenders, is 6.0 cents from the mid-2030s. On the bank case, the DSCR falls to 0.99x from year 13, and policy requires 1.50x on merchant revenues. Cutting the tenor to 12 years removes the merchant tail: the bank can then lend more (USD 58.2m) than over 18 years (USD 45.9m)."
+        "text": "The PPA runs 12 years, the loan 18. The sponsor assumes the same 7.6 cents after year 12. The market study's low case, recommended for lenders, is 6.0 cents from the mid-2030s. On the bank case, the DSCR falls to 0.99x from year 13, against 1.50x required on merchant revenues, and the bank accepts at most 2 years beyond the PPA. Cutting the tenor to 12 years removes the merchant tail and supports the most debt: USD 58.2m."
       },
       {
         "title": "Trap 2 — Operating costs after the warranty",
@@ -1120,19 +1105,34 @@
         ],
         "rows": [
           [
+            "8 years",
+            "USD 44.1m",
+            "Years 6–8 at 1.30x"
+          ],
+          [
+            "10 years",
+            "USD 51.6m",
+            "Years 6–10 at 1.30x"
+          ],
+          [
             "12 years",
             "USD 58.2m",
             "Years 6–12 at 1.30x"
           ],
           [
-            "15 years",
-            "USD 41.7m",
-            "Years 13–15 at 1.50x"
+            "13 years",
+            "USD 38.4m",
+            "Year 13 at 1.50x"
           ],
           [
-            "18 years",
-            "USD 45.9m",
-            "Years 13–18 at 1.50x"
+            "14 years",
+            "USD 40.1m",
+            "Years 13–14 at 1.50x"
+          ],
+          [
+            "15 to 18 years",
+            "Rejected by Risk",
+            "More than 2 years beyond the PPA"
           ]
         ],
         "footer": "If only trap 1 is found (operating costs left at USD 1.8m), the maximum debt over 12 years looks like USD 65.3m: USD 7m too much."
@@ -1142,13 +1142,13 @@
       "title": "Right decision: approve with conditions",
       "intro": "All of these must hold:",
       "options": [
-        "Debt sized within policy on the bank case: USD 58.2m at most over 12 years (best for the client), or USD 45.9m at most over 18 years (acceptable). Over 12 years at USD 58m: debt service USD 7.50m, DSCR 1.30x, gearing 62%, sponsor equity USD 35.0m.",
+        "Debt sized within policy on the bank case, with a tenor of 14 years at most: USD 58.2m at most over 12 years (the most debt), less over shorter or longer tenors. Over 12 years at USD 58m: debt service USD 7.50m, DSCR 1.30x, gearing 62%, sponsor equity USD 35.0m.",
         "The bank's share capped at USD 45m: syndicate the rest, or lend USD 45m only.",
         "Full KYC on all direct and indirect shareholders above 10% before signing."
       ]
     },
     "extraCredit": "Conditions that earn extra credit: the 6-month DSRA funded at close (about USD 3.8m at USD 58m over 12 years) and a dividend lock-up below 1.20x DSCR.",
-    "weakAnswers": "Weak answers: an 18-year loan sized on the sponsor's prices (Risk rejects it), holding more than USD 45m without syndication, a loan far below what policy allows (the sponsor walks away), a comfort letter instead of real structure, dividends allowed whatever the DSCR, or KYC on the listed parent only.",
+    "weakAnswers": "Weak answers: an 18-year loan (more than 2 years beyond the PPA: Risk rejects it), a loan sized on the sponsor's prices, holding more than USD 45m without syndication, a loan far below what policy allows (the sponsor walks away), a comfort letter instead of real structure, dividends allowed whatever the DSCR, or KYC on the listed parent only.",
     "best": {
       "decision": "conditions",
       "assumptions": {
@@ -1166,7 +1166,7 @@
         "syndicate",
         "kycfull"
       ],
-      "note": "The bank's best answer: the bank case in the control center (merchant price about 6.0, operating costs about 3.0 from year 6), a 10 to 12-year tenor, a loan sized within policy for that tenor (up to USD 58.2m over 12 years: DSCR 1.30x, gearing 63%), USD 45m held and the rest syndicated, and full KYC before signing. A longer tenor (up to 18 years, USD 45.9m at most) also passes, but scores 19/20: the bank lends into the merchant years for less debt.",
+      "note": "The bank's best answer: the bank case in the control center (merchant price about 6.0, operating costs about 3.0 from year 6), a tenor within the PPA (12 years supports the most debt: USD 58.2m, DSCR 1.30x, gearing 63%), USD 45m held and the rest syndicated, and full KYC before signing. Up to 2 years beyond the PPA (13 or 14 years) is also accepted, but supports much less debt (USD 40.1m at most over 14 years); beyond that, Risk rejects it.",
       "ranges": {
         "merchantPrice": {
           "min": 5.5,
@@ -1177,11 +1177,9 @@
           "max": 3.2
         },
         "tenor": {
-          "min": 10,
-          "max": 12,
-          "okMin": 8,
-          "okMax": 18,
-          "okNote": "Passes policy, but not the strongest structure: above 12 years the bank lends into the merchant years and supports less debt (USD 45.9m at most over 18 years); below 10 years it supports less debt too."
+          "min": 8,
+          "max": 14,
+          "offNote": "More than 2 years beyond the 12-year PPA: the bank does not take that much merchant risk, so Risk rejects it."
         }
       }
     }

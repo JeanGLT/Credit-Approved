@@ -962,7 +962,7 @@
     if (range.okMin !== undefined && value >= range.okMin - 1e-9 && value <= range.okMax + 1e-9) {
       return { text: text, ok: 'partial', note: range.okNote };
     }
-    return { text: text, ok: false };
+    return { text: text, ok: false, note: range.offNote };
   }
 
   function compareTable(data, proposal, best, evaluation, loanRange) {
@@ -1010,10 +1010,15 @@
     });
     // Loan: from the "too conservative" floor to the largest loan within policy,
     // for the tenor the player chose.
-    var loanText = 'USD ' + money(Math.round(loanRange.min * 10) / 10) + 'm – ' + money(Math.round(loanRange.max * 10) / 10) + 'm';
-    var loanOk = proposal.loan >= loanRange.min - 0.05 && proposal.loan <= loanRange.max + 0.05;
-    row('Loan amount', 'USD ' + money(proposal.loan) + 'm', loanText, loanOk,
-      proposal.loan > loanRange.max ? 'Above what the bank case supports for this tenor.' : 'Well below what the bank could lend for this tenor.');
+    if (loanRange.tenorRefused) {
+      row('Loan amount', 'USD ' + money(proposal.loan) + 'm', 'Not possible over this tenor', false,
+        'The bank does not lend over this tenor, whatever the amount.');
+    } else {
+      var loanText = 'USD ' + money(Math.round(loanRange.min * 10) / 10) + 'm – ' + money(Math.round(loanRange.max * 10) / 10) + 'm';
+      var loanOk = proposal.loan >= loanRange.min - 0.05 && proposal.loan <= loanRange.max + 0.05;
+      row('Loan amount', 'USD ' + money(proposal.loan) + 'm', loanText, loanOk,
+        proposal.loan > loanRange.max ? 'Above what the bank case supports for this tenor.' : 'Well below what the bank could lend for this tenor.');
+    }
 
     // When the bank can only hold part of the loan (case 02), show the split.
     var hold = data.rules.outcomeChecks.filter(function (c) { return c.type === 'maxLoan' && c.unlessAny; })[0];
