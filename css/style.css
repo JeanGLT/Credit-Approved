@@ -193,15 +193,12 @@ p { margin: 0; }
   font-weight: 600;
   font-size: 13px;
 }
-.welcome-cases {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
-  padding: 24px;
-}
+/* The case list sits at the bottom of the row: its last card lines up with the
+   end of the left column, which brings "Choose a case" down next to the title. */
+.welcome-cases { align-self: end; }
+.welcome-cases .case-card { box-shadow: var(--shadow); }
 .case-list-title { font-size: 15px; margin-bottom: 14px; }
-.case-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.case-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
 .case-card {
   font: inherit;
   color: inherit;
