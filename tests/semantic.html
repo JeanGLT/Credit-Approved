@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Semantic check</title>
+  <style>
+    body { font: 15px/1.5 system-ui, sans-serif; max-width: 760px; margin: 32px auto; padding: 0 16px; background: #fff; color: #1a1a1a; }
+    textarea { width: 100%; box-sizing: border-box; font: inherit; padding: 8px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 16px; }
+    td, th { border-bottom: 1px solid #ddd; padding: 6px 8px; text-align: left; vertical-align: top; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    #status { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>Semantic check</h1>
+  <p>Model: <code id="model"></code> · Status: <span id="status">idle</span></p>
+
+  <h2>Compare two sentences</h2>
+  <textarea id="a" rows="2">I sized the debt on the independent engineer's P90.</textarea>
+  <textarea id="b" rows="2">We used the lender's technical advisor yield, not the sponsor's.</textarea>
+  <p><button id="compare" disabled>Compare</button> Similarity: <strong id="result">–</strong></p>
+
+  <h2>Ready-made pairs</h2>
+  <table>
+    <thead><tr><th>Sentence A</th><th>Sentence B</th><th>Similarity</th></tr></thead>
+    <tbody id="pairs"></tbody>
+  </table>
+
+  <script src="../js/semantic.js"></script>
+  <script>
+    var PAIRS = [
+      ['I used the P90 from the independent engineer.', 'Debt is sized on the IE P90 yield.'],
+      ['I used the P90 from the independent engineer.', 'I did not use the P90 from the independent engineer.'],
+      ['A cash sweep protects the bank until the grid line is built.', 'Excess cash repays the loan early until the 220 kV line is in service.'],
+      ['A cash sweep protects the bank until the grid line is built.', 'The weather in Hanoi was nice.']
+    ];
+    var $ = function (id) { return document.getElementById(id); };
+    $('model').textContent = Semantic.MODEL;
+
+    function compare(a, b) {
+      return Semantic.embed([a, b]).then(function (v) { return Semantic.similarity(v[0], v[1]); });
+    }
+
+    var start = performance.now();
+    $('status').textContent = 'loading…';
+    Semantic.load().then(function () {
+      $('status').textContent = 'ready in ' + ((performance.now() - start) / 1000).toFixed(1) + ' s';
+      $('compare').disabled = false;
+      PAIRS.forEach(function (p) {
+        compare(p[0], p[1]).then(function (s) {
+          var tr = document.createElement('tr');
+          [p[0], p[1], s.toFixed(3)].forEach(function (text, i) {
+            var td = document.createElement('td');
+            td.textContent = text;
+            if (i === 2) td.className = 'num';
+            tr.appendChild(td);
+          });
+          $('pairs').appendChild(tr);
+        });
+      });
+    }).catch(function (err) {
+      $('status').textContent = 'failed: ' + err.message;
+    });
+
+    $('compare').addEventListener('click', function () {
+      compare($('a').value, $('b').value).then(function (s) { $('result').textContent = s.toFixed(3); });
+    });
+  </script>
+</body>
+</html>
