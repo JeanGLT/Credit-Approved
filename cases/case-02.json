@@ -517,6 +517,11 @@
               "recontract",
               "re-contracting",
               "tail"
+            ],
+            "examples": [
+              "After year 12 the plant sells at merchant prices on WESM.",
+              "The PPA ends in year 12, so revenues are uncontracted after that.",
+              "Merchant tail after the PPA."
             ]
           },
           {
@@ -538,6 +543,11 @@
               "decline",
               "drop",
               "not 7.6"
+            ],
+            "examples": [
+              "I used the market study's low case of 6.0 cents, not the sponsor's 7.6.",
+              "The sponsor's merchant price is too optimistic.",
+              "Spot prices are likely to fall, so I took the low case."
             ]
           },
           {
@@ -556,6 +566,11 @@
               "12-year",
               "12 year",
               "maturity"
+            ],
+            "examples": [
+              "I cut the tenor to 12 years to match the PPA.",
+              "The loan should mature when the PPA ends.",
+              "Shorter tenor, within the PPA."
             ]
           }
         ],
@@ -591,6 +606,21 @@
               58.2
             ]
           }
+        ],
+        "trapNumbers": [
+          {
+            "label": "Sponsor's merchant price",
+            "values": [
+              7.6
+            ],
+            "unlessAny": [
+              6
+            ],
+            "ideas": [
+              1
+            ],
+            "feedback": "7.6 cents is the sponsor's price; lenders use the market study's low case of 6.0 cents after the PPA."
+          }
         ]
       }
     },
@@ -621,6 +651,11 @@
               "jumps",
               "not realistic",
               "unrealistic"
+            ],
+            "examples": [
+              "Operating costs jump after the warranty ends in year 5.",
+              "USD 1.8m only covers the warranty period; from year 6 it is USD 3.0m.",
+              "The opex is not realistic beyond the warranty."
             ]
           },
           {
@@ -642,6 +677,11 @@
               "smaller loan",
               "debt capacity",
               "coverage"
+            ],
+            "examples": [
+              "Higher costs reduce the cash flow available for debt service.",
+              "The maximum debt falls to about USD 58m.",
+              "This lowers the DSCR, so we lend less."
             ]
           }
         ],
@@ -671,6 +711,22 @@
               58.2
             ]
           }
+        ],
+        "trapNumbers": [
+          {
+            "label": "Maximum debt with warranty costs",
+            "values": [
+              65.3
+            ],
+            "unlessAny": [
+              58,
+              58.2
+            ],
+            "ideas": [
+              1
+            ],
+            "feedback": "USD 65.3m keeps USD 1.8m of costs after the warranty; at USD 3.0m from year 6 the maximum debt is USD 58.2m."
+          }
         ]
       }
     },
@@ -694,6 +750,11 @@
               "headroom",
               "available",
               "portfolio"
+            ],
+            "examples": [
+              "The loan counts against the Northpoint group limit.",
+              "We only have USD 45m of headroom under the single-group limit.",
+              "Group exposure is the constraint."
             ]
           },
           {
@@ -716,6 +777,11 @@
               "smaller",
               "cap",
               "capped"
+            ],
+            "examples": [
+              "We hold USD 45m and syndicate the rest.",
+              "Bring in another bank for the balance.",
+              "Lend less, up to the limit."
             ]
           }
         ],
@@ -737,6 +803,21 @@
             "values": [
               200
             ]
+          }
+        ],
+        "trapNumbers": [
+          {
+            "label": "Full amount requested",
+            "values": [
+              69.75
+            ],
+            "unlessAny": [
+              45
+            ],
+            "ideas": [
+              1
+            ],
+            "feedback": "The bank can hold USD 45m at most under the Northpoint group limit; the rest must be syndicated or the loan reduced."
           }
         ]
       }
@@ -767,6 +848,11 @@
               "regulatory",
               "aml",
               "anti-money"
+            ],
+            "examples": [
+              "Full KYC is mandatory before signing.",
+              "We cannot skip KYC because the parent is listed.",
+              "Compliance will not allow it."
             ]
           },
           {
@@ -783,6 +869,11 @@
               "family vehicle",
               "investment vehicle",
               "offshore"
+            ],
+            "examples": [
+              "Silverbay's beneficial owner is unknown.",
+              "A 25% shareholder in the BVI is not identified.",
+              "We need to know who owns Silverbay."
             ]
           },
           {
@@ -804,6 +895,11 @@
               "in parallel",
               "work with",
               "propose"
+            ],
+            "examples": [
+              "We can help them gather the documents quickly.",
+              "Approve subject to KYC being completed before signing.",
+              "Let's run KYC in parallel so Friday stays possible."
             ]
           }
         ],
