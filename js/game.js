@@ -789,8 +789,16 @@
 
   // ---------- Navigation ----------
 
+  // The page address for one case (or the welcome screen), keeping ?debug=1.
+  function pageUrl(caseId) {
+    var params = [];
+    if (caseId) params.push('case=' + encodeURIComponent(caseId));
+    if (DEBUG) params.push('debug=1');
+    return window.location.pathname + (params.length ? '?' + params.join('&') : '');
+  }
+
   function goHome() {
-    window.location.href = window.location.pathname;
+    window.location.href = pageUrl(null);
   }
 
   // Leaving a case in progress loses it: ask first.
@@ -807,7 +815,7 @@
     UI.chat.hide();
     UI.renderSkipped({
       caseData: state.caseData,
-      onRestart: function () { window.location.href = '?case=' + encodeURIComponent(state.caseData.id); },
+      onRestart: function () { window.location.href = pageUrl(state.caseData.id); },
       onAllCases: goHome
     });
     UI.showScreen('result');
@@ -859,7 +867,7 @@
       gaugesBefore: before,
       gaugesAfter: state.gauges,
       answers: state.answers,
-      onRestart: function () { window.location.href = '?case=' + encodeURIComponent(state.caseData.id); },
+      onRestart: function () { window.location.href = pageUrl(state.caseData.id); },
       onAllCases: goHome,
       onReview: reviewCase
     });
