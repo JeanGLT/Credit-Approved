@@ -402,6 +402,12 @@
               "lenders engineer",
               "technical advisor",
               "meridian"
+            ],
+            "examples": [
+              "I used the independent engineer's P90 yield.",
+              "We size the debt on the technical advisor's P90, not on the sponsor's number.",
+              "P90 of 1,430 kWh/kWp.",
+              "The sponsor's yield is too optimistic, so I relied on the independent report."
             ]
           }
         ],
@@ -412,6 +418,23 @@
               1430,
               71.5
             ]
+          }
+        ],
+        "trapNumbers": [
+          {
+            "label": "Sponsor's yield",
+            "values": [
+              1750,
+              87.5
+            ],
+            "unlessAny": [
+              1430,
+              71.5
+            ],
+            "ideas": [
+              0
+            ],
+            "feedback": "You sized the loan on the sponsor's yield, not the independent engineer's P90."
           }
         ]
       }
@@ -437,6 +460,11 @@
               "stressed",
               "grid loss",
               "grid losses"
+            ],
+            "examples": [
+              "I applied a 10% curtailment haircut in the bank case.",
+              "The bank case assumes EVN curtails part of the output.",
+              "We stress production for curtailment until the 220 kV line is built."
             ]
           },
           {
@@ -458,6 +486,11 @@
               "dscr",
               "cover ratio",
               "coverage"
+            ],
+            "examples": [
+              "The loan is sized on that case at a 1.30x DSCR.",
+              "I reduced the loan so the DSCR stays above the minimum with curtailment.",
+              "Debt sizing uses the curtailed production."
             ]
           },
           {
@@ -480,6 +513,11 @@
               "dividend block",
               "distribution lock",
               "distribution block"
+            ],
+            "examples": [
+              "A cash sweep while curtailment stays high.",
+              "The sponsor guarantees the curtailment losses until the grid upgrade.",
+              "Dividends are locked up until the new line is in service."
             ]
           },
           {
@@ -492,6 +530,11 @@
               "reserve",
               "liquidity buffer",
               "buffer"
+            ],
+            "examples": [
+              "A 6-month DSRA funded at financial close.",
+              "The debt service reserve account gives us a liquidity buffer.",
+              "The reserve covers a bad year."
             ]
           }
         ],
@@ -559,6 +602,11 @@
               "credit criteria",
               "lending criteria",
               "risk appetite"
+            ],
+            "examples": [
+              "At USD 28.5m the DSCR falls to 1.20x, below our 1.30x minimum.",
+              "Matching that offer would breach our credit policy.",
+              "80% gearing is outside our risk appetite."
             ]
           },
           {
@@ -586,6 +634,11 @@
               "can do",
               "we can",
               "happy to"
+            ],
+            "examples": [
+              "We can offer USD 26m instead.",
+              "We can keep USD 28.5m if the sponsor guarantees the curtailment losses.",
+              "Let's propose a structure that still closes by Friday."
             ]
           }
         ],
