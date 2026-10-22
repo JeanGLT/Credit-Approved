@@ -339,30 +339,100 @@
    *   1 = right idea without the numbers
    *   2 = right idea backed by at least one expected number
    */
-  function evaluateAnswer(question, answer, maxPoints) {
-    var analysis = question.analysis;
-    var text = normalizeText(answer || '');
-    var numbers = extractNumbers(answer || '');
+  // The first accepted wording of an idea found in the answer, or null.
+  function keywordFound(text, idea) {
+    for (var i = 0; i < idea.any.length; i++) {
+      if (containsPhrase(text, idea.any[i])) return idea.any[i];
+    }
+    return null;
+  }
 
-    var ideas = analysis.ideas.map(function (idea) {
-      return { label: idea.label, hit: idea.any.some(function (v) { return containsPhrase(text, v); }) };
-    });
-    var nums = analysis.numbers.map(function (spec) {
+  function expectedNumbers(analysis, numbers) {
+    return analysis.numbers.map(function (spec) {
       return { label: spec.label, hit: numberMatches(spec, numbers) };
     });
+  }
 
+  // Same rubric for both methods, once the ideas are decided.
+  function answerResult(analysis, ideas, nums, maxPoints) {
+    var max = maxPoints === undefined ? 2 : maxPoints;
     var ideasHit = ideas.filter(function (i) { return i.hit; }).length;
     var enoughIdeas = ideasHit >= analysis.minIdeas;
     var anyNumber = nums.some(function (n) { return n.hit; });
     var points = !enoughIdeas ? 0 : anyNumber ? 2 : 1;
+    return { points: Math.min(points, max), max: max, ideas: ideas, ideasNeeded: analysis.minIdeas, numbers: nums };
+  }
 
-    return {
-      points: Math.min(points, maxPoints === undefined ? 2 : maxPoints),
-      max: maxPoints === undefined ? 2 : maxPoints,
-      ideas: ideas,
-      ideasNeeded: analysis.minIdeas,
-      numbers: nums
-    };
+  function evaluateAnswer(question, answer, maxPoints) {
+    var analysis = question.analysis;
+    var text = normalizeText(answer || '');
+    var ideas = analysis.ideas.map(function (idea) {
+      return { label: idea.label, hit: keywordFound(text, idea) !== null };
+    });
+    return answerResult(analysis, ideas, expectedNumbers(analysis, extractNumbers(answer || '')), maxPoints);
+  }
+
+  // ---------- Committee answers, semantic method (observation only) ----------
+
+  var SEMANTIC_DEFAULTS = { high: 0.55, low: 0.35 };
+
+  // Global default, then the case's `semantic`, then the question's `analysis.semantic`.
+  function semanticThresholds(caseData, question) {
+    var t = { high: SEMANTIC_DEFAULTS.high, low: SEMANTIC_DEFAULTS.low };
+    [caseData && caseData.semantic, question.analysis.semantic].forEach(function (o) {
+      if (!o) return;
+      if (o.high !== undefined) t.high = o.high;
+      if (o.low !== undefined) t.low = o.low;
+    });
+    return t;
+  }
+
+  // A trap fires when the answer quotes one of its values and none of `unlessAny`.
+  function trapNumberResults(analysis, numbers) {
+    return (analysis.trapNumbers || []).map(function (trap) {
+      var quoted = numberMatches({ values: trap.values, unit: trap.unit, tol: trap.tol }, numbers);
+      var excused = numberMatches({ values: trap.unlessAny || [], unit: trap.unit, tol: trap.tol }, numbers);
+      return { label: trap.label, fired: quoted && !excused, ideas: trap.ideas || [], feedback: trap.feedback };
+    });
+  }
+
+  /*
+   * Score one committee answer from similarity scores computed elsewhere
+   * (js/semantic.js), so this stays a pure function.
+   *   similarities: one number per idea (the best match between a sentence of
+   *     the answer and the idea's examples), or null when the model is not
+   *     available. An idea without a number (no examples) uses keywords alone.
+   * Per idea: score ≥ high → found; between low and high → found only with a
+   * keyword; below low → missing. Then trap numbers veto the ideas they list.
+   */
+  function evaluateAnswerSemantic(question, answer, similarities, thresholds, maxPoints) {
+    var analysis = question.analysis;
+    var t = thresholds || SEMANTIC_DEFAULTS;
+    var text = normalizeText(answer || '');
+    var numbers = extractNumbers(answer || '');
+    var traps = trapNumberResults(analysis, numbers);
+
+    var ideas = analysis.ideas.map(function (idea, i) {
+      var keyword = keywordFound(text, idea);
+      var score = similarities ? similarities[i] : undefined;
+      var zone = typeof score !== 'number' ? null : score >= t.high ? 'high' : score >= t.low ? 'middle' : 'low';
+      var hit = zone === null ? keyword !== null : zone === 'high' || (zone === 'middle' && keyword !== null);
+      var veto = traps.filter(function (tr) { return tr.fired && tr.ideas.indexOf(i) !== -1; })[0];
+      return {
+        label: idea.label,
+        similarity: zone === null ? null : score,
+        zone: zone,
+        keyword: keyword,
+        vetoedBy: veto ? veto.label : null,
+        hit: hit && !veto
+      };
+    });
+
+    var result = answerResult(analysis, ideas, expectedNumbers(analysis, numbers), maxPoints);
+    result.method = similarities ? 'semantic' : 'keywords';
+    result.thresholds = t;
+    result.trapNumbers = traps;
+    return result;
   }
 
   // ---------- Final score ----------
@@ -393,6 +463,9 @@
     applyGauges: applyGauges,
     extractNumbers: extractNumbers,
     evaluateAnswer: evaluateAnswer,
+    SEMANTIC_DEFAULTS: SEMANTIC_DEFAULTS,
+    semanticThresholds: semanticThresholds,
+    evaluateAnswerSemantic: evaluateAnswerSemantic,
     finalScore: finalScore
   };
 

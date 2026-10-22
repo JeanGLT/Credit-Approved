@@ -435,6 +435,21 @@
               0
             ],
             "feedback": "You sized the loan on the sponsor's yield, not the independent engineer's P90."
+          },
+          {
+            "label": "P50 yield",
+            "values": [
+              1520,
+              76
+            ],
+            "unlessAny": [
+              1430,
+              71.5
+            ],
+            "ideas": [
+              0
+            ],
+            "feedback": "You used the P50; lenders size the loan on the P90."
           }
         ]
       }
@@ -661,6 +676,21 @@
             "values": [
               1.3
             ]
+          }
+        ],
+        "trapNumbers": [
+          {
+            "label": "DSCR without curtailment",
+            "values": [
+              1.36
+            ],
+            "unlessAny": [
+              1.2
+            ],
+            "ideas": [
+              0
+            ],
+            "feedback": "1.36x is the P90 case without curtailment; on the bank case, USD 28.5m only reaches 1.20x."
           }
         ]
       }

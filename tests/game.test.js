@@ -314,5 +314,90 @@ test('Case 01 best loan range: 22.36 to 26.30, up to 28.5 with the sponsor guara
   assert.ok(Math.abs(backed.max - 28.5) < 0.01, JSON.stringify(backed));
 });
 
+// ---------------------------------------------------------------------
+console.log('\nCommittee answers, semantic method (similarity scores injected)');
+
+function sem(i, text, scores, thresholds) {
+  return Rules.evaluateAnswerSemantic(Q[i], text, scores, thresholds, 2);
+}
+
+test('High zone without a keyword → idea found', () => {
+  const r = sem(0, 'I took a more cautious production figure, 1,430.', [0.70]);
+  assert.strictEqual(r.ideas[0].zone, 'high');
+  assert.strictEqual(r.ideas[0].keyword, null);
+  assert.strictEqual(r.points, 2);
+});
+test('Middle zone with a keyword → idea found', () => {
+  const r = sem(0, 'P90.', [0.40]);
+  assert.strictEqual(r.ideas[0].zone, 'middle');
+  assert.strictEqual(r.ideas[0].keyword, 'p90');
+  assert.strictEqual(r.points, 1);
+});
+test('Middle zone without a keyword → idea missing', () =>
+  assert.strictEqual(sem(0, 'I took a cautious number.', [0.40]).points, 0));
+test('Low zone, even with a keyword → idea missing', () => {
+  const r = sem(0, 'P90', [0.20]);
+  assert.strictEqual(r.ideas[0].zone, 'low');
+  assert.strictEqual(r.points, 0);
+});
+test('Exactly high → high zone; exactly low → middle zone', () => {
+  assert.strictEqual(sem(0, 'x', [0.55]).ideas[0].zone, 'high');
+  assert.strictEqual(sem(0, 'x', [0.35]).ideas[0].zone, 'middle');
+});
+test("Sponsor's yield without the P90 → idea vetoed, feedback given", () => {
+  const r = sem(0, 'I used 1,750 kWh/kWp from the independent engineer.', [0.80]);
+  assert.strictEqual(r.ideas[0].vetoedBy, "Sponsor's yield");
+  assert.strictEqual(r.points, 0);
+  assert.ok(r.trapNumbers[0].fired && r.trapNumbers[0].feedback);
+});
+test("Sponsor's yield and the P90 both quoted → no veto (the good answer)", () => {
+  const r = sem(0, Q[0].goodAnswer, [0.80]);
+  assert.strictEqual(r.ideas[0].vetoedBy, null);
+  assert.strictEqual(r.points, 2);
+});
+test('Production 87.5 GWh alone → vetoed; with 71.5 GWh → not vetoed', () => {
+  assert.strictEqual(sem(0, 'We used 87.5 GWh from the independent engineer.', [0.80]).points, 0);
+  assert.strictEqual(sem(0, 'Not 87.5 GWh but 71.5 GWh, the P90.', [0.80]).points, 2);
+});
+test('P50 without the P90 → vetoed', () =>
+  assert.strictEqual(sem(0, 'The independent engineer P50 of 1,520.', [0.80]).ideas[0].vetoedBy, 'P50 yield'));
+test('Q3: 1.36x without 1.20x → policy idea vetoed, 0 points', () => {
+  const r = sem(2, 'At 28.5m the DSCR is 1.36x, above our 1.30x minimum, so we can match the offer.', [0.70, 0.70]);
+  assert.strictEqual(r.ideas[0].vetoedBy, 'DSCR without curtailment');
+  assert.strictEqual(r.ideas[1].hit, true);
+  assert.strictEqual(r.points, 0);
+});
+test('Q2 needs 2 ideas: one strong idea is not enough', () => {
+  assert.strictEqual(sem(1, 'Something else, 10%.', [0.70, 0.10, 0.10, 0.10]).points, 0);
+  assert.strictEqual(sem(1, 'Something else, 10%.', [0.70, 0.60, 0.10, 0.10]).points, 2);
+});
+test('No model (null) → keywords alone, same points as today on every good answer', () => {
+  [caseData, case2].forEach((c) => c.committee.forEach((q) => {
+    const r = Rules.evaluateAnswerSemantic(q, q.goodAnswer, null, null, 2);
+    assert.strictEqual(r.method, 'keywords');
+    assert.strictEqual(r.points, Rules.evaluateAnswer(q, q.goodAnswer, 2).points, q.question);
+  }));
+});
+test('No model → trap numbers still veto', () => {
+  assert.strictEqual(answerPoints(0, 'The independent engineer says 1,750.'), 1);
+  assert.strictEqual(sem(0, 'The independent engineer says 1,750.', null).points, 0);
+});
+test('An idea without a score uses its keywords alone', () => {
+  const r = sem(1, 'Curtailment haircut, then a DSRA.', [undefined, 0.10, 0.10, undefined]);
+  assert.strictEqual(r.ideas[0].zone, null);
+  assert.strictEqual(r.ideas[0].hit, true);
+  assert.strictEqual(r.ideas[3].hit, true);
+});
+test('Thresholds: default, then the case, then the question', () => {
+  const q = { analysis: {} };
+  assert.deepStrictEqual(Rules.semanticThresholds({}, q), { high: 0.55, low: 0.35 });
+  assert.deepStrictEqual(Rules.semanticThresholds({ semantic: { high: 0.6 } }, q), { high: 0.6, low: 0.35 });
+  assert.deepStrictEqual(
+    Rules.semanticThresholds({ semantic: { high: 0.6 } }, { analysis: { semantic: { high: 0.5, low: 0.3 } } }),
+    { high: 0.5, low: 0.3 });
+});
+test('Custom thresholds change the zone', () =>
+  assert.strictEqual(sem(0, 'x', [0.50], { high: 0.45, low: 0.30 }).ideas[0].zone, 'high'));
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed === 0 ? 0 : 1);
