@@ -1,0 +1,12 @@
+{
+  "name": "credit-approved",
+  "private": true,
+  "description": "Only for tests/semantic.eval.js. The game itself and the other tests need no install.",
+  "scripts": {
+    "test": "node tests/model.test.js && node tests/game.test.js && node tests/audit.test.js",
+    "eval": "node tests/semantic.eval.js"
+  },
+  "devDependencies": {
+    "@huggingface/transformers": "3.8.1"
+  }
+}

@@ -536,11 +536,8 @@
 
   function matchAnswer(index, text) {
     if (!semantic.enabled) return;
-    var sentences = Semantic.splitSentences(text);
-    var ideas = state.caseData.committee[index].analysis.ideas;
-    semantic.matches[index] = Promise.all(ideas.map(function (idea) {
-      return Semantic.bestMatch(sentences, idea.examples || []);
-    })).catch(function () { return null; });
+    semantic.matches[index] = Semantic.matchIdeas(text, state.caseData.committee[index].analysis.ideas)
+      .catch(function () { return null; });
   }
 
   // Both scores for every answer, for the debug panel and its export.

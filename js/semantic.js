@@ -82,6 +82,15 @@
     });
   }
 
+  // For each idea, the best match between the answer's sentences and the
+  // idea's `examples` (null for an idea without examples).
+  function matchIdeas(text, ideas) {
+    var sentences = splitSentences(text);
+    return Promise.all(ideas.map(function (idea) {
+      return bestMatch(sentences, idea.examples || []);
+    }));
+  }
+
   // Splits on . ! ? followed by a space, and on line breaks,
   // so "1.30x" or "USD 26.3m" stay whole.
   function splitSentences(text) {
@@ -97,6 +106,7 @@
     embed: embed,
     similarity: similarity,
     bestMatch: bestMatch,
+    matchIdeas: matchIdeas,
     splitSentences: splitSentences,
     status: function () { return status; }
   };

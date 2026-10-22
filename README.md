@@ -30,7 +30,11 @@ Designed for a computer screen (laptop or desktop), for classes, interview pract
 | Conditions | 4 | 3 | +1 per good condition, −1 per bad one (case 01 also gives +1 for a clean structure) |
 | Committee | 6 | 8 | 0 to 2 per answer: the expected ideas, backed by numbers |
 
-Committee answers are analysed with keywords and numbers, without AI in this version. Numbers are read in any format (`1,430`, `1.430`, `1 430`; `26m`, `26 million`, `26,000,000`; `1.20x`, `1,20x`).
+Committee answers are analysed with keywords and numbers. Numbers are read in any format (`1,430`, `1.430`, `1 430`; `26m`, `26 million`, `26,000,000`; `1.20x`, `1,20x`).
+
+**Semantic analysis (observation).** A second score is computed with a small open-source model that runs in the player's browser ([Transformers.js](https://huggingface.co/docs/transformers.js) and `all-MiniLM-L6-v2`). It does not change the official score yet. For each idea, the closest pair between a sentence of the answer and the idea's `examples` gives a similarity: at or above `high` (0.55 by default) the idea is found; between `low` (0.35) and `high`, only with one of its keywords; below `low`, it is missing. Trap numbers then refuse ideas (for example, the sponsor's yield quoted without the engineer's P90). The 0 to 2 scale is unchanged. If the model cannot load, keywords are used alone.
+
+Add `?debug=1` to the address (http://localhost:8000/?case=case-01&debug=1) to load the model and see, on the result screen, both scores for every answer and idea, with a button to export the answers and scores as JSON. Without `?debug=1` the model is not downloaded. Answers never leave the browser: only the library (from jsdelivr) and the model weights (about 23 MB, from huggingface.co) are downloaded, then cached.
 
 ## Play it on your computer
 
@@ -54,7 +58,31 @@ node tests/game.test.js
 node tests/audit.test.js
 ```
 
+(or `npm test`, which runs all three.)
+
 `model.test.js` checks the financial formulas against reference figures. `game.test.js` checks the outcome, conditions, competition, score and gauge rules, and the analysis of committee answers. `audit.test.js` tries tens of thousands of proposals on every case and checks that the outcome, the score, the result table and the answer key never contradict each other: run it after creating or editing a case.
+
+### Evaluate the semantic analysis
+
+The tests above use fixed similarity scores, so they run without the model and without installing anything. To measure the real model against your own grading, one install is needed (it downloads the library into `node_modules/`, which is not published):
+
+```
+npm install
+node tests/semantic.eval.js tests/answers/case-01.json
+```
+
+An answer file lists answers you graded yourself:
+
+```json
+{
+  "case": "case-01",
+  "answers": [
+    { "question": 0, "text": "...", "expected": { "points": 1, "ideas": [true] }, "note": "..." }
+  ]
+}
+```
+
+`question` is the index in `committee`, `ideas` has one entry per idea of that question (`true`, `false`, or `null` when not graded). The JSON exported from the debug panel has the same shape: fill its `expected` fields and copy the answers in. The script prints, for both methods, the answers with the wrong points and the ideas wrongly found or missed, then the similarity spread and the thresholds with the fewest errors. Aim for 30 answers or more, good and bad, before trusting the suggested thresholds.
 
 ## Project structure
 
@@ -62,15 +90,17 @@ node tests/audit.test.js
 index.html            Page skeleton: welcome, case and result screens, chat
 css/style.css         All styles
 js/model.js           Financial calculations only (no display, no game rules)
+js/semantic.js        Sentence similarity with the in-browser model (no game rules)
 js/ui.js              Everything the player sees (no calculations, no rules)
 js/game.js            Game rules (score, outcome, gauges, answer analysis) and game flow
 cases/index.json      The list of cases shown on the welcome screen
 cases/case-0X.json    Case data: documents, model inputs, conditions, questions, rules, debrief
 content/case-0X.md    The same case written for humans (design document)
-tests/                Tests, run with Node
+tests/                Tests, run with Node; tests/answers/ holds graded answers for the evaluation
+package.json          Only for the evaluation script (npm install); the game needs no install
 ```
 
-Charts use [Chart.js](https://www.chartjs.org), loaded from a CDN. There is no framework and no build step.
+Charts use [Chart.js](https://www.chartjs.org) and the semantic analysis uses [Transformers.js](https://huggingface.co/docs/transformers.js), both loaded from a CDN. There is no framework and no build step.
 
 ## Add a new case
 
@@ -90,7 +120,8 @@ Main sections of the file:
 | `proposal.requestedLoan`, `proposal.loan` | Amount requested and the loan slider range |
 | `proposal.decisions` | The three decisions and their hints |
 | `proposal.conditions` | Each condition is good (`points` +1) or bad (−1): `label`, `role`, `points`, `burden` (weight on the sponsor), optional `gauges` effect, `reason` shown in the result. Optional: `rateIncrease` (0.005 = +50 bp), `redundantIfLoanAtMost` with `redundantPoints` and `redundantReason` for a condition that is only good when the loan is large enough |
-| `committee` | The questions, in order. Each person (`askedBy`) gets their own conversation. `analysis` lists the expected `ideas` (each with `any`: every accepted wording), how many are needed (`minIdeas`), and the accepted `numbers` (`values`, optional `unit: "%"` and `tol`) |
+| `committee` | The questions, in order. Each person (`askedBy`) gets their own conversation. `analysis` lists the expected `ideas` (each with `any`: every accepted wording, and `examples`: 2 to 4 short reference sentences written the way a player would, for the semantic analysis), how many are needed (`minIdeas`), and the accepted `numbers` (`values`, optional `unit: "%"` and `tol`). Optional `trapNumbers`: each has a `label`, `values`, `unlessAny`, the `ideas` it refuses (indices) and a `feedback`; when the answer quotes one of `values` and none of `unlessAny`, those ideas are refused. Check that a good answer cannot quote the trap number alone. Optional `semantic` (`high`, `low`) overrides the similarity thresholds for this question |
+| `semantic` | Optional: `high` and `low` similarity thresholds for the whole case (defaults 0.55 and 0.35 in `js/game.js`) |
 | `committeeScale` | What 0, 1 and 2 points mean, shown in the result |
 | `rules.outcomeChecks` | Checks tried in order for any approval (as requested or with conditions), in the order of a real deal; the first that fails decides the outcome, and if none fails the outcome is `right`. Types: `policy` (Risk: gearing within `maxGearing` and loan within the bank's policy on the official `bankCase`, for the tenor proposed, unless a condition in `unlessAny` is ticked), `maxLoan` (`max`, unless a condition in `unlessAny` is ticked), `burden` (too heavy for the sponsor), `conservative` (loan below `minShare` of what policy allows on the `bankCase`), `requireCondition` (a condition must be ticked) |
 | `rules.competition` | `maxBurden` before the sponsor walks away, and the weight of a `loanCutBurden` and `tenorCutBurden` |

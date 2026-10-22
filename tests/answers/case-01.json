@@ -1,0 +1,23 @@
+{
+  "case": "case-01",
+  "answers": [
+    {
+      "question": 0,
+      "text": "The sponsor's 1,750 kWh/kWp is not credible; I used the independent engineer's P90.",
+      "expected": { "points": 1, "ideas": [true] },
+      "note": "Right idea, no expected number. Quotes the sponsor's yield only to reject it: the trap number vetoes it anyway."
+    },
+    {
+      "question": 1,
+      "text": "Curtailment could reach 10%, so the bank case includes it and the loan is cut to keep a 1.30x DSCR.",
+      "expected": { "points": 2, "ideas": [true, true, false, false] },
+      "note": "Haircut and sizing, backed by numbers. No sponsor support, no DSRA."
+    },
+    {
+      "question": 2,
+      "text": "At 28.5m the DSCR is 1.36x, above our 1.30x minimum, so we can match the offer.",
+      "expected": { "points": 0, "ideas": [false, null] },
+      "note": "Forgot curtailment. null: idea not graded."
+    }
+  ]
+}
