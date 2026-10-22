@@ -66,6 +66,22 @@
     return sum;
   }
 
+  // The closest pair between `sentences` and `references`: { score, sentence, reference },
+  // or null when either list is empty.
+  function bestMatch(sentences, references) {
+    if (!sentences.length || !references.length) return Promise.resolve(null);
+    return embed(sentences.concat(references)).then(function (vectors) {
+      var best = null;
+      sentences.forEach(function (s, i) {
+        references.forEach(function (r, j) {
+          var score = similarity(vectors[i], vectors[sentences.length + j]);
+          if (!best || score > best.score) best = { score: score, sentence: s, reference: r };
+        });
+      });
+      return best;
+    });
+  }
+
   // Splits on . ! ? followed by a space, and on line breaks,
   // so "1.30x" or "USD 26.3m" stay whole.
   function splitSentences(text) {
@@ -80,6 +96,7 @@
     load: load,
     embed: embed,
     similarity: similarity,
+    bestMatch: bestMatch,
     splitSentences: splitSentences,
     status: function () { return status; }
   };

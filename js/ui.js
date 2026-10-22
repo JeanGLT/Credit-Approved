@@ -1201,6 +1201,7 @@
 
     // 4. Committee: your answer next to what was expected
     var committee = el('section', 'card');
+    committee.id = 'result-committee';
     committee.appendChild(el('h2', null, 'Committee'));
     data.committee.forEach(function (q, i) {
       var c = score.committee[i];
@@ -1308,6 +1309,89 @@
     return nav;
   }
 
+  // ---------- Debug panel (?debug=1): official vs semantic committee scores ----------
+
+  function pct(x) { return typeof x === 'number' ? x.toFixed(3) : '—'; }
+
+  // report === null shows a waiting line; the panel sits right after the committee card.
+  function renderDebugPanel(report, onExport) {
+    var panel = $('debug-panel');
+    if (!panel) {
+      panel = el('section', 'card debug-panel');
+      panel.id = 'debug-panel';
+      var anchor = $('result-committee');
+      if (anchor) anchor.after(panel); else $('result').appendChild(panel);
+    }
+    panel.textContent = '';
+    var head = el('div', 'card-head');
+    var titles = el('div');
+    titles.appendChild(el('h2', null, 'Debug · semantic analysis (observation)'));
+    titles.appendChild(el('p', 'muted small', report
+      ? 'Model ' + (report.model || '—') + ': ' + report.modelStatus + '. The official score does not use this.'
+      : 'Computing the semantic scores…'));
+    head.appendChild(titles);
+    if (report) {
+      var btn = el('button', 'btn btn-ghost', 'Export JSON');
+      btn.type = 'button';
+      btn.addEventListener('click', onExport);
+      head.appendChild(btn);
+    }
+    panel.appendChild(head);
+    if (!report) return;
+
+    report.answers.forEach(function (a, i) {
+      var block = el('div', 'debug-answer');
+      var t = a.semantic.thresholds;
+      block.appendChild(el('div', 'qa-who', 'Q' + (i + 1) + ' · ' + a.question.askedBy));
+      block.appendChild(el('div', 'qa-question', a.question.question));
+      block.appendChild(el('p', 'answer-text', a.text || '—'));
+      block.appendChild(el('p', 'debug-points',
+        'Old method: ' + a.official.points + ' / ' + a.official.max +
+        ' · New method (' + a.semantic.method + '): ' + a.semantic.points + ' / ' + a.semantic.max +
+        ' · Thresholds: low ' + t.low + ', high ' + t.high +
+        ' · Ideas needed: ' + a.semantic.ideasNeeded));
+
+      var table = el('table', 'debug-table');
+      var tr = el('tr');
+      ['Idea', 'Similarity', 'Zone', 'Keyword', 'Veto', 'Old', 'New', 'Closest sentence'].forEach(function (h) {
+        tr.appendChild(el('th', null, h));
+      });
+      table.appendChild(el('thead')).appendChild(tr);
+      var body = table.appendChild(el('tbody'));
+      a.semantic.ideas.forEach(function (idea, j) {
+        var m = a.matches && a.matches[j];
+        var row = el('tr');
+        row.appendChild(el('td', null, idea.label));
+        row.appendChild(el('td', 'num', pct(idea.similarity)));
+        row.appendChild(el('td', idea.zone ? 'zone-' + idea.zone : null, idea.zone || 'keywords only'));
+        row.appendChild(el('td', null, idea.keyword || '—'));
+        row.appendChild(el('td', idea.vetoedBy ? 'debug-veto' : null, idea.vetoedBy || '—'));
+        row.appendChild(el('td', null, a.official.ideas[j].hit ? 'yes' : 'no'));
+        row.appendChild(el('td', null, idea.hit ? 'yes' : 'no'));
+        row.appendChild(el('td', 'muted', m ? '“' + m.sentence + '” ↔ “' + m.reference + '”' : '—'));
+        body.appendChild(row);
+      });
+      block.appendChild(table);
+      a.semantic.trapNumbers.filter(function (x) { return x.fired; }).forEach(function (x) {
+        block.appendChild(el('p', 'qa-hint', 'Trap number · ' + x.label + ': ' + x.feedback));
+      });
+      panel.appendChild(block);
+    });
+  }
+
+  // Saves `data` as a JSON file on the player's computer (nothing is sent anywhere).
+  function downloadJson(filename, data) {
+    var blob = new Blob([JSON.stringify(data, null, 2) + '\n'], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = el('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
   // Case skipped: the answer key and the best answer, without a score.
   function renderSkipped(opts) {
     var data = opts.caseData;
@@ -1399,6 +1483,8 @@
     setProposalState: setProposalState,
     renderResult: renderResult,
     renderSkipped: renderSkipped,
+    renderDebugPanel: renderDebugPanel,
+    downloadJson: downloadJson,
     showResultsBar: showResultsBar,
     chat: chat
   };

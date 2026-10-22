@@ -513,6 +513,98 @@
     gauges: { revenue: GAUGE_START, risk: GAUGE_START, credibility: GAUGE_START }
   };
 
+  // ---------- Semantic analysis (observation only) ----------
+  // A second committee score, computed next to the official one and shown
+  // only with ?debug=1. The model loads only in that mode while the official
+  // score does not use it; the game never waits for it nor breaks without it.
+
+  var DEBUG = new URLSearchParams(window.location.search).get('debug') === '1';
+  var semantic = {
+    enabled: DEBUG && !!window.Semantic,
+    matches: []            // per question: promise of the best match per idea, or of null
+  };
+
+  // Load the model and embed every reference sentence once, while the player reads.
+  function prepareSemantic() {
+    if (!semantic.enabled) return;
+    var examples = [];
+    state.caseData.committee.forEach(function (q) {
+      q.analysis.ideas.forEach(function (idea) { examples = examples.concat(idea.examples || []); });
+    });
+    Semantic.embed(examples).catch(function () {});
+  }
+
+  function matchAnswer(index, text) {
+    if (!semantic.enabled) return;
+    var sentences = Semantic.splitSentences(text);
+    var ideas = state.caseData.committee[index].analysis.ideas;
+    semantic.matches[index] = Promise.all(ideas.map(function (idea) {
+      return Semantic.bestMatch(sentences, idea.examples || []);
+    })).catch(function () { return null; });
+  }
+
+  // Both scores for every answer, for the debug panel and its export.
+  function semanticReport(score) {
+    var data = state.caseData;
+    var per = data.rules.score.committeePerQuestion;
+    return Promise.all(data.committee.map(function (q, i) {
+      return semantic.matches[i] || null;
+    })).then(function (allMatches) {
+      return {
+        caseId: data.id,
+        model: window.Semantic ? Semantic.MODEL : null,
+        modelStatus: window.Semantic ? Semantic.status() : 'unavailable',
+        answers: data.committee.map(function (q, i) {
+          var matches = allMatches[i];
+          var scores = matches ? matches.map(function (m) { return m ? m.score : undefined; }) : null;
+          return {
+            question: q,
+            text: state.answers[i] || '',
+            official: score.committee[i],
+            semantic: evaluateAnswerSemantic(q, state.answers[i], scores, semanticThresholds(data, q), per),
+            matches: matches
+          };
+        })
+      };
+    });
+  }
+
+  // Same shape as tests/answers/*.json: fill `expected` with your own grading.
+  function exportReport(report) {
+    var file = {
+      case: report.caseId,
+      exportedAt: new Date().toISOString(),
+      model: report.model,
+      modelStatus: report.modelStatus,
+      answers: report.answers.map(function (a, i) {
+        return {
+          question: i,
+          text: a.text,
+          expected: { points: null, ideas: a.question.analysis.ideas.map(function () { return null; }) },
+          official: { points: a.official.points, ideas: a.official.ideas.map(function (x) { return x.hit; }) },
+          semantic: {
+            method: a.semantic.method,
+            points: a.semantic.points,
+            ideas: a.semantic.ideas.map(function (x) {
+              return { similarity: x.similarity, zone: x.zone, keyword: x.keyword, vetoedBy: x.vetoedBy, hit: x.hit };
+            }),
+            trapNumbers: a.semantic.trapNumbers.filter(function (t) { return t.fired; }).map(function (t) { return t.label; })
+          }
+        };
+      })
+    };
+    var stamp = file.exportedAt.slice(0, 19).replace(/[:T]/g, '-');
+    UI.downloadJson(report.caseId + '-answers-' + stamp + '.json', file);
+  }
+
+  function showSemanticPanel(score) {
+    if (!DEBUG) return;
+    UI.renderDebugPanel(null);
+    semanticReport(score).then(function (report) {
+      UI.renderDebugPanel(report, function () { exportReport(report); });
+    });
+  }
+
   // ---------- Model inputs ----------
 
   // The sponsor's value for every control center input.
@@ -681,6 +773,7 @@
     if (index < 0) return;
     state.answers[index] = text;
     state.questionIndex = -1;
+    matchAnswer(index, text);
 
     if (index + 1 < state.caseData.committee.length) {
       UI.chat.closeReplies('Waiting for the committee…');
@@ -776,6 +869,7 @@
     UI.showScreen('result');
     // Let the screen appear first so the gauges visibly move.
     setTimeout(function () { UI.setGauges(state.gauges); }, 300);
+    showSemanticPanel(score);
   }
 
   // ---------- Start ----------
@@ -794,6 +888,7 @@
     UI.initCharts(hasTenorInput() ? data.model.inputs.tenor.max : data.model.fixed.tenor);
     UI.chat.init(onChatSend);
     refresh();
+    prepareSemantic();
 
     document.getElementById('reset-btn').addEventListener('click', resetToSponsor);
     document.getElementById('back-to-cases').addEventListener('click', leaveCase);

@@ -1037,3 +1037,19 @@ body { min-width: 1200px; }
     text-align: center;
   }
 }
+
+/* ---------- Debug panel (?debug=1) ---------- */
+
+.debug-panel { border: 1px dashed var(--border-strong); }
+.debug-panel .card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.debug-answer + .debug-answer { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+.debug-answer .answer-text { margin: 8px 0; }
+.debug-points { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.debug-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.debug-table th, .debug-table td { text-align: left; vertical-align: top; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+.debug-table th { color: var(--muted); font-weight: 600; }
+.debug-table td.num { text-align: right; white-space: nowrap; }
+.debug-table .zone-high { color: var(--good); }
+.debug-table .zone-middle { color: var(--warn); }
+.debug-table .zone-low { color: var(--bad); }
+.debug-table .debug-veto { color: var(--bad); font-weight: 600; }
