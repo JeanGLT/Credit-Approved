@@ -132,6 +132,19 @@ await test('A quote invented by the LLM is refused', async () => {
   const data = await (await worker.fetch(post(GOOD), ENV)).json();
   assert.strictEqual(data.ideas[0].present, false);
 });
+await test('Rate limit per IP: over the limit → 429, no LLM call', async () => {
+  const seen = [];
+  const limiter = { limit: async ({ key }) => { seen.push(key); return { success: seen.length <= 2 }; } };
+  const env = Object.assign({}, ENV, { RATE_LIMIT: limiter });
+  const withIp = () => { const r = post(GOOD); r.headers.set('CF-Connecting-IP', '203.0.113.7'); return r; };
+  assert.strictEqual((await worker.fetch(withIp(), env)).status, 200);
+  assert.strictEqual((await worker.fetch(withIp(), env)).status, 200);
+  const res = await worker.fetch(withIp(), env);
+  assert.strictEqual(res.status, 429);
+  assert.strictEqual((await res.json()).ok, false);
+  assert.deepStrictEqual(seen, ['203.0.113.7', '203.0.113.7', '203.0.113.7']);
+  assert.strictEqual(llmCalls.length, 2);
+});
 await test('No key configured → 500, no LLM call', async () => {
   const res = await worker.fetch(post(GOOD), Object.assign({}, ENV, { LLM_API_KEY: '' }));
   assert.strictEqual(res.status, 500);

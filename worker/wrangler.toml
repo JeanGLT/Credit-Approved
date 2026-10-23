@@ -17,3 +17,12 @@ LLM_MODEL = "openai/gpt-oss-120b"
 LLM_REASONING = "low"
 CASES_URL = "https://jeanglt.github.io/Credit-Approved/cases/"
 ALLOWED_ORIGINS = "https://jeanglt.github.io,http://localhost:8000"
+
+# At most 40 graded answers per minute from one IP address (a class may share one).
+[[ratelimits]]
+name = "RATE_LIMIT"
+namespace_id = "1001"
+
+  [ratelimits.simple]
+  limit = 40
+  period = 60

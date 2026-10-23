@@ -9,7 +9,9 @@
  * (read from the game site) with js/grader-prompt.js, so it cannot be used as
  * a free general-purpose LLM. The API key is a Cloudflare secret (LLM_API_KEY),
  * never in the code, the repository or the player's browser.
- * Settings are in wrangler.toml ([vars]).
+ * Settings are in wrangler.toml ([vars]). A rate limit per IP address
+ * (binding RATE_LIMIT, also in wrangler.toml) keeps one player from using up
+ * the LLM quota; it is generous because a whole class can share one school IP.
  */
 import GraderPrompt from '../js/grader-prompt.js';
 
@@ -78,6 +80,11 @@ export default {
     if (path !== '/grade' || request.method !== 'POST') return reply(404, { ok: false, error: 'Not found' }, origin);
     if (!origin) return reply(403, { ok: false, error: 'Origin not allowed' }, null);
     if (!env.LLM_API_KEY) return reply(500, { ok: false, error: 'No API key configured' }, origin);
+    if (env.RATE_LIMIT) {
+      const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+      const { success } = await env.RATE_LIMIT.limit({ key: ip });
+      if (!success) return reply(429, { ok: false, error: 'Too many answers, try again in a minute' }, origin);
+    }
 
     let input;
     try {
