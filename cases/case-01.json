@@ -388,6 +388,7 @@
         "ideas": [
           {
             "label": "Uses the independent engineer's P90",
+            "claim": "The loan is sized on the independent engineer's P90 yield, not on the sponsor's yield.",
             "any": [
               "p90",
               "p 90",
@@ -464,6 +465,7 @@
         "ideas": [
           {
             "label": "Curtailment haircut in the bank case",
+            "claim": "Production in the bank case is reduced for curtailment.",
             "any": [
               "haircut",
               "curtailment",
@@ -484,6 +486,7 @@
           },
           {
             "label": "Debt sized on that case",
+            "claim": "The loan is sized or reduced so that the DSCR meets the minimum on that curtailed case.",
             "any": [
               "sized",
               "sizing",
@@ -510,6 +513,7 @@
           },
           {
             "label": "Sponsor support or cash sweep until the grid upgrade",
+            "claim": "The sponsor covers curtailment losses, or a cash sweep applies, until the grid upgrade.",
             "any": [
               "cash sweep",
               "sweep",
@@ -537,6 +541,7 @@
           },
           {
             "label": "DSRA as a buffer",
+            "claim": "A debt service reserve account (DSRA) protects the bank as a buffer.",
             "any": [
               "dsra",
               "debt service reserve",
@@ -595,6 +600,7 @@
         "ideas": [
           {
             "label": "The requested amount breaks policy",
+            "claim": "The requested USD 28.5m breaks the bank's credit policy (DSCR below the 1.30x minimum).",
             "any": [
               "below",
               "under",
@@ -626,6 +632,7 @@
           },
           {
             "label": "Proposes a way to close",
+            "claim": "The bank proposes another way to close: a smaller loan or sponsor support.",
             "any": [
               "offer",
               "propose",

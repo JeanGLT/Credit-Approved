@@ -500,6 +500,7 @@
         "ideas": [
           {
             "label": "The PPA ends in year 12, merchant prices after",
+            "claim": "The PPA ends in year 12, and after that the plant sells at merchant (spot) prices.",
             "any": [
               "ppa ends",
               "end of the ppa",
@@ -526,6 +527,7 @@
           },
           {
             "label": "The sponsor's price is too high: the market study's low case",
+            "claim": "The sponsor's price after the PPA is too high; the market study's low case should be used.",
             "any": [
               "market study",
               "low case",
@@ -552,6 +554,7 @@
           },
           {
             "label": "Tenor cut to the PPA",
+            "claim": "The loan tenor is cut to match the PPA, or close to it.",
             "any": [
               "tenor",
               "shorter",
@@ -634,6 +637,7 @@
         "ideas": [
           {
             "label": "Costs rise after the warranty",
+            "claim": "Operating costs rise after the 5-year warranty period.",
             "any": [
               "warranty",
               "after year 5",
@@ -660,6 +664,7 @@
           },
           {
             "label": "Impact on the cash flow or the debt size",
+            "claim": "Higher operating costs reduce the cash flow, the DSCR or the maximum debt.",
             "any": [
               "cfads",
               "cash flow",
@@ -740,6 +745,7 @@
         "ideas": [
           {
             "label": "The group exposure limit",
+            "claim": "The loan counts against the Northpoint group exposure limit, which leaves limited headroom.",
             "any": [
               "limit",
               "exposure",
@@ -759,6 +765,7 @@
           },
           {
             "label": "Hold part and syndicate, or lend less",
+            "claim": "The bank holds only part of the loan and syndicates the rest, or lends less.",
             "any": [
               "syndicate",
               "syndicated",
@@ -832,6 +839,7 @@
         "ideas": [
           {
             "label": "KYC is not optional",
+            "claim": "Full KYC is mandatory and cannot be replaced by KYC on the listed parent.",
             "any": [
               "kyc",
               "know your customer",
@@ -857,6 +865,7 @@
           },
           {
             "label": "An unidentified shareholder",
+            "claim": "Silverbay's shareholder or beneficial owner is not identified.",
             "any": [
               "silverbay",
               "bvi",
@@ -878,6 +887,7 @@
           },
           {
             "label": "Offers a way forward",
+            "claim": "The bank offers a way forward, such as helping the client complete KYC quickly or approving subject to KYC.",
             "any": [
               "help",
               "quickly",
