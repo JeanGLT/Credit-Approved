@@ -6,6 +6,10 @@
 name = "credit-approved-grader"
 main = "index.js"
 compatibility_date = "2026-10-01"
+# Public address: https://credit-approved-grader.jeanglt.workers.dev
+workers_dev = true
+# No extra public address per version
+preview_urls = false
 
 [vars]
 LLM_URL = "https://api.groq.com/openai/v1/chat/completions"
