@@ -62,12 +62,12 @@
       "question": 0,
       "text": "P90",
       "expected": {
-        "points": 1,
+        "points": 0,
         "ideas": [
-          true
+          false
         ]
       },
-      "note": "short"
+      "note": "short (notes, not full sentences: no credit, as the game asks for full sentences)"
     },
     {
       "question": 0,
@@ -159,15 +159,15 @@
       "question": 1,
       "text": "Haircut + DSRA.",
       "expected": {
-        "points": 1,
+        "points": 0,
         "ideas": [
-          true,
           false,
           false,
-          true
+          false,
+          null
         ]
       },
-      "note": "short"
+      "note": "short (notes, not full sentences: no credit, as the game asks for full sentences)"
     },
     {
       "question": 1,

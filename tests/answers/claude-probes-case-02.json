@@ -46,14 +46,14 @@
       "question": 0,
       "text": "Merchant tail, low case, 12-year tenor.",
       "expected": {
-        "points": 2,
+        "points": 0,
         "ideas": [
-          true,
-          true,
-          true
+          null,
+          null,
+          null
         ]
       },
-      "note": "short"
+      "note": "short (notes, not full sentences: no credit, as the game asks for full sentences)"
     },
     {
       "question": 1,
@@ -131,13 +131,13 @@
       "question": 2,
       "text": "Group limit: hold 45m, syndicate the rest.",
       "expected": {
-        "points": 2,
+        "points": 0,
         "ideas": [
-          true,
+          false,
           true
         ]
       },
-      "note": "short"
+      "note": "short (notes, not full sentences: no credit, as the game asks for full sentences)"
     },
     {
       "question": 3,
