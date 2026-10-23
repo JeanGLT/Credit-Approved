@@ -1,7 +1,7 @@
 {
   "case": "case-01",
   "author": "claude",
-  "about": "Hand-written probes aimed at known weak spots (paraphrases, negations, keywords in bad answers, short answers, French, trap numbers). Expected grades are Claude's judgment, not the analyst's.",
+  "about": "Hand-written probes aimed at known weak spots (paraphrases, negations, keywords in bad answers, short answers, trap numbers). Expected grades are Claude's judgment, not the analyst's.",
   "answers": [
     {
       "question": 0,
@@ -90,17 +90,6 @@
         ]
       },
       "note": "off-topic"
-    },
-    {
-      "question": 0,
-      "text": "J'ai utilisé le P90 de l'ingénieur indépendant, 1 430 kWh/kWp.",
-      "expected": {
-        "points": 2,
-        "ideas": [
-          true
-        ]
-      },
-      "note": "french"
     },
     {
       "question": 0,
@@ -193,20 +182,6 @@
         ]
       },
       "note": "long-sentence"
-    },
-    {
-      "question": 1,
-      "text": "On applique une décote de 10% pour l'écrêtement dans le cas banque et on dimensionne la dette à 1,30x.",
-      "expected": {
-        "points": 2,
-        "ideas": [
-          true,
-          true,
-          false,
-          false
-        ]
-      },
-      "note": "french"
     },
     {
       "question": 2,

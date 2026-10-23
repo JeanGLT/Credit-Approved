@@ -399,5 +399,35 @@ test('Thresholds: default, then the case, then the question', () => {
 test('Custom thresholds change the zone', () =>
   assert.strictEqual(sem(0, 'x', [0.50], { high: 0.45, low: 0.30 }).ideas[0].zone, 'high'));
 
+// ---------------------------------------------------------------------
+console.log('\nCommittee answers, LLM grading (gradings injected)');
+
+function graded(present, feedback) {
+  return { ok: true, ideas: present.map((p) => ({ present: p, quote: p ? 'quote' : '' })), feedback: feedback || '' };
+}
+
+test('LLM ideas + an expected number → 2', () => {
+  const r = Rules.evaluateAnswerLLM(Q[0], 'I used the P90 of 1,430.', graded([true], 'Good.'), 2);
+  assert.strictEqual(r.method, 'llm');
+  assert.strictEqual(r.points, 2);
+  assert.strictEqual(r.feedback, 'Good.');
+});
+test('The LLM has the last word: no trap-number veto', () => {
+  const r = Rules.evaluateAnswerLLM(Q[0], "The sponsor's 1,750 is not credible; I used the P90.", graded([true]), 2);
+  assert.strictEqual(r.points, 1);
+  assert.ok(r.trapNumbers[0].fired, 'the trap is still reported');
+});
+test('LLM says absent → absent, even with keywords', () =>
+  assert.strictEqual(Rules.evaluateAnswerLLM(Q[0], 'I did not use the P90.', graded([false]), 2).points, 0));
+test('minIdeas still applies', () =>
+  assert.strictEqual(Rules.evaluateAnswerLLM(Q[1], 'A 10% haircut.', graded([true, false, false, false]), 2).points, 0));
+test('No usable grading → keywords with trap numbers', () => {
+  ['', null, { ok: false, error: 'Not valid JSON' }].forEach((g) => {
+    const r = Rules.evaluateAnswerLLM(Q[0], 'The independent engineer says 1,750.', g || null, 2);
+    assert.strictEqual(r.method, 'keywords');
+    assert.strictEqual(r.points, 0);
+  });
+});
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed === 0 ? 0 : 1);

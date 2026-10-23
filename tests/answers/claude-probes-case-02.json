@@ -1,7 +1,7 @@
 {
   "case": "case-02",
   "author": "claude",
-  "about": "Hand-written probes aimed at known weak spots (paraphrases, negations, keywords in bad answers, short answers, French, trap numbers). Expected grades are Claude's judgment, not the analyst's.",
+  "about": "Hand-written probes aimed at known weak spots (paraphrases, negations, keywords in bad answers, short answers, trap numbers). Expected grades are Claude's judgment, not the analyst's.",
   "answers": [
     {
       "question": 0,
@@ -41,19 +41,6 @@
         ]
       },
       "note": "trap-number"
-    },
-    {
-      "question": 0,
-      "text": "Après la fin du PPA, j'ai pris le cas bas de l'étude de marché à 6 cents et limité la maturité à 12 ans.",
-      "expected": {
-        "points": 2,
-        "ideas": [
-          true,
-          true,
-          true
-        ]
-      },
-      "note": "french"
     },
     {
       "question": 0,

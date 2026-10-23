@@ -22,6 +22,7 @@ const G = require(path.join(__dirname, '..', 'js', 'grader-prompt.js'));
 const URL = process.env.LLM_URL || 'https://api.groq.com/openai/v1/chat/completions';
 const MODEL = process.env.LLM_MODEL || 'openai/gpt-oss-120b';
 const KEY = process.env.LLM_API_KEY || process.env.GROQ_API_KEY;
+const REASONING = process.env.LLM_REASONING ?? 'low'; // gpt-oss models: low, medium or high; '' to leave out
 const PAUSE_MS = 2500; // stays under free-tier limits of about 30 requests per minute
 
 const files = process.argv.slice(2);
@@ -34,7 +35,10 @@ async function callLLM(messages) {
     const res = await fetch(URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${KEY}` },
-      body: JSON.stringify({ model: MODEL, messages, temperature: 0, response_format: { type: 'json_object' } })
+      body: JSON.stringify(Object.assign(
+        { model: MODEL, messages, temperature: 0, response_format: { type: 'json_object' } },
+        REASONING ? { reasoning_effort: REASONING } : {}
+      ))
     });
     if (res.status === 429 && attempt < 3) {
       const wait = Number(res.headers.get('retry-after')) || 10;
@@ -57,7 +61,7 @@ async function main() {
     console.error('No API key. Create a .env file with GROQ_API_KEY=... and run with: node --env-file=.env tests/llm.eval.js');
     process.exit(1);
   }
-  console.log(`Model ${MODEL} at ${URL}\n`);
+  console.log(`Model ${MODEL} at ${URL}${REASONING ? ` · reasoning ${REASONING}` : ''}\n`);
 
   const rows = [];
   let tokens = 0;
@@ -76,13 +80,11 @@ async function main() {
       } catch (err) {
         grading = { ok: false, error: err.message };
       }
-      // 1 = present, 0 = absent, so that the game rules treat the LLM like a sure similarity.
-      const scores = grading.ok ? grading.ideas.map((i) => (i.present ? 1 : 0)) : null;
       rows.push({
         caseId: set.case, index: a.question, text: a.text, note: a.note || '',
         expected: a.expected || {}, grading,
         old: Rules.evaluateAnswer(q, a.text, per),
-        llm: Rules.evaluateAnswerSemantic(q, a.text, scores, { high: 0.5, low: 0.5 }, per)
+        llm: Rules.evaluateAnswerLLM(q, a.text, grading, per)
       });
       process.stdout.write('.');
       await sleep(PAUSE_MS);
@@ -128,8 +130,7 @@ async function main() {
       console.log(`\n  ${r.caseId} Q${r.index + 1} (${r.note}) expected ${r.expected.points}, LLM ${r.llm.points}: "${shorten(r.text, 90)}"`);
       if (r.grading.ok) {
         r.grading.ideas.forEach((i, j) => {
-          const veto = r.llm.ideas[j].vetoedBy ? ` · vetoed by ${r.llm.ideas[j].vetoedBy}` : '';
-          console.log(`    idea ${j}: ${i.present ? 'present' : 'absent'}${i.said && !i.quoteFound ? ' (quote not found)' : ''}${i.quote ? ` "${shorten(i.quote, 60)}"` : ''}${veto}`);
+          console.log(`    idea ${j}: ${i.present ? 'present' : 'absent'}${i.said && !i.quoteFound ? ' (quote not found)' : ''}${i.quote ? ` "${shorten(i.quote, 60)}"` : ''}`);
         });
         console.log(`    feedback: ${r.grading.feedback}`);
       }

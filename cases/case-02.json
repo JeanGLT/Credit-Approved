@@ -935,6 +935,7 @@
     "1": "Right idea without the numbers",
     "2": "Right idea backed by the numbers"
   },
+  "graderContext": "Sponsor: Northpoint (listed), owner of 75% of the borrower; Silverbay, a BVI vehicle whose beneficial owner is unknown, holds 25%. PPA: 12 years at 7.6 cents/kWh; loan requested USD 69.75m over 18 years. The market study (Asia Energy Insight) low case is 6.0 cents after the PPA; the bank needs a 1.50x DSCR on merchant years and accepts at most 2 years beyond the PPA. Operating costs: USD 1.8m during the 5-year warranty, USD 3.0m from year 6 per the engineer; maximum debt USD 58.2m over 12 years. Northpoint group limit: USD 200m, USD 155m used, USD 45m available. KYC is required on every shareholder above 10%, up to its beneficial owner.",
   "rules": {
     "outcomeChecks": [
       {

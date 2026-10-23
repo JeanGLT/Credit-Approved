@@ -55,12 +55,25 @@ Requires [Node.js](https://nodejs.org) (nothing else to install):
 ```
 node tests/model.test.js
 node tests/game.test.js
+node tests/grader.test.js
 node tests/audit.test.js
 ```
 
-(or `npm test`, which runs all three.)
+(or `npm test`, which runs them all.) `grader.test.js` checks the LLM grading prompt and the reading of its reply, without any network call.
 
 `model.test.js` checks the financial formulas against reference figures. `game.test.js` checks the outcome, conditions, competition, score and gauge rules, and the analysis of committee answers. `audit.test.js` tries tens of thousands of proposals on every case and checks that the outcome, the score, the result table and the answer key never contradict each other: run it after creating or editing a case.
+
+### Evaluate the LLM grader
+
+`js/grader-prompt.js` builds the grading prompt from the case (`graderContext`, the question, `goodAnswer`, each idea's `claim`) and checks the LLM's JSON reply: an idea counts only when its quote is really in the answer. The LLM only says which ideas the answer asserts; the points come from the game rules (`evaluateAnswerLLM` in `js/game.js`: expected numbers, `minIdeas`, 0 to 2). Trap numbers do not veto the LLM's ideas, since it already tells a quoted figure from a rejected one; without a usable reply, keywords and trap numbers are used.
+
+To call a real LLM, put an API key in a `.env` file at the project root (git-ignored, never committed): `GROQ_API_KEY=...`. Any provider with the OpenAI chat format works (`LLM_URL`, `LLM_MODEL`, `LLM_API_KEY` in `.env`). Then:
+
+```
+node --env-file=.env tests/llm.eval.js tests/answers/case-01.json
+```
+
+It prints, for every answer, the expected points, the keyword points and the LLM points, then the errors of each method, failed calls, tokens used, and the LLM's quotes and feedback where it disagrees. `tests/answers/claude-probes-*.json` are probes written by Claude to aim at known weak spots; the analyst's own graded answers are the reference.
 
 ### Evaluate the semantic analysis
 
@@ -96,7 +109,8 @@ js/game.js            Game rules (score, outcome, gauges, answer analysis) and g
 cases/index.json      The list of cases shown on the welcome screen
 cases/case-0X.json    Case data: documents, model inputs, conditions, questions, rules, debrief
 content/case-0X.md    The same case written for humans (design document)
-tests/                Tests, run with Node; tests/answers/ holds graded answers for the evaluation
+js/grader-prompt.js   Prompt for the LLM grader and the strict reader of its reply (no network)
+tests/                Tests, run with Node; tests/answers/ holds graded answers for the evaluations
 package.json          Only for the evaluation script (npm install); the game needs no install
 ```
 
@@ -120,8 +134,9 @@ Main sections of the file:
 | `proposal.requestedLoan`, `proposal.loan` | Amount requested and the loan slider range |
 | `proposal.decisions` | The three decisions and their hints |
 | `proposal.conditions` | Each condition is good (`points` +1) or bad (−1): `label`, `role`, `points`, `burden` (weight on the sponsor), optional `gauges` effect, `reason` shown in the result. Optional: `rateIncrease` (0.005 = +50 bp), `redundantIfLoanAtMost` with `redundantPoints` and `redundantReason` for a condition that is only good when the loan is large enough |
-| `committee` | The questions, in order. Each person (`askedBy`) gets their own conversation. `analysis` lists the expected `ideas` (each with `any`: every accepted wording, and `examples`: 2 to 4 short reference sentences written the way a player would, for the semantic analysis), how many are needed (`minIdeas`), and the accepted `numbers` (`values`, optional `unit: "%"` and `tol`). Optional `trapNumbers`: each has a `label`, `values`, `unlessAny`, the `ideas` it refuses (indices) and a `feedback`; when the answer quotes one of `values` and none of `unlessAny`, those ideas are refused. Check that a good answer cannot quote the trap number alone. Optional `semantic` (`high`, `low`) overrides the similarity thresholds for this question |
+| `committee` | The questions, in order. Each person (`askedBy`) gets their own conversation. `analysis` lists the expected `ideas` (each with `any`: every accepted wording, and `examples`: 2 to 4 short reference sentences written the way a player would, for the semantic analysis, and `claim`: one sentence stating the idea, which the LLM grader checks), how many are needed (`minIdeas`), and the accepted `numbers` (`values`, optional `unit: "%"` and `tol`). Optional `trapNumbers`: each has a `label`, `values`, `unlessAny`, the `ideas` it refuses (indices) and a `feedback`; when the answer quotes one of `values` and none of `unlessAny`, those ideas are refused. Check that a good answer cannot quote the trap number alone. Optional `semantic` (`high`, `low`) overrides the similarity thresholds for this question |
 | `semantic` | Optional: `high` and `low` similarity thresholds for the whole case (defaults 0.55 and 0.35 in `js/game.js`) |
+| `graderContext` | The case's key facts in a few lines (parties, key figures, the bank's limits), given to the LLM grader so it understands names and numbers in the answers |
 | `committeeScale` | What 0, 1 and 2 points mean, shown in the result |
 | `rules.outcomeChecks` | Checks tried in order for any approval (as requested or with conditions), in the order of a real deal; the first that fails decides the outcome, and if none fails the outcome is `right`. Types: `policy` (Risk: gearing within `maxGearing` and loan within the bank's policy on the official `bankCase`, for the tenor proposed, unless a condition in `unlessAny` is ticked), `maxLoan` (`max`, unless a condition in `unlessAny` is ticked), `burden` (too heavy for the sponsor), `conservative` (loan below `minShare` of what policy allows on the `bankCase`), `requireCondition` (a condition must be ticked) |
 | `rules.competition` | `maxBurden` before the sponsor walks away, and the weight of a `loanCutBurden` and `tenorCutBurden` |

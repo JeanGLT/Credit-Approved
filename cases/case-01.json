@@ -708,6 +708,7 @@
     "1": "Right idea without the numbers",
     "2": "Right idea backed by the numbers"
   },
+  "graderContext": "Sponsor: Lotus Peak Renewables. Independent engineer: Meridian Technical Advisors (P50 1,520 kWh/kWp, P90 1,430 kWh/kWp); the sponsor uses 1,750 kWh/kWp. EVN, the grid operator and buyer, can curtail 8% to 12% of output without paying until a 220 kV line is built. Bank case: the P90 with 10% curtailment. Loan requested USD 28.5m (75% gearing): DSCR 1.20x on the bank case against a 1.30x minimum; maximum debt USD 26.3m. A competitor offers 80% gearing.",
   "rules": {
     "outcomeChecks": [
       {

@@ -435,6 +435,28 @@
     return result;
   }
 
+  /*
+   * Score one committee answer from an LLM grading (js/grader-prompt.js,
+   * parseGrading). The LLM has the last word on ideas: trap numbers do not
+   * veto them, since it already tells "1,750 is not credible" from "I used
+   * 1,750". Expected numbers, minIdeas and the 0 to 2 scale stay the same.
+   * Without a usable grading, falls back on keywords with trap numbers.
+   */
+  function evaluateAnswerLLM(question, answer, grading, maxPoints) {
+    if (!grading || !grading.ok) return evaluateAnswerSemantic(question, answer, null, null, maxPoints);
+    var analysis = question.analysis;
+    var numbers = extractNumbers(answer || '');
+    var ideas = analysis.ideas.map(function (idea, i) {
+      var g = grading.ideas[i] || {};
+      return { label: idea.label, hit: g.present === true, quote: g.quote || '' };
+    });
+    var result = answerResult(analysis, ideas, expectedNumbers(analysis, numbers), maxPoints);
+    result.method = 'llm';
+    result.feedback = grading.feedback || '';
+    result.trapNumbers = trapNumberResults(analysis, numbers);
+    return result;
+  }
+
   // ---------- Final score ----------
 
   function finalScore(caseData, evaluation, answers) {
@@ -466,6 +488,7 @@
     SEMANTIC_DEFAULTS: SEMANTIC_DEFAULTS,
     semanticThresholds: semanticThresholds,
     evaluateAnswerSemantic: evaluateAnswerSemantic,
+    evaluateAnswerLLM: evaluateAnswerLLM,
     finalScore: finalScore
   };
 
