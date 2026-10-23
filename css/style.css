@@ -1053,3 +1053,21 @@ body { min-width: 1200px; }
 .debug-table .zone-middle { color: var(--warn); }
 .debug-table .zone-low { color: var(--bad); }
 .debug-table .debug-veto { color: var(--bad); font-weight: 600; }
+
+/* ---------- AI grading on the result screen ---------- */
+
+.committee-note { margin: -8px 0 16px; }
+.qa-side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+.grader-badge {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.grader-badge.grader-ai { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.qa-feedback { font-size: 13px; color: var(--text); margin-top: 8px; padding: 8px 12px; background: var(--accent-soft); border-radius: var(--radius-sm); }
+.qa-feedback-label { font-weight: 600; color: var(--accent); }

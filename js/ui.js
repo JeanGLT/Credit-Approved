@@ -1203,6 +1203,11 @@
     var committee = el('section', 'card');
     committee.id = 'result-committee';
     committee.appendChild(el('h2', null, 'Committee'));
+    var aiCount = score.committee.filter(function (c) { return c.method === 'llm'; }).length;
+    committee.appendChild(el('p', 'muted small committee-note', aiCount
+      ? 'Your answers were analysed by an AI model against the committee\'s rubric' +
+        (aiCount < score.committee.length ? ' (the others with keyword matching, as the AI was unavailable).' : '.')
+      : 'Your answers were analysed with keyword matching (the AI grader was unavailable).'));
     data.committee.forEach(function (q, i) {
       var c = score.committee[i];
       var block = el('div', 'qa');
@@ -1211,7 +1216,12 @@
       who.appendChild(el('div', 'qa-who', q.askedBy + ' · ' + q.role));
       who.appendChild(el('div', 'qa-question', q.question));
       head.appendChild(who);
-      head.appendChild(el('span', 'qa-points points-' + c.points, c.points + ' / ' + c.max));
+      var side = el('div', 'qa-side');
+      side.appendChild(el('span', 'qa-points points-' + c.points, c.points + ' / ' + c.max));
+      var badge = el('span', 'grader-badge' + (c.method === 'llm' ? ' grader-ai' : ''),
+        c.method === 'llm' ? 'AI-analysed' : 'Keyword-analysed');
+      side.appendChild(badge);
+      head.appendChild(side);
       block.appendChild(head);
       var cols = el('div', 'qa-cols');
       var yours = el('div', 'qa-col');
@@ -1229,6 +1239,12 @@
       if (c.points < 2 && missing.length) hints.push('Missing idea: ' + missing.join('; '));
       if (c.points < 2 && noNumber) hints.push('No supporting number found');
       if (hints.length) block.appendChild(el('p', 'qa-hint', hints.join(' · ')));
+      if (c.method === 'llm' && c.feedback) {
+        var fb = el('p', 'qa-feedback');
+        fb.appendChild(el('span', 'qa-feedback-label', 'Committee feedback · '));
+        fb.appendChild(document.createTextNode(c.feedback));
+        block.appendChild(fb);
+      }
       committee.appendChild(block);
     });
     root.appendChild(committee);
@@ -1327,7 +1343,7 @@
     var titles = el('div');
     titles.appendChild(el('h2', null, 'Debug · semantic analysis (observation)'));
     titles.appendChild(el('p', 'muted small', report
-      ? 'Model ' + (report.model || '—') + ': ' + report.modelStatus + '. The official score does not use this.'
+      ? 'Official score: AI grader when available, keywords otherwise. Semantic model ' + (report.model || '—') + ': ' + report.modelStatus + ' (observation only).'
       : 'Computing the semantic scores…'));
     head.appendChild(titles);
     if (report) {
@@ -1346,14 +1362,15 @@
       block.appendChild(el('div', 'qa-question', a.question.question));
       block.appendChild(el('p', 'answer-text', a.text || '—'));
       block.appendChild(el('p', 'debug-points',
-        'Old method: ' + a.official.points + ' / ' + a.official.max +
-        ' · New method (' + a.semantic.method + '): ' + a.semantic.points + ' / ' + a.semantic.max +
+        'Official (' + (a.official.method === 'llm' ? 'AI' : 'keywords') + '): ' + a.official.points + ' / ' + a.official.max +
+        ' · Keywords: ' + a.keywords.points + ' / ' + a.keywords.max +
+        ' · Semantic (' + a.semantic.method + '): ' + a.semantic.points + ' / ' + a.semantic.max +
         ' · Thresholds: low ' + t.low + ', high ' + t.high +
         ' · Ideas needed: ' + a.semantic.ideasNeeded));
 
       var table = el('table', 'debug-table');
       var tr = el('tr');
-      ['Idea', 'Similarity', 'Zone', 'Keyword', 'Veto', 'Old', 'New', 'Closest sentence'].forEach(function (h) {
+      ['Idea', 'Similarity', 'Zone', 'Keyword', 'Veto', 'Keywords', 'Semantic', 'AI', 'AI quote · closest sentence'].forEach(function (h) {
         tr.appendChild(el('th', null, h));
       });
       table.appendChild(el('thead')).appendChild(tr);
@@ -1366,12 +1383,18 @@
         row.appendChild(el('td', idea.zone ? 'zone-' + idea.zone : null, idea.zone || 'keywords only'));
         row.appendChild(el('td', null, idea.keyword || '—'));
         row.appendChild(el('td', idea.vetoedBy ? 'debug-veto' : null, idea.vetoedBy || '—'));
-        row.appendChild(el('td', null, a.official.ideas[j].hit ? 'yes' : 'no'));
+        var aiIdea = a.official.method === 'llm' ? a.official.ideas[j] : null;
+        row.appendChild(el('td', null, a.keywords.ideas[j].hit ? 'yes' : 'no'));
         row.appendChild(el('td', null, idea.hit ? 'yes' : 'no'));
-        row.appendChild(el('td', 'muted', m ? '“' + m.sentence + '” ↔ “' + m.reference + '”' : '—'));
+        row.appendChild(el('td', null, aiIdea ? (aiIdea.hit ? 'yes' : 'no') : '—'));
+        row.appendChild(el('td', 'muted', (aiIdea && aiIdea.quote ? 'AI: “' + aiIdea.quote + '” · ' : '') +
+          (m ? '“' + m.sentence + '” ↔ “' + m.reference + '”' : '—')));
         body.appendChild(row);
       });
       block.appendChild(table);
+      if (a.official.method === 'llm' && a.official.feedback) {
+        block.appendChild(el('p', 'qa-feedback', 'AI feedback · ' + a.official.feedback));
+      }
       a.semantic.trapNumbers.filter(function (x) { return x.fired; }).forEach(function (x) {
         block.appendChild(el('p', 'qa-hint', 'Trap number · ' + x.label + ': ' + x.feedback));
       });

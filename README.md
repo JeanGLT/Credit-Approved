@@ -28,13 +28,15 @@ Designed for a computer screen (laptop or desktop), for classes, interview pract
 | Analysis | 6 | 5 | The traps you spotted: control center values, or conditions ticked, when you sent the proposal |
 | Decision | 4 | 4 | The outcome your proposal leads to |
 | Conditions | 4 | 3 | +1 per good condition, −1 per bad one (case 01 also gives +1 for a clean structure) |
-| Committee | 6 | 8 | 0 to 2 per answer: the expected ideas, backed by numbers |
+| Committee | 6 | 8 | 0 to 2 per answer: the expected ideas (judged by an AI model), backed by numbers |
 
-Committee answers are analysed with keywords and numbers. Numbers are read in any format (`1,430`, `1.430`, `1 430`; `26m`, `26 million`, `26,000,000`; `1.20x`, `1,20x`).
+**AI grading of committee answers.** Each answer is sent, as soon as the player sends it, to a small relay (`worker/`, a Cloudflare Worker) that asks an LLM (Groq, `openai/gpt-oss-120b`) which of the expected ideas the answer asserts, quoting it. The points then come from the game rules: expected numbers, `minIdeas`, 0 to 2. On the result screen each answer shows "AI-analysed" and the committee's feedback. If the relay does not answer within 12 seconds, or is over its limits, that answer is graded with keywords and shows "Keyword-analysed"; the game never waits longer nor breaks. Add `?ai=0` to the address to grade with keywords only. Answers are sent to the relay and the LLM provider for grading; Credit Approved does not store them, and the welcome screen says so.
+
+Without AI, committee answers are analysed with keywords and numbers. Numbers are read in any format (`1,430`, `1.430`, `1 430`; `26m`, `26 million`, `26,000,000`; `1.20x`, `1,20x`).
 
 **Semantic analysis (observation).** A second score is computed with a small open-source model that runs in the player's browser ([Transformers.js](https://huggingface.co/docs/transformers.js) and `all-MiniLM-L6-v2`). It does not change the official score yet. For each idea, the closest pair between a sentence of the answer and the idea's `examples` gives a similarity: at or above `high` (0.55 by default) the idea is found; between `low` (0.35) and `high`, only with one of its keywords; below `low`, it is missing. Trap numbers then refuse ideas (for example, the sponsor's yield quoted without the engineer's P90). The 0 to 2 scale is unchanged. If the model cannot load, keywords are used alone.
 
-Add `?debug=1` to the address (http://localhost:8000/?case=case-01&debug=1) to load the model and see, on the result screen, both scores for every answer and idea, with a button to export the answers and scores as JSON. Without `?debug=1` the model is not downloaded. Answers never leave the browser: only the library (from jsdelivr) and the model weights (about 23 MB, from huggingface.co) are downloaded, then cached.
+Add `?debug=1` to the address (http://localhost:8000/?case=case-01&debug=1) to load the model and see, on the result screen, both scores for every answer and idea, with the AI grading next to them and a button to export the answers and all the scores as JSON. Without `?debug=1` the model is not downloaded. The semantic model runs in the browser and sends nothing: only the library (from jsdelivr) and the model weights (about 23 MB, from huggingface.co) are downloaded, then cached.
 
 ## Play it on your computer
 
@@ -56,12 +58,25 @@ Requires [Node.js](https://nodejs.org) (nothing else to install):
 node tests/model.test.js
 node tests/game.test.js
 node tests/grader.test.js
+node tests/worker.test.mjs
 node tests/audit.test.js
 ```
 
 (or `npm test`, which runs them all.) `grader.test.js` checks the LLM grading prompt and the reading of its reply, without any network call.
 
 `model.test.js` checks the financial formulas against reference figures. `game.test.js` checks the outcome, conditions, competition, score and gauge rules, and the analysis of committee answers. `audit.test.js` tries tens of thousands of proposals on every case and checks that the outcome, the score, the result table and the answer key never contradict each other: run it after creating or editing a case.
+
+### The grading relay (Cloudflare Worker)
+
+`worker/index.js` answers `POST /grade` with `{ caseId, question, answer }`. It builds the prompt itself from the case published on the site (the player never sends a prompt), calls the LLM with the API key kept as a Cloudflare secret, and returns the ideas, quotes and feedback. It only accepts the game's own origins (`ALLOWED_ORIGINS`), checks the inputs before any LLM call, and allows 40 graded answers per minute per IP address (a class may share one). Settings are in `worker/wrangler.toml`; `tests/worker.test.mjs` runs it in Node with a fake site and a fake LLM.
+
+To deploy after a change (Wrangler is a dev dependency, logged in once with `npx wrangler login`):
+
+```
+npx wrangler deploy --config worker/wrangler.toml
+```
+
+The API key is set once with `npx wrangler secret put LLM_API_KEY --config worker/wrangler.toml`. The relay reads cases from the live site and keeps them 5 minutes, so push case changes first.
 
 ### Evaluate the LLM grader
 
@@ -111,7 +126,8 @@ cases/case-0X.json    Case data: documents, model inputs, conditions, questions,
 content/case-0X.md    The same case written for humans (design document)
 js/grader-prompt.js   Prompt for the LLM grader and the strict reader of its reply (no network)
 tests/                Tests, run with Node; tests/answers/ holds graded answers for the evaluations
-package.json          Only for the evaluation script (npm install); the game needs no install
+worker/               The grading relay (Cloudflare Worker) and its settings
+package.json          Only for the evaluation scripts and the relay (npm install); the game needs no install
 ```
 
 Charts use [Chart.js](https://www.chartjs.org) and the semantic analysis uses [Transformers.js](https://huggingface.co/docs/transformers.js), both loaded from a CDN. There is no framework and no build step.

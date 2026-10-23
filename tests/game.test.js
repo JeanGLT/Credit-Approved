@@ -429,5 +429,20 @@ test('No usable grading → keywords with trap numbers', () => {
   });
 });
 
+test('Final score: AI gradings replace keywords answer by answer', () => {
+  const ev = Rules.evaluateProposal(caseData, proposal('conditions', 26.0, ['dsra', 'sweep', 'lockup'], BANK));
+  const answers = ['I did not use the P90.', Q[1].goodAnswer, Q[2].goodAnswer];
+  const plain = Rules.finalScore(caseData, ev, answers);
+  assert.strictEqual(plain.committee[0].points, 1, 'keywords are fooled by the negation');
+  assert.ok(plain.committee.every((c) => c.method === 'keywords'));
+  const withAi = Rules.finalScore(caseData, ev, answers, [graded([false], 'You rejected the P90.'), null, { ok: false }]);
+  assert.strictEqual(withAi.committee[0].method, 'llm');
+  assert.strictEqual(withAi.committee[0].points, 0);
+  assert.strictEqual(withAi.committee[0].feedback, 'You rejected the P90.');
+  assert.strictEqual(withAi.committee[1].method, 'keywords');
+  assert.strictEqual(withAi.committee[2].method, 'keywords');
+  assert.strictEqual(withAi.total, plain.total - 1);
+});
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed === 0 ? 0 : 1);

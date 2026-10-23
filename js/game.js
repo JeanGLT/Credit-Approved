@@ -459,9 +459,20 @@
 
   // ---------- Final score ----------
 
-  function finalScore(caseData, evaluation, answers) {
+  /*
+   * gradings (optional): one LLM grading per answer, from the grading relay.
+   * An answer with a usable grading is scored by evaluateAnswerLLM; any other
+   * answer by keywords, exactly as without AI.
+   */
+  function finalScore(caseData, evaluation, answers, gradings) {
     var per = caseData.rules.score.committeePerQuestion;
-    var committee = caseData.committee.map(function (q, i) { return evaluateAnswer(q, answers[i], per); });
+    var committee = caseData.committee.map(function (q, i) {
+      var g = gradings && gradings[i];
+      if (g && g.ok) return evaluateAnswerLLM(q, answers[i], g, per);
+      var r = evaluateAnswer(q, answers[i], per);
+      r.method = 'keywords';
+      return r;
+    });
     var committeePoints = committee.reduce(function (sum, c) { return sum + c.points; }, 0);
     var trapPoints = evaluation.traps.reduce(function (sum, t) { return sum + t.points; }, 0);
     var trapMax = evaluation.traps.reduce(function (sum, t) { return sum + t.max; }, 0);
@@ -531,10 +542,39 @@
     submitted: null,       // frozen copy of the proposal when sent to committee
     questionIndex: -1,     // committee question waiting for an answer
     answers: [],           // committee answers
+    gradings: [],          // per answer: AI grading promise, then the grading or null
     committeeFinished: false,
     finished: false,       // the result screen has been shown (no confirmation needed to leave)
     gauges: { revenue: GAUGE_START, risk: GAUGE_START, credibility: GAUGE_START }
   };
+
+  // ---------- AI grading of committee answers ----------
+  // Each answer goes to the grading relay (worker/) as soon as it is sent.
+  // The committee's closing message waits for the gradings (each gives up
+  // after AI_TIMEOUT_MS); an answer without one is graded with keywords.
+  // ?ai=0 in the address turns AI grading off.
+
+  var GRADER_URL = 'https://credit-approved-grader.jeanglt.workers.dev/grade';
+  var AI_TIMEOUT_MS = 12000;
+  var AI_MAX_ANSWER = 2000; // same limit as the relay
+  var aiEnabled = !!GRADER_URL && new URLSearchParams(window.location.search).get('ai') !== '0';
+
+  // A promise of the grading ({ ok, ideas, feedback }) or of null.
+  function requestGrading(index, text) {
+    if (!aiEnabled || !String(text || '').trim()) return Promise.resolve(null);
+    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timer = setTimeout(function () { if (controller) controller.abort(); }, AI_TIMEOUT_MS);
+    return fetch(GRADER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ caseId: state.caseData.id, question: index, answer: String(text).slice(0, AI_MAX_ANSWER) }),
+      signal: controller ? controller.signal : undefined
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (data) { return data && data.ok ? data : null; })
+      .catch(function () { return null; })
+      .then(function (g) { clearTimeout(timer); return g; });
+  }
 
   // ---------- Semantic analysis (observation only) ----------
   // A second committee score, computed next to the official one and shown
@@ -581,6 +621,7 @@
             question: q,
             text: state.answers[i] || '',
             official: score.committee[i],
+            keywords: evaluateAnswer(q, state.answers[i], per),
             semantic: evaluateAnswerSemantic(q, state.answers[i], scores, semanticThresholds(data, q), per),
             matches: matches
           };
@@ -601,7 +642,14 @@
           question: i,
           text: a.text,
           expected: { points: null, ideas: a.question.analysis.ideas.map(function () { return null; }) },
-          official: { points: a.official.points, ideas: a.official.ideas.map(function (x) { return x.hit; }) },
+          official: {
+            method: a.official.method,
+            points: a.official.points,
+            ideas: a.official.ideas.map(function (x) { return x.hit; }),
+            quotes: a.official.method === 'llm' ? a.official.ideas.map(function (x) { return x.quote; }) : undefined,
+            feedback: a.official.feedback
+          },
+          keywords: { points: a.keywords.points, ideas: a.keywords.ideas.map(function (x) { return x.hit; }) },
           semantic: {
             method: a.semantic.method,
             points: a.semantic.points,
@@ -761,6 +809,7 @@
     proposal.evaluation = evaluateProposal(state.caseData, proposal);
     state.submitted = proposal;
     state.answers = [];
+    state.gradings = [];
     refresh();
     startCommittee();
   }
@@ -793,6 +842,7 @@
     if (index < 0) return;
     state.answers[index] = text;
     state.questionIndex = -1;
+    state.gradings[index] = requestGrading(index, text);
     matchAnswer(index, text);
 
     if (index + 1 < state.caseData.committee.length) {
@@ -802,11 +852,16 @@
     }
     UI.chat.closeReplies('The committee is deliberating.');
     var closing = state.caseData.messages.committeeClosing;
+    // The committee "deliberates" until every AI grading is back (or has given up).
+    var deliberation = Promise.all(state.gradings.map(function (p) { return p || null; }));
     UI.chat.typing(closing.from, closing.role, TYPING_DELAY, function () {
-      UI.chat.receive(closing);
-      state.committeeFinished = true;
-      refresh();
-      UI.showResultsBar(showResult);
+      deliberation.then(function (gradings) {
+        state.gradings = gradings;
+        UI.chat.receive(closing);
+        state.committeeFinished = true;
+        refresh();
+        UI.showResultsBar(showResult);
+      });
     });
   }
 
@@ -874,7 +929,7 @@
 
   function showResult() {
     var evaluation = state.submitted.evaluation;
-    var score = finalScore(state.caseData, evaluation, state.answers);
+    var score = finalScore(state.caseData, evaluation, state.answers, state.gradings);
     var before = Object.assign({}, state.gauges);
     state.gauges = applyGauges(state.gauges, evaluation.gauges.deltas);
     state.finished = true;
