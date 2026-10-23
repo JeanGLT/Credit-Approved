@@ -1,0 +1,195 @@
+{
+  "case": "case-02",
+  "author": "claude",
+  "about": "Hand-written probes aimed at known weak spots (paraphrases, negations, keywords in bad answers, short answers, French, trap numbers). Expected grades are Claude's judgment, not the analyst's.",
+  "answers": [
+    {
+      "question": 0,
+      "text": "From year 13 the wind farm has no contract and sells at whatever the market pays; I priced that at 6.0 cents, below the developer's view, and kept the loan inside the contract term.",
+      "expected": {
+        "points": 2,
+        "ideas": [
+          true,
+          true,
+          true
+        ]
+      },
+      "note": "paraphrase"
+    },
+    {
+      "question": 0,
+      "text": "Spot prices have risen three years in a row, so 7.6 cents is fine and 18 years is OK.",
+      "expected": {
+        "points": 0,
+        "ideas": [
+          null,
+          false,
+          false
+        ]
+      },
+      "note": "bad+keywords"
+    },
+    {
+      "question": 0,
+      "text": "Not the sponsor's 7.6 cents but the low case of 6.0 cents, so a 12-year tenor.",
+      "expected": {
+        "points": 2,
+        "ideas": [
+          null,
+          true,
+          true
+        ]
+      },
+      "note": "trap-number"
+    },
+    {
+      "question": 0,
+      "text": "Après la fin du PPA, j'ai pris le cas bas de l'étude de marché à 6 cents et limité la maturité à 12 ans.",
+      "expected": {
+        "points": 2,
+        "ideas": [
+          true,
+          true,
+          true
+        ]
+      },
+      "note": "french"
+    },
+    {
+      "question": 0,
+      "text": "Merchant tail, low case, 12-year tenor.",
+      "expected": {
+        "points": 2,
+        "ideas": [
+          true,
+          true,
+          true
+        ]
+      },
+      "note": "short"
+    },
+    {
+      "question": 1,
+      "text": "Once the manufacturer's cover expires after year five, O&M will cost around USD 3.0m, which eats into what is left to pay the bank.",
+      "expected": {
+        "points": 2,
+        "ideas": [
+          true,
+          true
+        ]
+      },
+      "note": "paraphrase"
+    },
+    {
+      "question": 1,
+      "text": "Yes, USD 1.8m is realistic, the full-service agreement covers everything and the DSCR is fine.",
+      "expected": {
+        "points": 0,
+        "ideas": [
+          false,
+          false
+        ]
+      },
+      "note": "bad+keywords"
+    },
+    {
+      "question": 1,
+      "text": "Max debt is 65.3m with these costs.",
+      "expected": {
+        "points": 0,
+        "ideas": [
+          false,
+          false
+        ]
+      },
+      "note": "trap-number"
+    },
+    {
+      "question": 1,
+      "text": "The 1.8m only holds during the warranty; from year 6 it is 3.0m, so max debt drops from 65.3m to 58.2m.",
+      "expected": {
+        "points": 2,
+        "ideas": [
+          true,
+          true
+        ]
+      },
+      "note": "trap-number"
+    },
+    {
+      "question": 2,
+      "text": "Northpoint already uses 155m of its 200m line with us, so we keep 45m and sell the balance to other lenders.",
+      "expected": {
+        "points": 2,
+        "ideas": [
+          true,
+          true
+        ]
+      },
+      "note": "paraphrase"
+    },
+    {
+      "question": 2,
+      "text": "Yes, we can hold all 69.75m on our balance sheet, the group is a strong listed client.",
+      "expected": {
+        "points": 0,
+        "ideas": [
+          false,
+          false
+        ]
+      },
+      "note": "bad+keywords"
+    },
+    {
+      "question": 2,
+      "text": "Group limit: hold 45m, syndicate the rest.",
+      "expected": {
+        "points": 2,
+        "ideas": [
+          true,
+          true
+        ]
+      },
+      "note": "short"
+    },
+    {
+      "question": 3,
+      "text": "No. We need to know who ultimately owns the 25% held through the BVI vehicle before we sign; I will send them the document list today so Friday is still possible.",
+      "expected": {
+        "points": 2,
+        "ideas": [
+          true,
+          true,
+          true
+        ]
+      },
+      "note": "paraphrase"
+    },
+    {
+      "question": 3,
+      "text": "Yes, Northpoint is listed so its KYC covers Silverbay, let's close on Friday.",
+      "expected": {
+        "points": 0,
+        "ideas": [
+          false,
+          false,
+          false
+        ]
+      },
+      "note": "bad+keywords"
+    },
+    {
+      "question": 3,
+      "text": "KYC is not required for minority shareholders, so we can skip it.",
+      "expected": {
+        "points": 0,
+        "ideas": [
+          false,
+          false,
+          false
+        ]
+      },
+      "note": "negation"
+    }
+  ]
+}

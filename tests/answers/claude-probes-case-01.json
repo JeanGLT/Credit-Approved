@@ -1,0 +1,284 @@
+{
+  "case": "case-01",
+  "author": "claude",
+  "about": "Hand-written probes aimed at known weak spots (paraphrases, negations, keywords in bad answers, short answers, French, trap numbers). Expected grades are Claude's judgment, not the analyst's.",
+  "answers": [
+    {
+      "question": 0,
+      "text": "I relied on the lender's advisor's conservative yield estimate rather than the developer's figure.",
+      "expected": {
+        "points": 1,
+        "ideas": [
+          true
+        ]
+      },
+      "note": "paraphrase"
+    },
+    {
+      "question": 0,
+      "text": "We took the downside production that is exceeded 90% of the time, 1,430 kWh/kWp.",
+      "expected": {
+        "points": 2,
+        "ideas": [
+          true
+        ]
+      },
+      "note": "paraphrase"
+    },
+    {
+      "question": 0,
+      "text": "We base the sizing on Meridian's one-year downside case, 71.5 GWh.",
+      "expected": {
+        "points": 2,
+        "ideas": [
+          true
+        ]
+      },
+      "note": "paraphrase"
+    },
+    {
+      "question": 0,
+      "text": "The sponsor's own figure: it is more realistic than the independent engineer, who is too conservative.",
+      "expected": {
+        "points": 0,
+        "ideas": [
+          false
+        ]
+      },
+      "note": "bad+keywords"
+    },
+    {
+      "question": 0,
+      "text": "I did not use the P90, the sponsor's yield is fine.",
+      "expected": {
+        "points": 0,
+        "ideas": [
+          false
+        ]
+      },
+      "note": "negation"
+    },
+    {
+      "question": 0,
+      "text": "P90",
+      "expected": {
+        "points": 1,
+        "ideas": [
+          true
+        ]
+      },
+      "note": "short"
+    },
+    {
+      "question": 0,
+      "text": "The sponsor's 1,750 is unrealistic; I used the P90.",
+      "expected": {
+        "points": 1,
+        "ideas": [
+          true
+        ]
+      },
+      "note": "trap-number"
+    },
+    {
+      "question": 0,
+      "text": "Which production number did you use to size the loan?",
+      "expected": {
+        "points": 0,
+        "ideas": [
+          false
+        ]
+      },
+      "note": "off-topic"
+    },
+    {
+      "question": 0,
+      "text": "J'ai utilisé le P90 de l'ingénieur indépendant, 1 430 kWh/kWp.",
+      "expected": {
+        "points": 2,
+        "ideas": [
+          true
+        ]
+      },
+      "note": "french"
+    },
+    {
+      "question": 0,
+      "text": "I used the indepedent enginer's P-90 yeild of 1430.",
+      "expected": {
+        "points": 2,
+        "ideas": [
+          true
+        ]
+      },
+      "note": "typos"
+    },
+    {
+      "question": 0,
+      "text": "P90 P50 independent IE Meridian",
+      "expected": {
+        "points": 0,
+        "ideas": [
+          false
+        ]
+      },
+      "note": "keyword-stuffing"
+    },
+    {
+      "question": 1,
+      "text": "EVN may cut output by 8 to 12% until the new line, so I took 10% off production and lent less so the ratio holds at 1.30x.",
+      "expected": {
+        "points": 2,
+        "ideas": [
+          true,
+          true,
+          false,
+          false
+        ]
+      },
+      "note": "paraphrase"
+    },
+    {
+      "question": 1,
+      "text": "Lotus Peak must inject cash to cover any lost revenue until the 220 kV line is energised, and six months of debt service sit in a reserve.",
+      "expected": {
+        "points": 1,
+        "ideas": [
+          false,
+          false,
+          true,
+          true
+        ]
+      },
+      "note": "paraphrase"
+    },
+    {
+      "question": 1,
+      "text": "Curtailment is not a real risk, EVN never curtails solar plants, so there is no need to resize or add a DSRA.",
+      "expected": {
+        "points": 0,
+        "ideas": [
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "note": "bad+keywords"
+    },
+    {
+      "question": 1,
+      "text": "Haircut + DSRA.",
+      "expected": {
+        "points": 1,
+        "ideas": [
+          true,
+          false,
+          false,
+          true
+        ]
+      },
+      "note": "short"
+    },
+    {
+      "question": 1,
+      "text": "We protect the bank by applying a curtailment haircut in the bank case and sizing the debt at 1.30x on it while a cash sweep runs until the grid upgrade and a six-month DSRA is funded at close.",
+      "expected": {
+        "points": 2,
+        "ideas": [
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "note": "long-sentence"
+    },
+    {
+      "question": 1,
+      "text": "On applique une décote de 10% pour l'écrêtement dans le cas banque et on dimensionne la dette à 1,30x.",
+      "expected": {
+        "points": 2,
+        "ideas": [
+          true,
+          true,
+          false,
+          false
+        ]
+      },
+      "note": "french"
+    },
+    {
+      "question": 2,
+      "text": "Matching them would leave the ratio at 1.20x, which our committee won't accept. What we can do is USD 26m, or the full amount if Lotus Peak backs the curtailment risk.",
+      "expected": {
+        "points": 2,
+        "ideas": [
+          true,
+          true
+        ]
+      },
+      "note": "paraphrase"
+    },
+    {
+      "question": 2,
+      "text": "We can't, full stop. Tell them to take the other offer.",
+      "expected": {
+        "points": 0,
+        "ideas": [
+          false,
+          false
+        ]
+      },
+      "note": "bad+keywords"
+    },
+    {
+      "question": 2,
+      "text": "We should match it, the client is strategic and 80% is market standard.",
+      "expected": {
+        "points": 0,
+        "ideas": [
+          false,
+          false
+        ]
+      },
+      "note": "bad"
+    },
+    {
+      "question": 2,
+      "text": "At 28.5m the DSCR is 1.36x without curtailment but 1.20x on the bank case, below 1.30x; we can offer 26m.",
+      "expected": {
+        "points": 2,
+        "ideas": [
+          true,
+          true
+        ]
+      },
+      "note": "trap-number"
+    },
+    {
+      "question": 2,
+      "text": "The 28.5m does not breach our policy, so we can match it.",
+      "expected": {
+        "points": 0,
+        "ideas": [
+          false,
+          false
+        ]
+      },
+      "note": "negation"
+    },
+    {
+      "question": 2,
+      "text": "Below policy. Offer 26m.",
+      "expected": {
+        "points": 2,
+        "ideas": [
+          true,
+          true
+        ]
+      },
+      "note": "short"
+    }
+  ]
+}
