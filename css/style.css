@@ -1071,3 +1071,29 @@ body { min-width: 1200px; }
 .grader-badge.grader-ai { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
 .qa-feedback { font-size: 13px; color: var(--text); margin-top: 8px; padding: 8px 12px; background: var(--accent-soft); border-radius: var(--radius-sm); }
 .qa-feedback-label { font-weight: 600; color: var(--accent); }
+
+/* ---------- Conditions and the sponsor's patience (result) ---------- */
+
+.patience-list { font-size: 14px; }
+.patience-row { display: grid; grid-template-columns: minmax(0, 1fr) 96px 110px; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--border); }
+.patience-head { font-size: 12px; color: var(--muted); border-top: 0; padding-top: 0; }
+.patience-head span:nth-child(2) { text-align: center; }
+.patience-head span:nth-child(3) { text-align: right; }
+.patience-label { font-weight: 500; }
+.patience-note { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.patience-chip { font-size: 12px; font-weight: 600; text-align: center; padding: 3px 8px; border-radius: 999px; }
+.chip-good { background: var(--good-soft); color: var(--good); }
+.chip-bad { background: var(--bad-soft); color: var(--bad); }
+.chip-missed { background: var(--warn-soft); color: var(--warn); }
+.chip-neutral { background: var(--bg); color: var(--muted); }
+.patience-dots { display: flex; gap: 4px; justify-content: flex-end; }
+.patience-dot { width: 12px; height: 12px; border-radius: 3px; background: var(--sponsor); }
+.patience-title { font-size: 13px; color: var(--muted); margin-top: 18px; }
+.patience-meter { display: flex; gap: 5px; margin: 8px 0; }
+.patience-slot { width: 34px; height: 20px; border-radius: 5px; border: 1px solid var(--border-strong); }
+.patience-slot.is-used { background: var(--sponsor); border-color: var(--sponsor); }
+.patience-slot.is-over { background: var(--bad); border-color: var(--bad); }
+.patience-slot.is-extra { border-style: dashed; }
+.patience-verdict { font-size: 14px; font-weight: 600; }
+.patience-verdict.is-ok { color: var(--good); }
+.patience-verdict.is-over { color: var(--bad); }

@@ -741,6 +741,7 @@
       }
     ],
     "competition": {
+      "sponsor": "Lotus Peak",
       "maxBurden": 5,
       "loanCutBurden": 2,
       "explain": "Each condition, and any cut to the amount requested, weighs on the sponsor. Above 5, Lotus Peak takes the competitor's 80% offer."

@@ -833,7 +833,7 @@
       "askedBy": "Kevin Lau",
       "role": "Director, Energy Coverage",
       "question": "Northpoint won't say who is behind Silverbay, their 25% partner. They say Northpoint is listed, so KYC on Northpoint should be enough. Can we accept that and close on Friday?",
-      "goodAnswer": "No. Silverbay holds 25% indirectly and its beneficial owner is unknown; KYC on the listed parent does not cover it. Full KYC on all shareholders above 10% is required before signing. It does not stop the approval: offer to help them provide it quickly so we can still close.",
+      "goodAnswer": "No. KYC is required on every shareholder above 10%, and Silverbay (25%) has an unknown owner. We can still approve, subject to full KYC before signing.",
       "analysis": {
         "minIdeas": 2,
         "ideas": [
@@ -981,6 +981,7 @@
       }
     ],
     "competition": {
+      "sponsor": "Northpoint",
       "maxBurden": 7,
       "loanCutBurden": 2,
       "tenorCutBurden": 1,

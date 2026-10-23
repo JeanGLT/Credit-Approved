@@ -1084,31 +1084,71 @@
         proposal.loan > loanRange.max ? 'Above what the bank case supports for this tenor.' : 'Well below what the bank could lend for this tenor.');
     }
 
-    section('Conditions');
-    var bestSet = {};
-    best.conditions.forEach(function (id) { bestSet[id] = true; });
-    var yourSet = proposal.decision === 'conditions' ? proposal.conditions : {};
-    data.proposal.conditions.forEach(function (c) {
-      var yours = !!yourSet[c.id];
-      // Conditions that depend on the amount (syndication, sponsor guarantee)
-      // are only wanted when the player's loan is above their threshold.
-      var wanted = c.redundantIfLoanAtMost !== undefined
-        ? proposal.loan > c.redundantIfLoanAtMost + 1e-9
-        : !!bestSet[c.id];
-      if (!yours && !wanted) return;
-      var item = evaluation.conditions.items.filter(function (i) { return i.id === c.id; })[0];
-      row(c.label, yours ? 'Ticked' : '—', wanted ? 'Ticked' : '—', yours === wanted, item ? item.reason : c.reason);
-    });
-
-    if (proposal.decision === 'conditions') {
-      section('Weight on the sponsor');
-      var b = evaluation.burden;
-      row('Total weight (maximum ' + b.max + ')', String(b.total), '—', b.total <= b.max,
-        'Too heavy: the sponsor takes the competitor\'s offer.');
-    }
-
     table.appendChild(body);
     return table;
+  }
+
+  // Conditions as the sponsor sees them: each one's verdict (points) and the
+  // patience it uses, with any cut to the amount or the tenor, and a gauge
+  // against the sponsor's limit. Conditions the best answer wanted but the
+  // player left out are listed as missed.
+  function conditionsCard(data, proposal, best, ev) {
+    if (proposal.decision === 'decline') return null;
+    var sponsor = data.rules.competition.sponsor || 'The sponsor';
+    var card = el('section', 'card patience-card');
+    card.appendChild(el('h2', null, 'Your conditions and ' + sponsor + '’s patience'));
+    var list = el('div', 'patience-list');
+    var head = el('div', 'patience-row patience-head');
+    ['What you asked for', 'Score', 'Patience used'].forEach(function (h) { head.appendChild(el('span', null, h)); });
+    list.appendChild(head);
+
+    function row(label, note, chipClass, chipText, cost) {
+      var r = el('div', 'patience-row');
+      var text = el('div');
+      text.appendChild(el('div', 'patience-label', label));
+      if (note) text.appendChild(el('div', 'patience-note', note));
+      r.appendChild(text);
+      r.appendChild(el('span', 'patience-chip ' + chipClass, chipText));
+      var dots = el('span', 'patience-dots');
+      for (var k = 0; k < cost; k++) dots.appendChild(el('span', 'patience-dot'));
+      if (!cost) dots.appendChild(el('span', 'muted small', '—'));
+      r.appendChild(dots);
+      list.appendChild(r);
+    }
+
+    var b = ev.burden;
+    var items = ev.conditions.items;
+    b.lines.forEach(function (l) {
+      var item = items.filter(function (i) { return i.label === l.label; })[0];
+      if (item) return;
+      row(l.label, null, 'chip-neutral', 'No points', l.burden);
+    });
+    items.forEach(function (i) {
+      var chip = i.points > 0 ? ['chip-good', '+' + i.points + ' point'] : i.points < 0 ? ['chip-bad', '−' + (-i.points) + ' point'] : ['chip-neutral', 'No points'];
+      row(i.label, i.reason, chip[0], chip[1], i.burden);
+    });
+    var bestSet = {};
+    best.conditions.forEach(function (id) { bestSet[id] = true; });
+    data.proposal.conditions.forEach(function (c) {
+      var ticked = proposal.decision === 'conditions' && proposal.conditions[c.id];
+      var wanted = c.redundantIfLoanAtMost !== undefined ? proposal.loan > c.redundantIfLoanAtMost + 1e-9 : !!bestSet[c.id];
+      if (ticked || !wanted) return;
+      row(c.label, c.reason, 'chip-missed', 'Missed', 0);
+    });
+    if (list.children.length === 1) row('No conditions', null, 'chip-neutral', 'No points', 0);
+    card.appendChild(list);
+
+    card.appendChild(el('div', 'patience-title', sponsor + '’s patience'));
+    var meter = el('div', 'patience-meter');
+    for (var k = 0; k < Math.max(b.max, b.total); k++) {
+      meter.appendChild(el('span', 'patience-slot' + (k < b.total ? (k < b.max ? ' is-used' : ' is-over') : '') + (k >= b.max ? ' is-extra' : '')));
+    }
+    card.appendChild(meter);
+    var ok = b.total <= b.max;
+    card.appendChild(el('p', 'patience-verdict ' + (ok ? 'is-ok' : 'is-over'), ok
+      ? b.total + ' of ' + b.max + ' used: ' + sponsor + ' would accept these terms.'
+      : b.total + ' of ' + b.max + ': too much for ' + sponsor + ', who would take the other offer.'));
+    return card;
   }
 
   function renderResult(opts) {
@@ -1155,18 +1195,7 @@
     hero.appendChild(gauges);
     root.appendChild(hero);
 
-    // 2. Your answer next to the best answer
-    var compare = el('section', 'card');
-    compare.appendChild(el('h2', null, 'Your answer vs the best answer'));
-    compare.appendChild(compareTable(data, opts.proposal, best, ev, opts.loanRange, opts.bestLoanRange));
-    if (best.note) compare.appendChild(el('p', 'best-note', best.note));
-    if (opts.proposal.justification) {
-      compare.appendChild(el('div', 'answer-label', 'Your justification'));
-      compare.appendChild(el('blockquote', 'doc-quote', opts.proposal.justification));
-    }
-    root.appendChild(compare);
-
-    // 3. Score: traps, decision, conditions, committee
+    // 2. Score: traps, decision, conditions, committee
     var card = el('section', 'card');
     card.appendChild(el('h2', null, 'Your score'));
     var trapPoints = ev.traps.reduce(function (s, t) { return s + t.points; }, 0);
@@ -1198,6 +1227,19 @@
       card.appendChild(trap);
     });
     root.appendChild(card);
+
+    // 3. Your answer next to the best answer, then the conditions and the sponsor's patience
+    var compare = el('section', 'card');
+    compare.appendChild(el('h2', null, 'Your answer vs the best answer'));
+    compare.appendChild(compareTable(data, opts.proposal, best, ev, opts.loanRange, opts.bestLoanRange));
+    if (best.note) compare.appendChild(el('p', 'best-note', best.note));
+    if (opts.proposal.justification) {
+      compare.appendChild(el('div', 'answer-label', 'Your justification'));
+      compare.appendChild(el('blockquote', 'doc-quote', opts.proposal.justification));
+    }
+    root.appendChild(compare);
+    var patience = conditionsCard(data, opts.proposal, best, ev);
+    if (patience) root.appendChild(patience);
 
     // 4. Committee: your answer next to what was expected
     var committee = el('section', 'card');
@@ -1249,11 +1291,7 @@
     });
     root.appendChild(committee);
 
-    // 5. Lesson
-    var lesson = lessonCard(data);
-    if (lesson) root.appendChild(lesson);
-
-    // 6. Full answer key, folded
+    // 5. Full answer key, folded
     var key = data.answerKey;
     var keyNode = el('details', 'card more');
     keyNode.appendChild(el('summary', null, 'Full answer key'));
@@ -1286,20 +1324,6 @@
     root.appendChild(keyNode);
 
     root.appendChild(resultNav(opts, false));
-  }
-
-  // Summary and lesson of the debrief, when the case has them.
-  function lessonCard(data) {
-    if (!data.debrief.summary && !data.debrief.lesson) return null;
-    var card = el('section', 'card lesson-card');
-    if (data.debrief.summary) card.appendChild(el('p', null, data.debrief.summary));
-    if (data.debrief.lesson) {
-      var l = el('p', 'lesson');
-      l.appendChild(el('strong', null, 'Lesson: '));
-      l.appendChild(document.createTextNode(data.debrief.lesson));
-      card.appendChild(l);
-    }
-    return card;
   }
 
   // Buttons shown above and below the result: back to the case (when there
@@ -1482,9 +1506,6 @@
       committee.appendChild(block);
     });
     root.appendChild(committee);
-
-    var lesson = lessonCard(data);
-    if (lesson) root.appendChild(lesson);
 
     root.appendChild(resultNav(opts, false));
   }
