@@ -1,0 +1,15 @@
+# Cloudflare Worker that grades committee answers with an LLM (see worker/index.js).
+# The API key is not here: it is a secret, set once with
+#   npx wrangler secret put LLM_API_KEY --config worker/wrangler.toml
+# and, for local tests, read from worker/.dev.vars (git-ignored).
+
+name = "credit-approved-grader"
+main = "index.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+LLM_URL = "https://api.groq.com/openai/v1/chat/completions"
+LLM_MODEL = "openai/gpt-oss-120b"
+LLM_REASONING = "low"
+CASES_URL = "https://jeanglt.github.io/Credit-Approved/cases/"
+ALLOWED_ORIGINS = "https://jeanglt.github.io,http://localhost:8000"

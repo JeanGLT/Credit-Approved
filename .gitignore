@@ -5,3 +5,6 @@ Comité de Crédit — Brief & plan d'action.md
 notes/
 node_modules/
 .env
+worker/.dev.vars
+.wrangler/
+worker/.wrangler/

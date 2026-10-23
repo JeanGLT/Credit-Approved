@@ -30,15 +30,12 @@ if (!files.length) files.push(path.join(__dirname, 'answers', 'case-01.json'));
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function callLLM(messages) {
+async function callLLM(prompt) {
   for (let attempt = 1; attempt <= 3; attempt++) {
     const res = await fetch(URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${KEY}` },
-      body: JSON.stringify(Object.assign(
-        { model: MODEL, messages, temperature: 0, response_format: { type: 'json_object' } },
-        REASONING ? { reasoning_effort: REASONING } : {}
-      ))
+      body: JSON.stringify(G.requestBody(prompt, MODEL, REASONING))
     });
     if (res.status === 429 && attempt < 3) {
       const wait = Number(res.headers.get('retry-after')) || 10;
@@ -74,7 +71,7 @@ async function main() {
       const prompt = G.buildPrompt(caseData, a.question, a.text);
       let grading;
       try {
-        const reply = await callLLM(prompt.messages);
+        const reply = await callLLM(prompt);
         tokens += reply.tokens;
         grading = G.parseGrading(reply.text, q, a.text);
       } catch (err) {

@@ -83,7 +83,21 @@
     return { ok: true, ideas: ideas, feedback: typeof data.feedback === 'string' ? data.feedback : '' };
   }
 
-  var GraderPrompt = { MAX_ANSWER: MAX_ANSWER, SYSTEM: SYSTEM, buildPrompt: buildPrompt, parseGrading: parseGrading };
+  // Body of the request to any LLM with the OpenAI chat format.
+  // `reasoning` (low, medium, high) is for reasoning models such as gpt-oss.
+  function requestBody(prompt, model, reasoning) {
+    var body = { model: model, messages: prompt.messages, temperature: 0, response_format: { type: 'json_object' } };
+    if (reasoning) body.reasoning_effort = reasoning;
+    return body;
+  }
+
+  var GraderPrompt = {
+    MAX_ANSWER: MAX_ANSWER,
+    SYSTEM: SYSTEM,
+    buildPrompt: buildPrompt,
+    parseGrading: parseGrading,
+    requestBody: requestBody
+  };
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = GraderPrompt;
